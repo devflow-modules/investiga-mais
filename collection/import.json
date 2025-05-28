@@ -1,0 +1,147 @@
+{
+  "info": {
+    "name": "Investiga Mais API",
+    "_postman_id": "investiga-mais-collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Registrar usuário",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"usuario@teste.com\",\n  \"senha\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/auth/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"usuario@teste.com\",\n  \"senha\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Salva token na variável de coleção",
+              "const data = pm.response.json();",
+              "if (data.token) {",
+              "  pm.collectionVariables.set(\"token\", data.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listar Consultas",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/consulta",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["consulta"]
+        }
+      }
+    },
+    {
+      "name": "Cadastrar Consulta",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Maria da Silva\",\n  \"cpf\": \"11122233344\",\n  \"cnpj\": \"12345678000190\",\n  \"status\": \"pendente\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/consulta",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["consulta"]
+        }
+      }
+    },
+    {
+      "name": "Recuperar Senha",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"usuario@teste.com\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/auth/recuperar",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "recuperar"]
+        }
+      }
+    },
+    {
+      "name": "Resetar Senha",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"INSIRA_TOKEN_AQUI\",\n  \"novaSenha\": \"novaSenha123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/auth/resetar-senha",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "resetar-senha"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

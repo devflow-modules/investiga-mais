@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Consulta {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  cpf       String   // Pessoa física que consultou
+  cnpj      String   // CNPJ consultado
+  status    String
+  criadoEm  DateTime @default(now())
+
+  @@index([cpf])
+  @@index([cnpj])
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  senha     String
+  criadoEm  DateTime @default(now())
+
+  tokenRecuperacao TokenRecuperacao[]  // 🔁 Relação 1:N com TokenRecuperacao
+  logRecuperacoes  LogRecuperacao[]    // 🔁 Relação 1:N com LogRecuperacao
+}
+
+model TokenRecuperacao {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  usuarioId  Int
+  criadoEm   DateTime @default(now())
+  expiracao  DateTime
+
+  Usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+}
+
+model LogRecuperacao {
+  id         Int      @id @default(autoincrement())
+  usuarioId  Int
+  ip         String
+  criadoEm   DateTime @default(now())
+
+  Usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+}
+
+model DadosCNPJ {
+  cnpj      String   @id
+  dados     Json
+  criadoEm  DateTime @default(now())
+}
