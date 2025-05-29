@@ -1,16 +1,11 @@
-export const metadata = {
-  title: 'Investiga Mais',
-  description: 'Solução digital para investigações de fraudes',
-}
+import { Providers } from './chakra-provider'
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-br">
-      <body>{children}</body>
+    <html lang="pt-br" suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
@@ -16,6 +17,7 @@ type Consulta = {
   cpf: string
   status: string
   criadoEm: string
+  criadoFormatado?: string // novo campo opcional
 }
 
 export default function Dashboard() {
@@ -57,7 +59,11 @@ export default function Dashboard() {
       if (!res.ok) throw new Error('Erro ao buscar consultas.')
 
       const data = await res.json()
-      setConsultas(data.resultados || [])
+      const formatado = data.resultados.map((c: Consulta) => ({
+        ...c,
+        criadoFormatado: new Date(c.criadoEm).toLocaleString('pt-BR'),
+      }))
+      setConsultas(formatado)
     } catch (err) {
       console.error(err)
     }
@@ -90,7 +96,7 @@ export default function Dashboard() {
                 <p><strong>Nome:</strong> {c.nome}</p>
                 <p><strong>CPF:</strong> {c.cpf}</p>
                 <p><strong>Status:</strong> {c.status}</p>
-                <p><strong>Data:</strong> {new Date(c.criadoEm).toLocaleString()}</p>
+                <p><strong>Data:</strong> {c.criadoFormatado}</p>
               </li>
             ))}
           </ul>
