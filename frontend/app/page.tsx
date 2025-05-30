@@ -9,14 +9,12 @@ import TargetAudience from './components/TargetAudience'
 import Testimonials from './components/Testimonials'
 import FAQ from './components/FAQ'
 import Footer from './components/Footer'
-import ThemeTest from './components/ThemeTest'
 
 export default function HomePage() {
   return (
     <Box bg="white" color="gray.800">
       <Header />
       <HeroSection />
-      <ThemeTest />
       <Features />
       <HowItWorks />
       <TargetAudience />
