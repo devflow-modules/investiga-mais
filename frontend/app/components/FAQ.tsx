@@ -17,8 +17,8 @@ import { useState } from 'react'
 
 const faqs = [
   {
-    q: 'Como faço para consultar um CNPJ?',
-    a: 'Você precisa estar logado na plataforma. Após o login, vá até a seção de consultas e insira o CNPJ desejado.',
+    q: 'Como faço para verificar se um site é confiável?',
+    a: 'Basta estar logado na plataforma. Depois, acesse a seção de consulta e informe o endereço do site ou nome da empresa que deseja investigar.'
   },
   {
     q: 'As consultas ficam salvas?',

@@ -12,12 +12,17 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FiUsers, FiBriefcase, FiUserCheck } from 'react-icons/fi'
+import { FiUsers, FiBriefcase, FiUserCheck, FiShoppingCart } from 'react-icons/fi'
 import { AiFillStar } from 'react-icons/ai'
 
 const MotionBox = motion(Box)
 
 const profiles = [
+  {
+    icon: FiShoppingCart,
+    label: 'Compradores online',
+    desc: 'Proteja seus dados antes de comprar online e evite fraudes financeiras.'
+  },
   {
     icon: FiUserCheck,
     label: 'Freelancers',
@@ -37,19 +42,34 @@ const profiles = [
 
 const testimonials = [
   {
+    name: 'Sandra A.',
+    role: 'Consumidora online experiente',
+    quote: 'Já quase comprei em um site falso. Agora sempre checo com o Investiga+ antes de fazer qualquer compra.'
+  },
+  {
+    name: 'Marcelo R.',
+    role: 'Usuário digital ativo',
+    quote: 'Hoje em dia tudo é online. Com o Investiga+ me sinto mais seguro para comprar e proteger meus dados.'
+  },
+  {
     name: 'Carlos M.',
-    role: 'Freelancer de TI',
+    role: 'Desenvolvedor autônomo',
     quote: 'Antes do Investiga+, já caí em duas fraudes. Hoje só negocio com quem eu consigo verificar — me sinto muito mais seguro.'
   },
   {
     name: 'Juliana R.',
-    role: 'Sócia em agência de marketing',
+    role: 'Empreendedora digital',
     quote: 'Usamos o Investiga+ para cada novo cliente. É rápido e nos protege de dores de cabeça futuras.'
   },
   {
     name: 'Eduardo V.',
-    role: 'Consultor de negócios B2B',
+    role: 'Especialista em vendas B2B',
     quote: 'Minhas recomendações agora têm muito mais segurança. O Investiga+ virou parte do meu processo.'
+  },
+  {
+    name: 'Rafael C.',
+    role: 'Gestor de e-commerce',
+    quote: 'Avalio todos os fornecedores antes de fechar negócio. O Investiga+ trouxe agilidade e confiança.'
   }
 ]
 
@@ -88,7 +108,7 @@ export default function TargetAudience() {
           Se você vende, presta serviços ou faz parcerias, precisa investigar antes de confiar. Ideal para profissionais e negócios que não podem correr riscos.
         </Text>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={8} mt={10} >
+        <SimpleGrid columns={{ base: 1, md: 4 }} gap={8} mt={10}>
           {profiles.map((p, i) => (
             <VStack
               key={i}
@@ -96,7 +116,6 @@ export default function TargetAudience() {
               p={6}
               borderRadius="lg"
               boxShadow="sm"
-              
               align="start"
             >
               <Icon as={p.icon} boxSize={6} color="blue.500" />
@@ -116,7 +135,7 @@ export default function TargetAudience() {
           mx="auto"
           textAlign="center"
         >
-          <AnimatePresence mode="wait" >
+          <AnimatePresence mode="wait">
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 10 }}

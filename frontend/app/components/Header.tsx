@@ -42,14 +42,17 @@ export default function Header() {
   return (
     <Box bg="white" px={4} boxShadow="sm" position="sticky" top="0" zIndex="999">
       <Flex h={16} align="center" justify="space-between" maxW="7xl" mx="auto">
-        <NextLink href="/" passHref>
-          <ChakraLink _hover={{ textDecoration: 'none' }}>
-            <HStack gap={2} align="center">
-              <Image src="/logo.png" alt="Logo" boxSize="32px" />
-              <Text fontWeight="bold" fontSize="xl" color="gray.800">INVESTIGA+</Text>
-            </HStack>
+          <ChakraLink
+            as={NextLink}
+            href="/"
+            _hover={{ textDecoration: 'none' }}
+            display="flex"
+            alignItems="center"
+            gap={2}
+          >
+            <Image src="/logo.png" alt="Logo" boxSize="32px" />
+            <Text fontWeight="bold" fontSize="xl" color="gray.800">INVESTIGA+</Text>
           </ChakraLink>
-        </NextLink>
 
         <HStack as="nav" display={{ base: 'none', md: 'flex' }} gap={4} align="center">
           {Links.map((link) => (

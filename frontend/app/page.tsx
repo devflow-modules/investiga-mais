@@ -9,6 +9,7 @@ import TargetAudience from './components/TargetAudience'
 import Testimonials from './components/Testimonials'
 import FAQ from './components/FAQ'
 import Footer from './components/Footer'
+import StatsSection from './components/StatsSection'
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
       <Features />
       <HowItWorks />
       <TargetAudience />
+      <StatsSection />
       <Testimonials />
       <FAQ />
       <Footer />
