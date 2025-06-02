@@ -10,6 +10,7 @@ import Testimonials from './components/Testimonials'
 import FAQ from './components/FAQ'
 import Footer from './components/Footer'
 import StatsSection from './components/StatsSection'
+import TrustSection from './components/TrustSection'
 
 export default function HomePage() {
   return (
@@ -19,6 +20,7 @@ export default function HomePage() {
       <Features />
       <HowItWorks />
       <TargetAudience />
+      <TrustSection/>
       <StatsSection />
       <Testimonials />
       <FAQ />
