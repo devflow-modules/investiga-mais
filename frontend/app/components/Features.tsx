@@ -123,6 +123,7 @@ export default function Features() {
             mx="auto"
             w={{ base: 'full', md: 'auto' }}
             colorScheme="green"
+            bg="green.400"
             size="lg"
             onClick={() => router.push('/login')}
             initial={{ opacity: 0, y: 20 }}
@@ -130,7 +131,7 @@ export default function Features() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            Começar agora — é grátis e leva menos de 1 minuto
+            Comece a Verificar Agora
           </MotionButton>
         </Box>
       </MotionBox>

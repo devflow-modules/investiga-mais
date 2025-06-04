@@ -23,6 +23,7 @@ model Usuario {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   senha     String
+  cpf       String   @unique
   criadoEm  DateTime @default(now())
 
   tokenRecuperacao TokenRecuperacao[]  // 🔁 Relação 1:N com TokenRecuperacao

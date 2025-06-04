@@ -2,13 +2,11 @@ const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev';
 
 function verifyToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
+  const token = req.cookies?.token;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ erro: 'Token não fornecido ou malformado' });
+  if (!token) {
+    return res.status(401).json({ erro: 'Token não fornecido' });
   }
-
-  const token = authHeader.replace('Bearer ', '').trim();
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);

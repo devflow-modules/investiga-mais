@@ -1,77 +1,111 @@
+const axios = require('axios')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const { validarCNPJ } = require('../utils/validacoes');
 
 exports.consultarCNPJ = async (req, res) => {
   const { cnpj } = req.params
-  const user = req.user // JWT decodificado (via middleware auth)
+  const { cpf } = req.user
+
+  if (!validarCNPJ(cnpj)) {
+    return res.status(400).json({ erro: 'CNPJ inválido. Verifique o número digitado.' })
+  }
 
   try {
-    const consulta = await prisma.consulta.findFirst({
-      where: {
-        cpf: user.cpf,
-        cnpj: cnpj
-      }
+    // 🔁 Verifica se o usuário já consultou esse CNPJ
+    const consultaExistente = await prisma.consulta.findFirst({
+      where: { cpf, cnpj }
     })
 
-    if (!consulta) {
-      return res.status(404).json({ sucesso: false, mensagem: 'Consulta não encontrada.' })
+    // 📦 Tenta pegar os dados do cache local
+    let dadosCNPJ = await prisma.dadosCNPJ.findUnique({
+      where: { cnpj }
+    })
+
+    // 🌐 Se não existe no cache, consulta a ReceitaWS
+    if (!dadosCNPJ) {
+      const receitaRes = await axios.get(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`)
+      const empresa = receitaRes.data
+
+      if (empresa.status === 'ERROR') {
+        return res.status(404).json({ erro: 'CNPJ não encontrado na base da ReceitaWS.' })
+      }
+
+      // 💾 Salva os dados brutos no cache
+      dadosCNPJ = await prisma.dadosCNPJ.create({
+        data: {
+          cnpj,
+          dados: empresa
+        }
+      })
     }
 
-    return res.json({ sucesso: true, dados: consulta })
+    // ✅ Cria a consulta para o usuário atual, se ainda não houver
+    let novaConsulta = consultaExistente
+    let consultado = true
+
+    if (!consultaExistente) {
+      novaConsulta = await prisma.consulta.create({
+        data: {
+          nome: dadosCNPJ.dados.nome || dadosCNPJ.dados.fantasia || 'Empresa não identificada',
+          cpf,
+          cnpj,
+          status: 'Pendente'
+        }
+      })
+      consultado = false
+    }
+
+    // ✅ Retorno completo ao frontend
+    return res.json({
+      sucesso: true,
+      consultado,
+      consulta: {
+        id: novaConsulta.id,
+        cpf: novaConsulta.cpf,
+        cnpj: novaConsulta.cnpj,
+        status: novaConsulta.status,
+        criadoEm: novaConsulta.criadoEm
+      },
+      empresa: dadosCNPJ.dados
+    })
   } catch (err) {
-    return res.status(500).json({ erro: 'Erro ao consultar CNPJ.' })
+    console.error('Erro ao consultar CNPJ:', err)
+    return res.status(500).json({ erro: 'Erro interno ao consultar CNPJ.' })
   }
 }
 
-exports.criarConsulta = async (req, res) => {
-  const { nome, cnpj, status } = req.body
-  const user = req.user
-
-  if (!nome || !cnpj || !status) {
-    return res.status(400).json({ erro: 'Campos obrigatórios: nome, cnpj, status' })
-  }
+/**
+ * Lista todas as consultas feitas pelo usuário autenticado.
+ */
+exports.listarConsultas = async (req, res) => {
+  const { cpf, email } = req.user
 
   try {
-    const novaConsulta = await prisma.consulta.create({
-      data: {
-        nome,
-        cpf: user.cpf,
-        cnpj,
-        status
+    const consultas = await prisma.consulta.findMany({
+      where: { cpf },
+      orderBy: { criadoEm: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        nome: true,
+        cpf: true,
+        cnpj: true,
+        status: true,
+        criadoEm: true,
       }
     })
-
-    return res.status(201).json({ sucesso: true, dados: novaConsulta })
-  } catch (err) {
-    return res.status(500).json({ erro: 'Erro ao criar consulta.' })
-  }
-}
-
-exports.listarConsultas = async (req, res) => {
-  const page = parseInt(req.query.page) || 1
-  const limit = parseInt(req.query.limit) || 10
-  const skip = (page - 1) * limit
-  const user = req.user
-
-  try {
-    const [total, consultas] = await Promise.all([
-      prisma.consulta.count({ where: { cpf: user.cpf } }),
-      prisma.consulta.findMany({
-        where: { cpf: user.cpf },
-        skip,
-        take: limit,
-        orderBy: { criadoEm: 'desc' }
-      })
-    ])
 
     return res.json({
       sucesso: true,
-      total,
-      page,
-      limit,
-      resultados: consultas
+      usuario: { cpf, email },
+      resultados: consultas.map((c) => ({
+        ...c,
+        criadoFormatado: new Date(c.criadoEm).toLocaleString('pt-BR')
+      }))
     })
   } catch (err) {
-    return res.status(500).json({ erro: 'Erro ao listar consultas.' })
+    console.error(`Erro ao listar consultas para CPF ${cpf}:`, err)
+    return res.status(500).json({ erro: 'Erro ao listar consultas' })
   }
 }
