@@ -16,6 +16,9 @@ import { FiltroStatus } from '../../components/dashboard/historico/FiltroStatus'
 import { ConsultaCard } from '../../components/dashboard/historico/ConsultaCard'
 import { ConsultaDrawerDetalhes } from '../../components/dashboard/historico/ConsultaDrawerDetalhes'
 import { useDebouncedValue } from '../../../src/hooks/useDebouncedValue'
+import { useSearchParams } from 'next/navigation'
+import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
+import { limparCNPJ } from '../../../../shared/formatters/formatters'
 
 interface Consulta {
   id: number
@@ -27,6 +30,9 @@ interface Consulta {
 }
 
 export default function Historico() {
+  const searchParams = useSearchParams()
+  const cnpjParam = searchParams.get('cnpj')
+
   const [consultas, setConsultas] = useState<Consulta[]>([])
   const [status, setStatus] = useState('')
   const [data, setData] = useState('')
@@ -36,6 +42,7 @@ export default function Historico() {
 
   const [page, setPage] = useState(1)
   const [totalPaginas, setTotalPaginas] = useState(1)
+  const [totalResultados, setTotalResultados] = useState(0)
   const limit = 5
 
   const [modalCnpj, setModalCnpj] = useState<string | null>(null)
@@ -48,36 +55,44 @@ export default function Historico() {
     buscarConsultas()
   }, [page, status, data, debouncedNome, debouncedCnpj])
 
+  useEffect(() => {
+    if (cnpjParam) {
+      console.log('[Historico] Detalhes solicitado via URL:', cnpjParam)
+      setModalCnpj(cnpjParam)
+    }
+  }, [cnpjParam])
+
   const buscarConsultas = async () => {
     setCarregando(true)
     console.log('[Historico] buscando consultas... page=', page)
 
-    try {
-      const res = await fetch(`/api/consulta?page=${page}&limit=${limit}`, {
-        credentials: 'include',
-      })
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    })
 
-      console.log('[Historico] /consulta status:', res.status)
+    if (status) queryParams.append('status', status)
+    if (data) queryParams.append('data', data)
+    if (debouncedNome) queryParams.append('nome', debouncedNome)
+    if (debouncedCnpj) queryParams.append('cnpj', limparCNPJ(debouncedCnpj))
 
-      const data = await res.json()
-      console.log('[Historico] /consulta response:', data)
+    const json = await apiFetchJSON(`/api/consulta?${queryParams.toString()}`)
 
-      setConsultas(data.resultados || [])
-      setTotalPaginas(Math.max(1, Math.ceil((data.total ?? data.resultados?.length ?? 0) / limit)))
-    } catch (err) {
-      console.error('[Historico] Erro ao buscar consultas', err)
-    } finally {
-      setCarregando(false)
+    if (json.success && Array.isArray(json.data?.resultados)) {
+      console.log('[Historico] /consulta response:', json)
+
+      setConsultas(json.data.resultados)
+      setTotalResultados(json.data.total ?? json.data.resultados?.length ?? 0)
+      setTotalPaginas(
+        Math.max(1, Math.ceil((json.data.total ?? json.data.resultados?.length ?? 0) / limit))
+      )
+    } else {
+      console.warn('[Historico] Erro ao buscar consultas:', json.error || json.message)
+      setConsultas([])
+      setTotalPaginas(1)
     }
-  }
 
-  const filtrar = (c: Consulta) => {
-    return (
-      (!status || c.status.toLowerCase() === status) &&
-      (!data || c.criadoEm.startsWith(data)) &&
-      (!debouncedNome || c.nome.toLowerCase().includes(debouncedNome.toLowerCase())) &&
-      (!debouncedCnpj || c.cnpj.includes(debouncedCnpj))
-    )
+    setCarregando(false)
   }
 
   return (
@@ -89,18 +104,30 @@ export default function Historico() {
           <Input
             placeholder="Buscar por nome"
             value={buscaNome}
-            onChange={(e) => setBuscaNome(e.target.value)}
+            onChange={(e) => {
+              setPage(1)
+              setBuscaNome(e.target.value)
+            }}
           />
           <Input
             placeholder="Buscar por CNPJ"
             value={buscaCnpj}
-            onChange={(e) => setBuscaCnpj(e.target.value)}
+            onChange={(e) => {
+              setPage(1)
+              setBuscaCnpj(e.target.value)
+            }}
           />
-          <FiltroStatus value={status} onChange={setStatus} />
+          <FiltroStatus value={status} onChange={(value) => {
+            setPage(1)
+            setStatus(value)
+          }} />
           <Input
             type="date"
             value={data}
-            onChange={(e) => setData(e.target.value)}
+            onChange={(e) => {
+              setPage(1)
+              setData(e.target.value)
+            }}
           />
         </SimpleGrid>
 
@@ -108,16 +135,16 @@ export default function Historico() {
           <Flex justify="center" align="center" py={10}>
             <Spinner size="lg" color="blue.500" />
           </Flex>
-        ) : consultas.filter(filtrar).length === 0 ? (
+        ) : consultas.length === 0 ? (
           <Text color="gray.600">Nenhuma consulta encontrada com os filtros aplicados.</Text>
         ) : (
           <>
             <Text mb={2} color="gray.600">
-              Mostrando {consultas.filter(filtrar).length} resultado(s)
+              {totalResultados} resultado(s) encontrados | Página {page} de {totalPaginas}
             </Text>
 
             <VStack gap={4} align="stretch">
-              {consultas.filter(filtrar).map((c) => (
+              {consultas.map((c) => (
                 <ConsultaCard key={c.id} consulta={c} onOpenDetalhes={() => setModalCnpj(c.cnpj)} />
               ))}
             </VStack>
@@ -143,7 +170,6 @@ export default function Historico() {
         )}
       </Box>
 
-      {/* Drawer de detalhes */}
       <ConsultaDrawerDetalhes
         cnpj={modalCnpj}
         isOpen={!!modalCnpj}

@@ -3,98 +3,97 @@
 import {
   Box,
   Button,
-  Flex,
   Heading,
   Input,
-  VStack,
-  Text,
-  useBreakpointValue,
+  SimpleGrid,
+  Text
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { validarCNPJ } from '../../../../shared/validators/frontend'
 import type { DadosEmpresaReceitaWS } from '../../../types/DadosEmpresaReceitaWS'
 import DetalhesEmpresa from '../../components/dashboard/consulta/DetalhesEmpresa'
-import DashboardLayout from '../../components/dashboard/DashboardLayoutContainer'
+import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
+import { limparCNPJ } from '../../../../shared/formatters/formatters'
 
 export default function ConsultaCNPJ() {
   const [cnpj, setCnpj] = useState('')
   const [mensagem, setMensagem] = useState('')
   const [erro, setErro] = useState('')
   const [dados, setDados] = useState<DadosEmpresaReceitaWS | null>(null)
-
-  const isMobile = useBreakpointValue({ base: true, md: false })
+  const [carregando, setCarregando] = useState(false)
 
   const buscar = async (e: React.FormEvent) => {
     e.preventDefault()
     setMensagem('')
     setErro('')
     setDados(null)
+    setCarregando(true)
 
-    const cnpjLimpo = cnpj.replace(/[^\d]+/g, '')
+    const cnpjLimpo = limparCNPJ(cnpj)
 
     if (!validarCNPJ(cnpjLimpo)) {
       setErro('CNPJ inválido')
+      setCarregando(false)
       return
     }
 
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/consulta/${cnpjLimpo}`, {
-        method: 'GET',
-        credentials: 'include', // Envia cookie
-      })
-      const json = await response.json()
-      if (json.sucesso && json.empresa) {
-        setDados(json.empresa)
-        setMensagem('Consulta realizada com sucesso.')
-      } else {
-        setErro('Empresa não encontrada.')
-      }
-    } catch {
-      setErro('Erro ao consultar CNPJ.')
+    const json = await apiFetchJSON(`/api/consulta/${cnpjLimpo}`, {
+      method: 'GET',
+    })
+
+    if (json.success && json.data?.empresa) {
+      setDados(json.data.empresa)
+      setMensagem(json.message || 'Consulta realizada com sucesso.')
+    } else {
+      setErro(json.error || json.message || 'Empresa não encontrada.')
     }
+
+    setCarregando(false)
   }
 
   return (
-    <DashboardLayout>
-      <Box px={{ base: 4, md: 10 }} py={6} w="full">
-        <Flex direction="column" maxW="5xl" mx="auto">
-          {/* Formulário */}
-          <Box
-            bg="white"
-            p={{ base: 6, md: 8 }}
-            rounded="lg"
-            shadow="md"
-            w="full"
-          >
-            <Heading size="md" mb={4}>
-              Consulta de CNPJ
-            </Heading>
+    <Box minH="100vh" bg="gray.50" py={10} px={6}>
+      <Box maxW="6xl" mx="auto" bg="white" p={8} rounded="lg" shadow="md">
+        <Heading size="lg" mb={6}>Consulta de CNPJ</Heading>
 
-            <form onSubmit={buscar}>
-              <VStack gap={4} align="stretch">
-                <Input
-                  value={cnpj}
-                  onChange={(e) => setCnpj(e.target.value)}
-                  placeholder="Digite o CNPJ"
-                  maxLength={18}
-                  required
-                />
-                <Button type="submit" colorScheme="blackAlpha" width="100%">
-                  Buscar
-                </Button>
-              </VStack>
-            </form>
+        <form onSubmit={buscar}>
+          <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mb={6}>
+            <Input
+              value={cnpj}
+              onChange={(e) => setCnpj(e.target.value)}
+              placeholder="Digite o CNPJ"
+              maxLength={18}
+              required
+            />
+            <Button
+              type="submit"
+              colorScheme="blue"
+              loading={carregando}
+              loadingText="Buscando..."
+              width="100%"
+            >
+              Buscar
+            </Button>
+          </SimpleGrid>
+        </form>
 
-            {erro && <Text color="red.500" mt={4}>{erro}</Text>}
-            {mensagem && <Text color="green.600" mt={4}>{mensagem}</Text>}
-          </Box>
+        {erro && (
+          <Text color="red.600" mb={4} fontWeight="medium">
+            {erro}
+          </Text>
+        )}
+        {mensagem && (
+          <Text color="green.600" mb={4} fontWeight="medium">
+            {mensagem}
+          </Text>
+        )}
 
-          {/* Resultado */}
-          {dados && (
+        {dados && (
+          <Box mt={6}>
             <DetalhesEmpresa dados={dados} />
-          )}
-        </Flex>
+          </Box>
+        )}
       </Box>
-    </DashboardLayout>
+    </Box>
   )
 }

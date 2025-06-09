@@ -1,46 +1,61 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
+require('dotenv').config()
+const express = require('express')
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
-const app = express();
+const app = express()
 
-app.use(express.json());
+app.use(express.json())
+
+// 🔥 CORS ajustado para aceitar frontend em localhost:3000
 app.use(cors({
-  origin: 'http://localhost:3001',
+  origin: 'http://localhost:3000',
   credentials: true
-}));
-app.use(cookieParser());
+}))
 
-// Middlewares
-const loginLimiter = require('./middleware/rateLimiter');
-const errorHandler = require('./middleware/errorHandler');
-const verifyToken = require('./middleware/auth');
+app.use(cookieParser())
 
-// Rotas públicas
-const authRoutes = require('./routes/authRoutes');
-const cnpjRoutes = require('./routes/cnpj');
-const webhookRoutes = require('./routes/webhookRoutes');
-const consultaRoutes = require('./routes/consultaRoutes');
+// Middlewares (importados via index.js)
+const {
+  verifyToken,
+  errorHandler,
+  limiterPerfil,
+  loginLimiter,
+  logger
+} = require('./middleware')
+
+
+// Rotas
+const authRoutes = require('./routes/authRoutes')
+const cnpjRoutes = require('./routes/cnpj')
+const webhookRoutes = require('./routes/webhookRoutes')
+const consultaRoutes = require('./routes/consultaRoutes')
 const perfilRoutes = require('./routes/perfilRoutes')
 
+// Rota de teste
 app.get('/', (req, res) => {
-  res.send('🔐 API Investiga Mais com autenticação JWT');
-});
+  res.send('🔐 API Investiga Mais com autenticação JWT')
+})
 
-app.use('/auth/login', loginLimiter);
-app.use('/auth', authRoutes);
-app.use('/cnpj', cnpjRoutes);
-app.use('/api', webhookRoutes, perfilRoutes);
+app.use(logger) // 👈 aplica o logger aqui
 
-// Rotas protegidas
-app.use('/consulta', verifyToken, consultaRoutes)
-app.use('/perfil', perfilRoutes)
+// 🟢 Rotas públicas sob /api
+app.use('/api/auth/login', loginLimiter)
+app.use('/api/auth', authRoutes)
+app.use('/api/cnpj', cnpjRoutes)
+app.use('/api/webhook', webhookRoutes)
 
-// Fallback e erro
+// 🟢 Rotas protegidas sob /api
+app.use('/api/consulta', verifyToken, consultaRoutes)
+app.use('/api/perfil', perfilRoutes)
+
+// Fallback 404 → com padrão sendError
+const { sendError } = require('../../shared/utils/sendResponse')
 app.use((req, res) => {
-  res.status(404).json({ erro: 'Rota não encontrada' });
-});
-app.use(errorHandler);
+  return sendError(res, 404, 'Rota não encontrada')
+})
 
-module.exports = app;
+// Error handler global
+app.use(errorHandler)
+
+module.exports = app

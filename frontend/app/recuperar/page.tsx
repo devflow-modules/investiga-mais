@@ -10,6 +10,7 @@ import {
   useBreakpointValue,
   Spinner,
 } from '@chakra-ui/react'
+import { apiFetchJSON } from '../../src/utils/apiFetchJSON'
 
 export default function RecuperarSenha() {
   const [email, setEmail] = useState('')
@@ -25,21 +26,17 @@ export default function RecuperarSenha() {
     setErro('')
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/recuperar`, {
+      const json = await apiFetchJSON('/api/auth/recuperar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
-        setMensagem(data.mensagem || 'Link enviado com sucesso.')
+      if (json.success) {
+        setMensagem(json.message || 'Link enviado com sucesso.')
       } else {
-        setErro(data.erro || 'Erro ao processar solicitação.')
+        setErro(json.error || json.message || 'Erro ao processar solicitação.')
       }
-    } catch (err) {
-      setErro('Erro ao conectar com o servidor.')
     } finally {
       setLoading(false)
     }

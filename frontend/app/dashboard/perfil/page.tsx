@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '../../../src/hooks/useAuth'
 import {
   Avatar,
-  AvatarFallback,
   Box,
   Button,
   Flex,
@@ -13,32 +12,47 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { CompletePerfilSection } from '@/components/dashboard/perfil/CompletePerfilSection'
+import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
+import { useLogout } from '../../../src/utils/logout'
+
+// função que gera uma cor pastel a partir do email
+const gerarCorAvatar = (email?: string) => {
+  if (!email) return 'gray.400'
+  let hash = 0
+  for (let i = 0; i < email.length; i++) {
+    hash = email.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const h = hash % 360
+  return `hsl(${h}, 60%, 70%)`
+}
 
 export default function Perfil() {
   const router = useRouter()
   const [usuario, setUsuario] = useState<{ email?: string; cpf?: string }>({})
   const [lastChecked, setLastChecked] = useState<string>('')
+  const { logout } = useLogout()
 
   useAuth() // garante proteção da rota
 
   useEffect(() => {
     const buscarPerfil = async () => {
-      try {
-        const res = await fetch('/api/auth/verify', {
-          credentials: 'include',
-        })
+      const json = await apiFetchJSON('/api/auth/verify')
 
-        console.log('[Perfil] /api/auth/verify status:', res.status)
+      // Se resposta 304 → considerar autenticado
+      const isAuthenticated = json.success && (json.statusCode === 304 || json.data?.usuario)
 
-        if (!res.ok) throw new Error('Token inválido')
-
-        const data = await res.json()
-        console.log('[Perfil] usuario autenticado:', data.usuario)
-
-        setUsuario(data.usuario || {})
+      if (isAuthenticated) {
+        if (json.statusCode === 304) {
+          console.log('[Perfil] usuario autenticado (304 cache), mantendo último usuário.')
+        } else {
+          console.log('[Perfil] usuario autenticado:', json.data?.usuario)
+          if (json.data?.usuario) {
+            setUsuario(json.data.usuario)
+          }
+        }
         setLastChecked(new Date().toLocaleString('pt-BR'))
-      } catch (err) {
-        console.error('[Perfil] Erro ao buscar perfil:', err)
+      } else {
+        console.warn('[Perfil] Erro ao buscar perfil:', json.error || json.message)
         router.replace('/login')
       }
     }
@@ -46,18 +60,12 @@ export default function Perfil() {
     buscarPerfil()
   }, [router])
 
+
   const formatarCPF = (cpf: string | undefined) => {
     if (!cpf || cpf.length !== 11) return cpf || ''
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
   }
 
-  const logout = async () => {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-    router.push('/login')
-  }
 
   return (
     <Box minH="100vh" bg="gray.50" py={10} px={6}>
@@ -74,11 +82,20 @@ export default function Perfil() {
 
         {/* Avatar + dados */}
         <Flex align="center" gap={4} mb={6}>
-          <Avatar.Root size="lg">
-            <AvatarFallback>
-              {usuario.email?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar.Root>
+          <Flex
+            w="48px"
+            h="48px"
+            borderRadius="full"
+            bg={gerarCorAvatar(usuario.email)}
+            color="white"
+            fontWeight="bold"
+            fontSize="xl"
+            align="center"
+            justify="center"
+            flexShrink={0}
+          >
+            {usuario.email?.charAt(0).toUpperCase()}
+          </Flex>
           <Box>
             <Text fontWeight="bold" fontSize="lg">
               {usuario.email}
@@ -88,6 +105,7 @@ export default function Perfil() {
             </Text>
           </Box>
         </Flex>
+
 
         {/* Divider fake */}
         <Box h="1px" w="full" bg="gray.200" my={4} borderRadius="full" />

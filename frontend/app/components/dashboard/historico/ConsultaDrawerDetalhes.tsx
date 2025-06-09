@@ -17,6 +17,14 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
+// IMPORTA OS FORMATTERS CENTRALIZADOS
+import {
+  formatarCNPJ,
+  formatarMoeda,
+  formatarDataHora,
+  limparCNPJ,
+} from '../../../../../shared/formatters/formatters'
+
 interface ConsultaDrawerDetalhesProps {
   cnpj: string | null
   isOpen: boolean
@@ -29,16 +37,16 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
 
   useEffect(() => {
     if (isOpen && cnpj) {
-      buscarDetalhes(cnpj)
+      buscarDetalhes(limparCNPJ(cnpj))
     }
   }, [isOpen, cnpj])
 
-  const buscarDetalhes = async (cnpj: string) => {
+  const buscarDetalhes = async (cnpjLimpo: string) => {
     setCarregando(true)
     setDadosEmpresa(null)
 
     try {
-      const res = await fetch(`/api/consulta/${cnpj}`, {
+      const res = await fetch(`/api/consulta/${cnpjLimpo}`, {
         credentials: 'include',
       })
 
@@ -54,21 +62,11 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
       setDadosEmpresa(data.empresa || null)
     } catch (err) {
       console.error('[ConsultaDrawerDetalhes] Erro ao buscar detalhes:', err)
+      setDadosEmpresa(null)
     } finally {
       setCarregando(false)
     }
   }
-
-  // Helpers
-
-  const formatarCNPJ = (cnpj: string) =>
-    cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5")
-
-  const formatarMoeda = (valor: number | string) =>
-    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(valor))
-
-  const formatarDataHora = (dataIso: string) =>
-    new Date(dataIso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 
   const DividerLine = () => (
     <Box h="1px" w="full" bg="gray.200" my={2} />
@@ -97,7 +95,7 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
             📄 Detalhes da Empresa
             {cnpj && (
               <Text fontSize="sm" color="gray.500" mt={1}>
-                CNPJ: {formatarCNPJ(cnpj)}
+                CNPJ: {formatarCNPJ(limparCNPJ(cnpj))}
               </Text>
             )}
           </DrawerHeader>
@@ -167,7 +165,6 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
                   </Text>
                 </Box>
 
-                {/* Botão Fechar mobile friendly */}
                 <Button mt={6} onClick={onClose} w="full" variant="outline" colorScheme="gray">
                   Fechar
                 </Button>

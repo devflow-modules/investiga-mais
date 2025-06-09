@@ -1,46 +1,120 @@
 const axios = require('axios')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const { validarCNPJ } = require('../../../shared/validators/backend');
+const { validarCNPJ } = require('../../../shared/validators/backend')
+const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
 
+/**
+ * Sleep helper
+ */
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Consulta a ReceitaWS com retry para 429
+ */
+async function consultarReceitaWSComRetry(cnpj, maxRetries = 2, delayMs = 1000) {
+  let attempt = 0
+
+  while (attempt <= maxRetries) {
+    try {
+      console.log(`[ReceitaWS] Tentativa ${attempt + 1} para CNPJ ${cnpj}`)
+
+      const receitaRes = await axios.get(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`)
+      
+      console.log(`[ReceitaWS] Status: ${receitaRes.status}`)
+
+      return receitaRes.data
+    } catch (err) {
+      const status = err.response?.status
+      const message = err.response?.statusText
+      const data = err.response?.data
+
+      console.error(`[ReceitaWS] Erro tentativa ${attempt + 1} | Status: ${status} | Message: ${message}`)
+      if (data) {
+        console.error(`[ReceitaWS] Response body:`, data)
+      }
+
+      // Se 429 → tenta novamente após delay
+      if (status === 429 && attempt < maxRetries) {
+        console.warn(`[ReceitaWS] 429 - aguardando ${delayMs}ms para nova tentativa...`)
+        await sleep(delayMs)
+        attempt++
+        continue
+      }
+
+      // Se 404 → lança erro para ser tratado no controller
+      if (status === 404 && data?.message === 'not in cache') {
+        throw new Error('NOT_IN_CACHE')
+      }
+
+      // Outro erro → lança erro genérico
+      throw new Error('API_ERROR')
+    }
+  }
+
+  throw new Error('MAX_RETRIES_EXCEEDED')
+}
+
+/**
+ * Controller consultar CNPJ
+ */
 exports.consultarCNPJ = async (req, res) => {
   const { cnpj } = req.params
   const { cpf } = req.user
 
   if (!validarCNPJ(cnpj)) {
-    return res.status(400).json({ erro: 'CNPJ inválido. Verifique o número digitado.' })
+    return sendError(res, 400, 'CNPJ inválido. Verifique o número digitado.')
   }
 
   try {
-    // 🔁 Verifica se o usuário já consultou esse CNPJ
+    // Verifica se o usuário já consultou esse CNPJ
     const consultaExistente = await prisma.consulta.findFirst({
       where: { cpf, cnpj }
     })
 
-    // 📦 Tenta pegar os dados do cache local
+    // Tenta pegar os dados do cache
     let dadosCNPJ = await prisma.dadosCNPJ.findUnique({
       where: { cnpj }
     })
 
-    // 🌐 Se não existe no cache, consulta a ReceitaWS
     if (!dadosCNPJ) {
-      const receitaRes = await axios.get(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`)
-      const empresa = receitaRes.data
+      console.log(`[ReceitaWS] Cache não encontrado para CNPJ ${cnpj}`)
 
-      if (empresa.status === 'ERROR') {
-        return res.status(404).json({ erro: 'CNPJ não encontrado na base da ReceitaWS.' })
+      let empresa
+
+      try {
+        empresa = await consultarReceitaWSComRetry(cnpj)
+      } catch (error) {
+        if (error.message === 'NOT_IN_CACHE') {
+          return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.')
+        }
+
+        if (error.message === 'MAX_RETRIES_EXCEEDED') {
+          return sendError(res, 429, 'Limite de consultas da ReceitaWS atingido. Tente novamente mais tarde.')
+        }
+
+        console.error(`[ReceitaWS] Erro inesperado:`, error)
+        return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.')
       }
 
-      // 💾 Salva os dados brutos no cache
+      if (empresa.status === 'ERROR') {
+        return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.')
+      }
+
+      // Salva os dados no cache
       dadosCNPJ = await prisma.dadosCNPJ.create({
         data: {
           cnpj,
           dados: empresa
         }
       })
+
+      console.log(`[ReceitaWS] Cache criado para CNPJ ${cnpj}`)
+    } else {
+      console.log(`[ReceitaWS] Usando cache para CNPJ ${cnpj}`)
     }
 
-    // ✅ Cria a consulta para o usuário atual, se ainda não houver
+    // Cria a consulta se ainda não houver
     let novaConsulta = consultaExistente
     let consultado = true
 
@@ -56,9 +130,8 @@ exports.consultarCNPJ = async (req, res) => {
       consultado = false
     }
 
-    // ✅ Retorno completo ao frontend
-    return res.json({
-      sucesso: true,
+    // Retorno completo
+    return sendSuccess(res, {
       consultado,
       consulta: {
         id: novaConsulta.id,
@@ -71,7 +144,10 @@ exports.consultarCNPJ = async (req, res) => {
     })
   } catch (err) {
     console.error('Erro ao consultar CNPJ:', err)
-    return res.status(500).json({ erro: 'Erro interno ao consultar CNPJ.' })
+    return sendError(res, 500, 'Erro interno ao consultar CNPJ.', {
+      consulta: null,
+      empresa: null
+    })
   }
 }
 
@@ -79,13 +155,56 @@ exports.consultarCNPJ = async (req, res) => {
  * Lista todas as consultas feitas pelo usuário autenticado.
  */
 exports.listarConsultas = async (req, res) => {
-  const { cpf, email } = req.user
+  const { cpf, email, nome } = req.user  // ✅ incluir nome
+  const {
+    page = 1,
+    limit = 5,
+    status,
+    data,
+    nome: filtroNome,
+    cnpj
+  } = req.query
 
   try {
+    // monta filtro dinâmico
+    const where = { cpf }
+
+    if (status) {
+      where.status = status.toLowerCase()
+    }
+
+    if (data) {
+      // filtra data no campo criadoEm → apenas YYYY-MM-DD
+      const start = new Date(`${data}T00:00:00.000Z`)
+      const end = new Date(`${data}T23:59:59.999Z`)
+      where.criadoEm = {
+        gte: start,
+        lte: end
+      }
+    }
+
+    if (filtroNome) {
+      where.nome = {
+        contains: filtroNome,
+        mode: 'insensitive' // busca case-insensitive
+      }
+    }
+
+    if (cnpj) {
+      where.cnpj = {
+        contains: cnpj.replace(/[^\d]+/g, '') // limpa máscara e faz contains
+      }
+    }
+
+    // Conta total (para paginação)
+    const total = await prisma.consulta.count({ where })
+
+    // Busca paginada
     const consultas = await prisma.consulta.findMany({
-      where: { cpf },
+      where,
       orderBy: { criadoEm: 'desc' },
-      take: 50,
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
       select: {
         id: true,
         nome: true,
@@ -96,9 +215,9 @@ exports.listarConsultas = async (req, res) => {
       }
     })
 
-    return res.json({
-      sucesso: true,
-      usuario: { cpf, email },
+    return sendSuccess(res, {
+      usuario: { cpf, email, nome },  // ✅ incluir nome no retorno
+      total,
       resultados: consultas.map((c) => ({
         ...c,
         criadoFormatado: new Date(c.criadoEm).toLocaleString('pt-BR')
@@ -106,6 +225,11 @@ exports.listarConsultas = async (req, res) => {
     })
   } catch (err) {
     console.error(`Erro ao listar consultas para CPF ${cpf}:`, err)
-    return res.status(500).json({ erro: 'Erro ao listar consultas' })
+
+    return sendError(res, 500, 'Erro ao listar consultas', {
+      usuario: { cpf, email, nome },  // manter consistência mesmo em erro
+      total: 0,
+      resultados: []
+    })
   }
 }

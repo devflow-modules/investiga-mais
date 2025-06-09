@@ -13,18 +13,18 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import DetalhesEmpresa from './consulta/DetalhesEmpresa'
-import type { Consulta, DadosEmpresaReceitaWS } from '@types'
+import type { Consulta } from '@types'
+import { formatarCNPJ, formatarCPF } from '@shared/formatters/formatters'
+import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
+import { useLogout } from '../../../src/utils/logout'
 
 export default function HomePage() {
   const router = useRouter()
   const [usuario, setUsuario] = useState<string | null>(null)
   const [consultas, setConsultas] = useState<Consulta[]>([])
-  const [detalhes, setDetalhes] = useState<DadosEmpresaReceitaWS | null>(null)
-  const [carregandoDetalhes, setCarregandoDetalhes] = useState(false)
   const [carregandoConsultas, setCarregandoConsultas] = useState(true)
+  const { logout } = useLogout()
 
-  const cacheDetalhes = useRef<Record<string, DadosEmpresaReceitaWS>>({})
   const isMobile = useBreakpointValue({ base: true, md: false })
 
   useEffect(() => {
@@ -33,78 +33,41 @@ export default function HomePage() {
   }, [])
 
   const fetchConsultas = async () => {
-    try {
-      const res = await fetch('/api/consulta', {
-        credentials: 'include',
-      })
+    setCarregandoConsultas(true)
 
-      console.log('[HomePage] Status fetch /consulta:', res.status)
+    const json = await apiFetchJSON('/api/consulta')
 
-      if (res.status === 401 || res.status === 403) {
-        console.warn('[HomePage] Redirecionando por token inválido')
-        router.replace('/login')
-        return
-      }
+    if (json.success && Array.isArray(json.data?.resultados)) {
+      console.log('[DEBUG] Resultados recebidos:', json.data.resultados)
 
-
-      const data = await res.json()
-      console.log('[DEBUG] Resultados recebidos:', data.resultados)
-
-      const formatado = data.resultados.map((c: Consulta): Consulta => ({
+      const formatado = json.data.resultados.map((c: Consulta): Consulta => ({
         ...c,
         criadoFormatado: new Date(c.criadoEm).toLocaleString('pt-BR'),
       }))
-      console.log('[DEBUG] Formatado:', formatado)
 
       setConsultas(formatado)
-      setUsuario(data.usuario?.email || 'Usuário')
-    } catch (err) {
-      console.error('[HomePage] Erro no fetch /consulta:', err)
+
+      const nome = json.data?.usuario?.nome
+      const email = json.data?.usuario?.email
+
+      setUsuario(nome?.trim() ? nome : email || 'Usuário')
+    } else {
+      console.warn('[HomePage] Erro ao buscar consultas, redirecionando para login')
       router.replace('/login')
-    } finally {
-      setCarregandoConsultas(false)
     }
+
+    setCarregandoConsultas(false)
   }
 
-  const verDetalhes = async (cnpj: string) => {
-    if (cacheDetalhes.current[cnpj]) {
-      setDetalhes(cacheDetalhes.current[cnpj])
-      return
-    }
-
-    setCarregandoDetalhes(true)
-    try {
-      const res = await fetch(`/api/consulta/cnpj/${cnpj}`, {
-        credentials: 'include',
-      })
-      const json = await res.json()
-      if (json.sucesso && json.empresa) {
-        cacheDetalhes.current[cnpj] = json.empresa
-        setDetalhes(json.empresa)
-      } else {
-        setDetalhes(null)
-      }
-    } catch (err) {
-      console.error('Erro ao buscar detalhes da empresa', err)
-      setDetalhes(null)
-    } finally {
-      setCarregandoDetalhes(false)
-    }
-  }
-
-  const logout = async () => {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-    router.push('/login')
+  const verDetalhes = (cnpj: string) => {
+    router.push(`/dashboard/historico?cnpj=${cnpj}`)
   }
 
   return (
-    <Box bg="background" minH="100vh" py={10} px={6}>
+    <Box bg="gray.50" minH="100vh" py={10} px={6}>
       <Box maxW="6xl" mx="auto" bg="white" p={6} rounded="xl" shadow="md">
         <Flex justify="space-between" align="center" mb={6} wrap="wrap">
-          <Heading fontSize="2xl" color="textPrimary">
+          <Heading fontSize="2xl" color="gray.800">
             Painel do Usuário
           </Heading>
           <Button colorScheme="red" onClick={logout} size="sm" mt={{ base: 4, md: 0 }}>
@@ -112,15 +75,19 @@ export default function HomePage() {
           </Button>
         </Flex>
 
-        <Text color="textSecondary" mb={6}>
+        <Text color="gray.600" mb={6}>
           Olá,{' '}
-          <Text as="span" fontWeight="bold" color="textPrimary">
-            {usuario}
+          <Text as="span" fontWeight="bold" color="gray.800">
+            {carregandoConsultas ? (
+              <Spinner size="xs" color="blue.500" />
+            ) : (
+              usuario
+            )}
           </Text>{' '}
           👋
         </Text>
 
-        <Heading fontSize="xl" color="accent" mb={4}>
+        <Heading fontSize="xl" color="blue.600" mb={4}>
           Últimas Consultas
         </Heading>
 
@@ -129,39 +96,70 @@ export default function HomePage() {
             <Spinner size="lg" color="blue.500" />
           </Flex>
         ) : consultas.length === 0 ? (
-          <Text color="gray.500">Nenhuma consulta encontrada.</Text>
+          <Text color="gray.500" textAlign="center" mt={8}>
+            Nenhuma consulta encontrada ainda.{' '}
+            <Link
+              href="/dashboard/consulta"
+              color="blue.500"
+              fontWeight="bold"
+              _hover={{ textDecoration: 'underline' }}
+            >
+              Comece sua primeira consulta →
+            </Link>
+          </Text>
         ) : (
-          <Stack gap={4}>
-            {consultas.map((consulta) => (
-              <Box key={consulta.id} p={4} bg="gray.50" rounded="md" borderWidth="1px">
-                <Text><strong>Nome:</strong> {consulta.nome}</Text>
-                <Text><strong>CPF:</strong> {consulta.cpf}</Text>
-                <Text><strong>Status:</strong> {consulta.status}</Text>
-                <Text><strong>Data:</strong> {consulta.criadoFormatado}</Text>
-                <Link
-                  as="button"
-                  mt={2}
-                  color="blue.500"
-                  fontWeight="medium"
-                  onClick={() => verDetalhes(consulta.cnpj)}
-                  _hover={{ textDecoration: 'underline' }}
+          <Stack gap={4} mt={4}>
+            {consultas
+              .slice()
+              .sort((a, b) => new Date(b.criadoEm).getTime() - new Date(a.criadoEm).getTime())
+              .map((consulta) => (
+                <Box
+                  key={consulta.id}
+                  p={4}
+                  bg="gray.50"
+                  rounded="lg"
+                  borderWidth="1px"
+                  shadow="sm"
+                  transition="all 0.2s ease"
+                  _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
                 >
-                  Ver detalhes
-                </Link>
-              </Box>
-            ))}
-          </Stack>
-        )}
+                  <Flex justify="space-between" align="center" mb={2}>
+                    <Text fontWeight="bold" fontSize="md">
+                      {consulta.nome}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color={
+                        consulta.status.toLowerCase() === 'consultado'
+                          ? 'green.600'
+                          : consulta.status.toLowerCase() === 'pendente'
+                            ? 'yellow.600'
+                            : 'red.600'
+                      }
+                    >
+                      {consulta.status}
+                    </Text>
+                  </Flex>
 
-        {carregandoDetalhes && (
-          <Flex justify="center" mt={6}>
-            <Spinner size="lg" color="accent" />
-          </Flex>
-        )}
-        {detalhes && (
-          <Box mt={10}>
-            <DetalhesEmpresa dados={detalhes} />
-          </Box>
+                  <Text fontSize="sm" color="gray.600" mb={1}>
+                    CNPJ: {formatarCNPJ(consulta.cnpj)}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600" mb={3}>
+                    Data: {consulta.criadoFormatado}
+                  </Text>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    colorScheme="blue"
+                    onClick={() => verDetalhes(consulta.cnpj)}
+                  >
+                    Ver detalhes
+                  </Button>
+                </Box>
+              ))}
+          </Stack>
         )}
       </Box>
     </Box>

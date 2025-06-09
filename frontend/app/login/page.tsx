@@ -1,5 +1,6 @@
 'use client'
 
+import { apiFetchJSON } from '../../src/utils/apiFetchJSON'
 import { useRouter } from 'next/navigation'
 import {
   Box,
@@ -39,28 +40,24 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const json = await apiFetchJSON('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(data),
       })
 
-      const json = await res.json()
-
-      if (json.sucesso) {
+      if (json.success) {
         console.log('✅ Login bem-sucedido, redirecionando...')
         router.push('/dashboard')
         router.refresh() // Garante revalidação do middleware + layout
       } else {
-        setErroApi(json.erro || 'Erro ao fazer login.')
+        setErroApi(json.error || json.message || 'Erro ao fazer login.')
       }
-    } catch {
-      setErroApi('Erro ao conectar com o servidor.')
     } finally {
       setLoading(false)
     }
   }
+
 
   return (
     <Box

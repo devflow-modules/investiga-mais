@@ -1,16 +1,20 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
 
+/**
+ * Atualiza o perfil do usuário autenticado.
+ */
 exports.atualizarPerfil = async (req, res) => {
-  const { nome, telefone, nascimento, cidade, uf, genero } = req.body;
-  const usuarioId = req.user.usuarioId;
+  const { nome, telefone, nascimento, cidade, uf, genero } = req.body
+  const usuarioId = req.user.usuarioId
 
   try {
-    // Primeiro busca o usuário para ver se já tem bônus concedido
+    // Busca o usuário atual para verificar se já possui bônus
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: { bonusConcedidoAt: true }
-    });
+    })
 
     const atualizacao = {
       nome,
@@ -19,31 +23,41 @@ exports.atualizarPerfil = async (req, res) => {
       cidade,
       uf,
       genero
-    };
+    }
 
-    // Se o bônus ainda não foi concedido e o usuário completou o perfil
-    if (!usuario.bonusConcedidoAt && nome && telefone && nascimento && cidade && uf && genero) {
-      atualizacao.bonusConcedidoAt = new Date();
+    // Se o bônus ainda não foi concedido e o perfil estiver completo
+    if (
+      !usuario.bonusConcedidoAt &&
+      nome &&
+      telefone &&
+      nascimento &&
+      cidade &&
+      uf &&
+      genero
+    ) {
+      atualizacao.bonusConcedidoAt = new Date()
     }
 
     await prisma.usuario.update({
       where: { id: usuarioId },
       data: atualizacao
-    });
+    })
 
-    return res.json({
-      sucesso: true,
+    return sendSuccess(res, {
       mensagem: 'Perfil atualizado com sucesso',
       bonusConcedido: !!atualizacao.bonusConcedidoAt
-    });
+    })
   } catch (err) {
-    console.error('[Perfil] Erro ao atualizar perfil:', err);
-    res.status(500).json({ erro: 'Erro ao atualizar perfil' });
+    console.error('[Perfil] Erro ao atualizar perfil:', err)
+    return sendError(res, 500, 'Erro ao atualizar perfil')
   }
-};
+}
 
+/**
+ * Retorna o perfil do usuário autenticado.
+ */
 exports.obterPerfil = async (req, res) => {
-  const usuarioId = req.user.usuarioId;
+  const usuarioId = req.user.usuarioId
 
   try {
     const usuario = await prisma.usuario.findUnique({
@@ -59,24 +73,27 @@ exports.obterPerfil = async (req, res) => {
         genero: true,
         bonusConcedidoAt: true
       }
-    });
+    })
+
+    if (!usuario) {
+      return sendError(res, 404, 'Usuário não encontrado')
+    }
 
     const nomeFormatado = usuario.nome
       ? usuario.nome
           .split(' ')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
           .join(' ')
-      : '';
+      : ''
 
-    return res.json({
-      sucesso: true,
+    return sendSuccess(res, {
       usuario: {
         ...usuario,
         nome: nomeFormatado
       }
-    });
+    })
   } catch (err) {
-    console.error('[Perfil] Erro ao obter perfil:', err);
-    res.status(500).json({ erro: 'Erro ao obter perfil' });
+    console.error('[Perfil] Erro ao obter perfil:', err)
+    return sendError(res, 500, 'Erro ao obter perfil')
   }
-};
+}

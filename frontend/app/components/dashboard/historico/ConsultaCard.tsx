@@ -1,6 +1,7 @@
 'use client'
 
 import { Badge, Box, Button, Flex, HStack, Text, useBreakpointValue } from '@chakra-ui/react'
+import { formatarCNPJ } from '../../../../../shared/formatters/formatters'
 
 interface ConsultaCardProps {
   consulta: {
@@ -49,7 +50,7 @@ export function ConsultaCard({ consulta, onOpenDetalhes }: ConsultaCardProps) {
       {/* CNPJ */}
       <HStack gap={2} mb={2}>
         <Text fontWeight="semibold">CNPJ:</Text>
-        <Text color="gray.700">{consulta.cnpj}</Text>
+        <Text color="gray.700">{formatarCNPJ(consulta.cnpj)}</Text> 
       </HStack>
 
       {/* Data */}

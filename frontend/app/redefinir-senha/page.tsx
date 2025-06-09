@@ -15,6 +15,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { apiFetchJSON } from '../../src/utils/apiFetchJSON'
 
 const schema = z
   .object({
@@ -57,22 +58,18 @@ export default function RedefinirSenha() {
     setErro('')
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resetar-senha`, {
+      const json = await apiFetchJSON('/api/auth/resetar-senha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, novaSenha: data.novaSenha }),
       })
 
-      const result = await res.json()
-
-      if (res.ok) {
-        setMensagem(result.mensagem || 'Senha redefinida com sucesso!')
+      if (json.success) {
+        setMensagem(json.message || 'Senha redefinida com sucesso!')
         setTimeout(() => router.push('/login'), 2500)
       } else {
-        setErro(result.erro || 'Erro ao redefinir senha')
+        setErro(json.error || json.message || 'Erro ao redefinir senha.')
       }
-    } catch {
-      setErro('Erro ao conectar com o servidor.')
     } finally {
       setLoading(false)
     }

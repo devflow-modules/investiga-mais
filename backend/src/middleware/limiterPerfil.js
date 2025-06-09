@@ -1,3 +1,5 @@
+const { sendError } = require('../../../shared/utils/sendResponse')
+
 const rateLimit = {}
 
 module.exports = (req, res, next) => {
@@ -10,7 +12,7 @@ module.exports = (req, res, next) => {
   const delayMs = 2000 // 2 segundos entre chamadas
 
   if (now - lastCall < delayMs) {
-    return res.status(429).json({ erro: 'Aguarde antes de tentar novamente' })
+    return sendError(res, 429, 'Aguarde antes de tentar novamente')
   }
 
   rateLimit[usuarioId] = now
