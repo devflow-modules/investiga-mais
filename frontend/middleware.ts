@@ -2,11 +2,17 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get('token')?.value || req.headers.get('authorization')?.replace('Bearer ', '') || ''
+  const tokenFromCookie = req.cookies.get('token')?.value
+  console.log(req.nextUrl.pathname)
 
-  const isProtectedRoute = req.nextUrl.pathname.startsWith('/dashboard')
+  const protectedPaths = ['/dashboard', '/admin', '/painel']
+  const path = req.nextUrl.pathname
+  const isProtected = protectedPaths.some((prefix) => path.startsWith(prefix))
 
-  if (isProtectedRoute && !token) {
+  console.log('[MIDDLEWARE] token encontrado:', tokenFromCookie)
+
+
+  if (isProtected && !tokenFromCookie) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
@@ -14,9 +20,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/dashboard',
-    '/admin',
-    '/painel/:path*'
-  ]
+  matcher: ['/dashboard/:path*', '/admin/:path*', '/painel/:path*'],
 }

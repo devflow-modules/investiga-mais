@@ -2,51 +2,58 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { validarEmail, validarSenha} = require('../../../shared/validators/backend')
 
 const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev';
 
-exports.registrar = async (req, res) => {
-  const { email, senha, cpf } = req.body;
-
-  if (!email || !senha || !cpf) {
-    return res.status(400).json({ erro: 'Email, senha e CPF obrigatórios.' });
-  }
-
-  try {
-    const hash = await bcrypt.hash(senha, 10);
-    const novoUsuario = await prisma.usuario.create({
-      data: { email, senha: hash }
-    });
-
-    return res.status(201).json({ sucesso: true, usuario: novoUsuario.email });
-  } catch (err) {
-    if (err.code === 'P2002') {
-      return res.status(409).json({ erro: 'Email já registrado.' });
-    }
-    return res.status(500).json({ erro: 'Erro ao registrar usuário.' });
-  }
-};
-
-exports.login = async (req, res) => {
-  const { email, senha } = req.body;
+exports.login = async (req, res, next) => {
+  let { email, senha } = req.body;
 
   if (!email || !senha) {
     return res.status(400).json({ erro: 'Email e senha obrigatórios.' });
   }
 
+  if (!validarEmail(email) || !validarSenha(senha)) {
+    return res.status(400).json({ erro: 'Formato de e-mail ou senha inválido.' });
+  }
+
+  email = email.toLowerCase();
+
   try {
     const usuario = await prisma.usuario.findUnique({ where: { email } });
 
     if (!usuario || !(await bcrypt.compare(senha, usuario.senha))) {
-      return res.status(401).json({ erro: 'Credenciais inválidas.' });
+      return res.status(401).json({ erro: 'CREDENCIAIS_INVALIDAS' });
     }
 
-    const token = jwt.sign({ usuarioId: usuario.id, email: usuario.email }, SECRET_KEY, {
-      expiresIn: '1d'
-    });
+    const token = jwt.sign(
+      { usuarioId: usuario.id, email: usuario.email, cpf: usuario.cpf },
+      SECRET_KEY,
+      { expiresIn: '1d' }
+    );
 
-    return res.json({ sucesso: true, token });
+    // 🔐 Define o token como cookie HTTP-only
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false, // 👈 deve estar false em desenvolvimento
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24
+    })
+
+
+    return res.json({
+      sucesso: true,
+      usuario: {
+        id: usuario.id,
+        email: usuario.email,
+      },
+    });
   } catch (err) {
-    return res.status(500).json({ erro: 'Erro ao fazer login.' });
+    next(err);
   }
+};
+
+exports.logout = (req, res) => {
+  res.setHeader('Set-Cookie', 'token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax;')
+  return res.redirect('/login')
 };

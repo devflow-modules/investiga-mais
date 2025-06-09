@@ -1,46 +1,180 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+
+import { useState } from 'react'
+import {
+  Box,
+  Button,
+  Input,
+  VStack,
+  Text,
+  useBreakpointValue,
+  Spinner,
+} from '@chakra-ui/react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
+
+const schema = z
+  .object({
+    novaSenha: z
+      .string()
+      .min(6, 'A senha deve ter no mínimo 6 caracteres')
+      .regex(/[A-Za-z]/, 'Deve conter letras')
+      .regex(/\d/, 'Deve conter números')
+      .regex(/[^A-Za-z0-9]/, 'Deve conter um símbolo'),
+    confirmarSenha: z.string(),
+  })
+  .refine((data) => data.novaSenha === data.confirmarSenha, {
+    message: 'As senhas não coincidem',
+    path: ['confirmarSenha'],
+  })
+
+type FormData = z.infer<typeof schema>
 
 export default function RedefinirSenha() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
-  const [novaSenha, setNovaSenha] = useState('')
   const [mensagem, setMensagem] = useState('')
+  const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
-  const redefinir = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({ resolver: zodResolver(schema) })
 
-    const res = await fetch('http://localhost:3001/auth/resetar-senha', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, novaSenha }),
-    })
+  const onSubmit = async (data: FormData) => {
+    setLoading(true)
+    setMensagem('')
+    setErro('')
 
-    const data = await res.json()
-    setMensagem(data.mensagem || data.erro)
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resetar-senha`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, novaSenha: data.novaSenha }),
+      })
+
+      const result = await res.json()
+
+      if (res.ok) {
+        setMensagem(result.mensagem || 'Senha redefinida com sucesso!')
+        setTimeout(() => router.push('/login'), 2500)
+      } else {
+        setErro(result.erro || 'Erro ao redefinir senha')
+      }
+    } catch {
+      setErro('Erro ao conectar com o servidor.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (!token) return <p className="text-center p-6">Token inválido.</p>
+  if (!token) {
+    return (
+      <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" px={6} bg="background">
+        <Text fontSize="lg" color="red.600">Token inválido ou ausente.</Text>
+      </Box>
+    )
+  }
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <form onSubmit={redefinir} className="bg-white p-6 rounded shadow-md max-w-md w-full space-y-4">
-        <h1 className="text-2xl font-bold">Redefinir Senha</h1>
-        <input
-          type="password"
-          placeholder="Nova senha"
-          className="w-full border px-4 py-2 rounded"
-          value={novaSenha}
-          onChange={e => setNovaSenha(e.target.value)}
-          required
-        />
-        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded">
-          Atualizar senha
-        </button>
-        {mensagem && <p className="text-center text-sm text-gray-700 mt-2">{mensagem}</p>}
-      </form>
-    </main>
+    <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" px={4} bg="background">
+      <Box
+        as="form"
+        onSubmit={handleSubmit(onSubmit)}
+        bg="white"
+        p={{ base: 6, md: 10 }}
+        rounded="lg"
+        boxShadow="lg"
+        maxW="sm"
+        w="full"
+      >
+        <VStack gap={5} align="stretch">
+          <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="textPrimary" textAlign="center">
+            Redefinir sua senha
+          </Text>
+
+          <Box position="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Nova senha"
+              {...register('novaSenha')}
+              autoFocus
+              bg="gray.50"
+              border="1px solid"
+              borderColor="gray.200"
+              _focus={{ borderColor: 'blue.500', bg: 'white' }}
+              pr="3rem"
+              fontSize="md"
+            />
+            <Box
+              position="absolute"
+              top="50%"
+              right="0.75rem"
+              transform="translateY(-50%)"
+              cursor="pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FiEyeOff /> : <FiEye />}
+            </Box>
+          </Box>
+          {errors.novaSenha && (
+            <Text fontSize="xs" color="red.500">{errors.novaSenha.message}</Text>
+          )}
+
+          <Box position="relative">
+            <Input
+              type={showConfirm ? 'text' : 'password'}
+              placeholder="Confirmar nova senha"
+              {...register('confirmarSenha')}
+              bg="gray.50"
+              border="1px solid"
+              borderColor="gray.200"
+              _focus={{ borderColor: 'blue.500', bg: 'white' }}
+              pr="3rem"
+              fontSize="md"
+            />
+            <Box
+              position="absolute"
+              top="50%"
+              right="0.75rem"
+              transform="translateY(-50%)"
+              cursor="pointer"
+              onClick={() => setShowConfirm(!showConfirm)}
+            >
+              {showConfirm ? <FiEyeOff /> : <FiEye />}
+            </Box>
+          </Box>
+          {errors.confirmarSenha && (
+            <Text fontSize="xs" color="red.500">{errors.confirmarSenha.message}</Text>
+          )}
+
+          <Button type="submit" colorScheme="green" size="lg" fontWeight="bold" disabled={loading}>
+            {loading ? <Spinner size="sm" color="white" /> : 'Atualizar senha'}
+          </Button>
+
+          {mensagem && (
+            <Text fontSize="sm" textAlign="center" color="green.600">
+              {mensagem}
+            </Text>
+          )}
+
+          {erro && (
+            <Text fontSize="sm" textAlign="center" color="red.600">
+              {erro}
+            </Text>
+          )}
+        </VStack>
+      </Box>
+    </Box>
   )
 }

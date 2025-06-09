@@ -7,8 +7,9 @@
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
+    "baseUrl": ".", // <-- IMPORTANTE
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -17,6 +18,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "verbatimModuleSyntax": true,
     "plugins": [
       {
         "name": "next"
@@ -24,7 +26,16 @@
     ],
     "paths": {
       "@/*": [
-        "./*"
+        "app/*"
+      ],
+      "@types/*": [
+        "types/*"
+      ],
+      "@types": [
+        "types/index.ts"
+      ],
+      "@shared/*": [
+        "../shared/*"
       ]
     }
   },

@@ -1,40 +1,109 @@
 'use client'
-import { useState } from 'react'
 
-export default function Recuperar() {
+import { useState } from 'react'
+import {
+  Box,
+  Button,
+  Input,
+  VStack,
+  Text,
+  useBreakpointValue,
+  Spinner,
+} from '@chakra-ui/react'
+
+export default function RecuperarSenha() {
   const [email, setEmail] = useState('')
   const [mensagem, setMensagem] = useState('')
+  const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
+    setMensagem('')
+    setErro('')
 
-    const res = await fetch('http://localhost:3001/auth/recuperar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    })
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/recuperar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
 
-    const data = await res.json()
-    setMensagem(data.mensagem || data.erro)
+      const data = await res.json()
+
+      if (res.ok) {
+        setMensagem(data.mensagem || 'Link enviado com sucesso.')
+      } else {
+        setErro(data.erro || 'Erro ao processar solicitação.')
+      }
+    } catch (err) {
+      setErro('Erro ao conectar com o servidor.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <form onSubmit={enviar} className="bg-white p-6 rounded shadow-md max-w-md w-full space-y-4">
-        <h1 className="text-2xl font-bold">Recuperar Senha</h1>
-        <input
-          type="email"
-          placeholder="Digite seu e-mail"
-          className="w-full border px-4 py-2 rounded"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">
-          Enviar link de recuperação
-        </button>
-        {mensagem && <p className="text-center text-sm text-gray-700 mt-2">{mensagem}</p>}
-      </form>
-    </main>
+    <Box
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      px={6}
+      bg="background"
+    >
+      <Box
+        as="form"
+        onSubmit={enviar}
+        bg="white"
+        p={8}
+        rounded="md"
+        boxShadow="md"
+        maxW="sm"
+        w="full"
+      >
+        <VStack gap={4} align="stretch">
+          <Text fontSize="2xl" fontWeight="bold" color="textPrimary" textAlign="center">
+            Recuperar Senha
+          </Text>
+
+          <Input
+            type="email"
+            placeholder="Digite seu e-mail"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            autoFocus
+            bg="gray.50"
+            border="1px solid"
+            borderColor="gray.200"
+            _focus={{ borderColor: 'blue.500', bg: 'white' }}
+          />
+
+          <Button
+            type="submit"
+            colorScheme="blue"
+            size="lg"
+            fontWeight="bold"
+            disabled={loading}
+          >
+            {loading ? <Spinner size="sm" color="white" /> : 'Enviar link de recuperação'}
+          </Button>
+
+          {mensagem && (
+            <Text fontSize="sm" textAlign="center" color="green.600">
+              {mensagem}
+            </Text>
+          )}
+
+          {erro && (
+            <Text fontSize="sm" textAlign="center" color="red.600">
+              {erro}
+            </Text>
+          )}
+        </VStack>
+      </Box>
+    </Box>
   )
 }

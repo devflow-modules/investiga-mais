@@ -1,7 +1,21 @@
 'use client'
 
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  SimpleGrid,
+  Text,
+  VStack,
+  Spinner,
+} from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { FiltroStatus } from '../../components/dashboard/historico/FiltroStatus'
+import { ConsultaCard } from '../../components/dashboard/historico/ConsultaCard'
+import { ConsultaDrawerDetalhes } from '../../components/dashboard/historico/ConsultaDrawerDetalhes'
+import { useDebouncedValue } from '../../../src/hooks/useDebouncedValue'
 
 interface Consulta {
   id: number
@@ -13,7 +27,6 @@ interface Consulta {
 }
 
 export default function Historico() {
-  const router = useRouter()
   const [consultas, setConsultas] = useState<Consulta[]>([])
   const [status, setStatus] = useState('')
   const [data, setData] = useState('')
@@ -25,135 +38,117 @@ export default function Historico() {
   const [totalPaginas, setTotalPaginas] = useState(1)
   const limit = 5
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.push('/login')
-      return
-    }
-    buscarConsultas(token)
-  }, [page])
+  const [modalCnpj, setModalCnpj] = useState<string | null>(null)
 
-  const buscarConsultas = async (token: string) => {
+  const debouncedNome = useDebouncedValue(buscaNome)
+  const debouncedCnpj = useDebouncedValue(buscaCnpj)
+
+  useEffect(() => {
+    console.log('[Historico] Disparando buscarConsultas()')
+    buscarConsultas()
+  }, [page, status, data, debouncedNome, debouncedCnpj])
+
+  const buscarConsultas = async () => {
     setCarregando(true)
+    console.log('[Historico] buscando consultas... page=', page)
+
     try {
-      const res = await fetch(`http://localhost:3000/consulta?page=${page}&limit=${limit}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const res = await fetch(`/api/consulta?page=${page}&limit=${limit}`, {
+        credentials: 'include',
       })
 
+      console.log('[Historico] /consulta status:', res.status)
+
       const data = await res.json()
+      console.log('[Historico] /consulta response:', data)
+
       setConsultas(data.resultados || [])
-      setTotalPaginas(Math.ceil(data.total / limit))
+      setTotalPaginas(Math.max(1, Math.ceil((data.total ?? data.resultados?.length ?? 0) / limit)))
     } catch (err) {
-      console.error('Erro ao buscar consultas', err)
+      console.error('[Historico] Erro ao buscar consultas', err)
     } finally {
       setCarregando(false)
     }
   }
 
-  const atualizarFiltros = () => {
-    const token = localStorage.getItem('token')
-    if (token) buscarConsultas(token)
-  }
-
   const filtrar = (c: Consulta) => {
     return (
-      (!status || c.status === status) &&
+      (!status || c.status.toLowerCase() === status) &&
       (!data || c.criadoEm.startsWith(data)) &&
-      (!buscaNome || c.nome.toLowerCase().includes(buscaNome.toLowerCase())) &&
-      (!buscaCnpj || c.cnpj.includes(buscaCnpj))
+      (!debouncedNome || c.nome.toLowerCase().includes(debouncedNome.toLowerCase())) &&
+      (!debouncedCnpj || c.cnpj.includes(debouncedCnpj))
     )
   }
 
   return (
-    <main className="min-h-screen p-6 bg-gray-50">
-      <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Histórico de Consultas</h1>
+    <Box minH="100vh" bg="gray.50" py={10} px={6}>
+      <Box maxW="6xl" mx="auto" bg="white" p={8} rounded="lg" shadow="md">
+        <Heading size="lg" mb={6}>Histórico de Consultas</Heading>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <input
-            type="text"
-            value={buscaNome}
-            onChange={e => setBuscaNome(e.target.value)}
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4} mb={6}>
+          <Input
             placeholder="Buscar por nome"
-            className="border px-4 py-2 rounded"
+            value={buscaNome}
+            onChange={(e) => setBuscaNome(e.target.value)}
           />
-
-          <input
-            type="text"
-            value={buscaCnpj}
-            onChange={e => setBuscaCnpj(e.target.value)}
+          <Input
             placeholder="Buscar por CNPJ"
-            className="border px-4 py-2 rounded"
+            value={buscaCnpj}
+            onChange={(e) => setBuscaCnpj(e.target.value)}
           />
-
-          <select
-            value={status}
-            onChange={e => setStatus(e.target.value)}
-            className="border px-4 py-2 rounded"
-          >
-            <option value="">Todos os Status</option>
-            <option value="consultado">Consultado</option>
-            <option value="pendente">Pendente</option>
-            <option value="erro">Erro</option>
-          </select>
-
-          <input
+          <FiltroStatus value={status} onChange={setStatus} />
+          <Input
             type="date"
             value={data}
-            onChange={e => setData(e.target.value)}
-            className="border px-4 py-2 rounded"
+            onChange={(e) => setData(e.target.value)}
           />
-
-          <button
-            onClick={atualizarFiltros}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Atualizar
-          </button>
-        </div>
+        </SimpleGrid>
 
         {carregando ? (
-          <p>Carregando...</p>
+          <Flex justify="center" align="center" py={10}>
+            <Spinner size="lg" color="blue.500" />
+          </Flex>
         ) : consultas.filter(filtrar).length === 0 ? (
-          <p className="text-gray-600">Nenhuma consulta encontrada com os filtros aplicados.</p>
+          <Text color="gray.600">Nenhuma consulta encontrada com os filtros aplicados.</Text>
         ) : (
           <>
-            <ul className="space-y-2">
-              {consultas.filter(filtrar).map(c => (
-                <li key={c.id} className="border rounded p-4 bg-gray-50">
-                  <p><strong>Nome:</strong> {c.nome}</p>
-                  <p><strong>CNPJ:</strong> {c.cnpj}</p>
-                  <p><strong>Status:</strong> {c.status}</p>
-                  <p><strong>Data:</strong> {new Date(c.criadoEm).toLocaleString()}</p>
-                </li>
-              ))}
-            </ul>
+            <Text mb={2} color="gray.600">
+              Mostrando {consultas.filter(filtrar).length} resultado(s)
+            </Text>
 
-            <div className="flex justify-between items-center mt-6">
-              <button
+            <VStack gap={4} align="stretch">
+              {consultas.filter(filtrar).map((c) => (
+                <ConsultaCard key={c.id} consulta={c} onOpenDetalhes={() => setModalCnpj(c.cnpj)} />
+              ))}
+            </VStack>
+
+            <Flex justify="space-between" align="center" mt={6}>
+              <Button
+                onClick={() => setPage((p) => p - 1)}
                 disabled={page === 1}
-                onClick={() => setPage(p => p - 1)}
-                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
               >
                 Anterior
-              </button>
-              <span className="text-gray-700">
+              </Button>
+              <Text>
                 Página {page} de {totalPaginas}
-              </span>
-              <button
-                disabled={page === totalPaginas}
-                onClick={() => setPage(p => p + 1)}
-                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+              </Text>
+              <Button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page >= totalPaginas}
               >
                 Próxima
-              </button>
-            </div>
+              </Button>
+            </Flex>
           </>
         )}
-      </div>
-    </main>
+      </Box>
+
+      {/* Drawer de detalhes */}
+      <ConsultaDrawerDetalhes
+        cnpj={modalCnpj}
+        isOpen={!!modalCnpj}
+        onClose={() => setModalCnpj(null)}
+      />
+    </Box>
   )
 }

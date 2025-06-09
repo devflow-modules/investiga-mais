@@ -1,66 +1,116 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { jwtDecode } from 'jwt-decode'
-
-type JwtPayload = {
-  usuario?: string
-  email?: string
-  cpf?: string
-  exp: number
-}
+import { useAuth } from '../../../src/hooks/useAuth'
+import {
+  Avatar,
+  AvatarFallback,
+  Box,
+  Button,
+  Flex,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
+import { CompletePerfilSection } from '@/components/dashboard/perfil/CompletePerfilSection'
 
 export default function Perfil() {
   const router = useRouter()
-  const [usuario, setUsuario] = useState<JwtPayload | null>(null)
+  const [usuario, setUsuario] = useState<{ email?: string; cpf?: string }>({})
+  const [lastChecked, setLastChecked] = useState<string>('')
+
+  useAuth() // garante proteção da rota
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.replace('/login')
-      return
-    }
+    const buscarPerfil = async () => {
+      try {
+        const res = await fetch('/api/auth/verify', {
+          credentials: 'include',
+        })
 
-    try {
-      const decoded: JwtPayload = jwtDecode(token)
-      if (decoded.exp * 1000 < Date.now()) {
-        localStorage.removeItem('token')
+        console.log('[Perfil] /api/auth/verify status:', res.status)
+
+        if (!res.ok) throw new Error('Token inválido')
+
+        const data = await res.json()
+        console.log('[Perfil] usuario autenticado:', data.usuario)
+
+        setUsuario(data.usuario || {})
+        setLastChecked(new Date().toLocaleString('pt-BR'))
+      } catch (err) {
+        console.error('[Perfil] Erro ao buscar perfil:', err)
         router.replace('/login')
-      } else {
-        setUsuario(decoded)
       }
-    } catch (err) {
-      console.error('Token inválido', err)
-      router.replace('/login')
     }
-  }, [])
 
-  const logout = () => {
-    localStorage.removeItem('token')
+    buscarPerfil()
+  }, [router])
+
+  const formatarCPF = (cpf: string | undefined) => {
+    if (!cpf || cpf.length !== 11) return cpf || ''
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+  }
+
+  const logout = async () => {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
     router.push('/login')
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-xl mx-auto bg-white shadow rounded p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Meu Perfil</h1>
-          <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+    <Box minH="100vh" bg="gray.50" py={10} px={6}>
+      <Box maxW="lg" mx="auto" bg="white" p={8} rounded="lg" shadow="md">
+        {/* Header */}
+        <Flex justify="space-between" align="center" mb={6}>
+          <Text fontSize="2xl" fontWeight="bold">
+            Meu Perfil
+          </Text>
+          <Button onClick={logout} colorScheme="red" variant="solid" size="sm">
             Sair
-          </button>
-        </div>
+          </Button>
+        </Flex>
 
-        {!usuario ? (
-          <p className="text-gray-600">Carregando...</p>
-        ) : (
-          <ul className="space-y-2 text-sm text-gray-700">
-            {usuario.usuario && <li><strong>Usuário:</strong> {usuario.usuario}</li>}
-            {usuario.email && <li><strong>Email:</strong> {usuario.email}</li>}
-            {usuario.cpf && <li><strong>CPF:</strong> {usuario.cpf}</li>}
-            <li><strong>Token expira em:</strong> {new Date(usuario.exp * 1000).toLocaleString()}</li>
-          </ul>
-        )}
-      </div>
-    </main>
+        {/* Avatar + dados */}
+        <Flex align="center" gap={4} mb={6}>
+          <Avatar.Root size="lg">
+            <AvatarFallback>
+              {usuario.email?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar.Root>
+          <Box>
+            <Text fontWeight="bold" fontSize="lg">
+              {usuario.email}
+            </Text>
+            <Text fontSize="sm" color="gray.500">
+              Última verificação: {lastChecked}
+            </Text>
+          </Box>
+        </Flex>
+
+        {/* Divider fake */}
+        <Box h="1px" w="full" bg="gray.200" my={4} borderRadius="full" />
+
+        {/* Dados do usuário */}
+        <VStack align="start" gap={3} fontSize="sm" color="gray.700" mb={8}>
+          <Box>
+            <Text fontWeight="bold" mb={1}>
+              Email:
+            </Text>
+            <Text>{usuario.email || '-'}</Text>
+          </Box>
+          <Box>
+            <Text fontWeight="bold" mb={1}>
+              CPF:
+            </Text>
+            <Text>{formatarCPF(usuario.cpf)}</Text>
+          </Box>
+        </VStack>
+
+        {/* Seção de completar perfil */}
+        <CompletePerfilSection />
+      </Box>
+    </Box>
   )
 }
