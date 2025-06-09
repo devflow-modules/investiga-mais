@@ -79,20 +79,19 @@ export function CompletePerfilSection() {
             const data = await res.json()
 
             if (!res.ok) {
-                throw new Error('Erro ao salvar perfil')
+                // Aqui já usa a mensagem de erro vinda da API se existir
+                throw new Error(data?.erro || 'Erro ao salvar perfil')
             }
 
             if (data.bonusConcedido && !bonusConcedidoAt) {
-                // Bônus foi concedido agora
                 setBonusConcedidoAt(new Date().toISOString())
                 setMensagem('✅ Perfil atualizado com sucesso! 🎁 Você ganhou um bônus.')
             } else {
-                // Só atualização normal
                 setMensagem('✅ Perfil atualizado com sucesso.')
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('[CompletePerfilSection] Erro ao salvar perfil:', err)
-            setMensagem('❌ Erro ao salvar perfil. Tente novamente.')
+            setMensagem(`❌ ${err.message || 'Erro ao salvar perfil. Tente novamente.'}`)
         } finally {
             setCarregando(false)
         }
