@@ -1,4 +1,4 @@
-const { validarEmail, validarCPF } = require('../src/utils/validacoes');
+const { validarEmail, validarCPF } = require('../../shared/validators')
 
 describe('Validação de Email', () => {
   it('valida emails válidos', () => {

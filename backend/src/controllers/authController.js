@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { validarEmail, validarSenha } = require('../utils/validacoes');
+const { validarEmail, validarSenha} = require('../../../shared/validators/backend')
 
 const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev';
 
@@ -27,7 +27,7 @@ exports.login = async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { usuarioId: usuario.id, email: usuario.email },
+      { usuarioId: usuario.id, email: usuario.email, cpf: usuario.cpf },
       SECRET_KEY,
       { expiresIn: '1d' }
     );

@@ -22,6 +22,7 @@ const authRoutes = require('./routes/authRoutes');
 const cnpjRoutes = require('./routes/cnpj');
 const webhookRoutes = require('./routes/webhookRoutes');
 const consultaRoutes = require('./routes/consultaRoutes');
+const perfilRoutes = require('./routes/perfilRoutes')
 
 app.get('/', (req, res) => {
   res.send('🔐 API Investiga Mais com autenticação JWT');
@@ -30,10 +31,11 @@ app.get('/', (req, res) => {
 app.use('/auth/login', loginLimiter);
 app.use('/auth', authRoutes);
 app.use('/cnpj', cnpjRoutes);
-app.use('/api', webhookRoutes);
+app.use('/api', webhookRoutes, perfilRoutes);
 
 // Rotas protegidas
-app.use('/consulta', verifyToken, consultaRoutes);
+app.use('/consulta', verifyToken, consultaRoutes)
+app.use('/perfil', perfilRoutes)
 
 // Fallback e erro
 app.use((req, res) => {

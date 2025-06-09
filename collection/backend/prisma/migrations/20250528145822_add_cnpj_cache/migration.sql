@@ -1,6 +1,0 @@
--- CreateTable
-CREATE TABLE "DadosCNPJ" (
-    "cnpj" TEXT NOT NULL PRIMARY KEY,
-    "dados" JSONB NOT NULL,
-    "criadoEm" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);

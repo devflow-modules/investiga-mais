@@ -1,7 +1,7 @@
 const axios = require('axios')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const { validarCNPJ } = require('../utils/validacoes');
+const { validarCNPJ } = require('../../../shared/validators/backend');
 
 exports.consultarCNPJ = async (req, res) => {
   const { cnpj } = req.params

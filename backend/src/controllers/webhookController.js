@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const crypto = require('crypto');
-const { validarEmail, validarCPF } = require('../utils/validacoes');
+const { validarEmail } = require('../../../shared/validators/backend')
 const { enviarEmail } = require('../services/email');
 
 exports.registrarViaCompra = async (req, res, next) => {
@@ -41,9 +41,11 @@ exports.registrarViaCompra = async (req, res, next) => {
       data: {
         email,
         senha: senhaCriptografada,
-        cpf
+        cpf,
+        nome: customer?.name || undefined,
+        telefone: customer?.phone_number || undefined,
       }
-    });
+    })
 
     const html = `
       <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; border-radius: 8px; color: #111827;">

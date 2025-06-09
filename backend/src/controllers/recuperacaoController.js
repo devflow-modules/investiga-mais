@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const { validarEmail, validarSenha } = require('../utils/validacoes');
+const { validarEmail, validarSenha } = require('../../../shared/validators/backend')
 const { enviarEmail } = require('../services/email');
 
 exports.recuperarSenha = async (req, res, next) => {

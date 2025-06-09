@@ -39,17 +39,19 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // IMPORTANTE para enviar e receber cookies
+        credentials: 'include',
         body: JSON.stringify(data),
       })
 
       const json = await res.json()
 
       if (json.sucesso) {
-        router.push(`/dashboard?user=${encodeURIComponent(data.email)}`)
+        console.log('✅ Login bem-sucedido, redirecionando...')
+        router.push('/dashboard')
+        router.refresh() // Garante revalidação do middleware + layout
       } else {
         setErroApi(json.erro || 'Erro ao fazer login.')
       }

@@ -24,10 +24,18 @@ model Usuario {
   email     String   @unique
   senha     String
   cpf       String   @unique
+  nome      String?
+  telefone  String?
+  nascimento DateTime?
+  cidade    String?
+  uf        String?
+  genero    String?
+  bonusConcedidoAt DateTime? 
+
   criadoEm  DateTime @default(now())
 
-  tokenRecuperacao TokenRecuperacao[]  // 🔁 Relação 1:N com TokenRecuperacao
-  logRecuperacoes  LogRecuperacao[]    // 🔁 Relação 1:N com LogRecuperacao
+  tokenRecuperacao TokenRecuperacao[]
+  logRecuperacoes  LogRecuperacao[]
 }
 
 model TokenRecuperacao {

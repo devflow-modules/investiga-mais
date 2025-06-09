@@ -1,16 +1,16 @@
 'use client'
 
 import { Box } from '@chakra-ui/react'
-import Header from './components/Header'
-import HeroSection from './components/HeroSection'
-import Features from './components/Features'
-import HowItWorks from './components/HowItWorks'
-import TargetAudience from './components/TargetAudience'
-import Testimonials from './components/Testimonials'
-import FAQ from './components/FAQ'
-import Footer from './components/Footer'
-import StatsSection from './components/StatsSection'
-import TrustSection from './components/TrustSection'
+import Header from './components/Main/Header'
+import HeroSection from './components/Main/HeroSection'
+import Features from './components/Main/Features'
+import HowItWorks from './components/Main/HowItWorks'
+import TargetAudience from './components/Main/TargetAudience'
+import Testimonials from './components/Main/Testimonials'
+import FAQ from './components/Main/FAQ'
+import Footer from './components/Main/Footer'
+import StatsSection from './components/Main/StatsSection'
+import TrustSection from './components/Main/TrustSection'
 
 export default function HomePage() {
   return (

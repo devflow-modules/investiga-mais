@@ -1,12 +1,7 @@
 'use client'
 
-import DashboardLayout from './DashboardLayout'
-import DashboardPage from './DashboardPage'
+import HomePage from '@/components/dashboard/HomePage'
 
-export default function Dashboard() {
-  return (
-    <DashboardLayout>
-      <DashboardPage />
-    </DashboardLayout>
-  )
+export default function Page() {
+  return <HomePage />
 }
