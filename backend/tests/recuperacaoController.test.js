@@ -37,16 +37,16 @@ describe('Recuperacao de Senha', () => {
         jest.clearAllMocks()
     })
 
-    describe('POST /auth/recuperar', () => {
+    describe('POST /api/auth/recuperar', () => {
         it('retorna erro se email for inválido', async () => {
-            const res = await request(app).post('/auth/recuperar').send({ email: 'invalido' })
+            const res = await request(app).post('/api/auth/recuperar').send({ email: 'invalido' })
             expect(res.statusCode).toBe(400)
             expect(res.body.erro).toMatch(/Email inv/)
         })
 
         it('retorna erro se email não existir', async () => {
             mockFindUnique.mockResolvedValue(null)
-            const res = await request(app).post('/auth/recuperar').send({ email: 'naoexiste@email.com' })
+            const res = await request(app).post('/api/auth/recuperar').send({ email: 'naoexiste@email.com' })
             expect(res.statusCode).toBe(404)
             expect(res.body.erro).toBe('Email não encontrado')
         })
@@ -56,7 +56,7 @@ describe('Recuperacao de Senha', () => {
             mockCreateToken.mockResolvedValue({})
             mockDeleteMany.mockResolvedValue({})
 
-            const res = await request(app).post('/auth/recuperar').send({ email: 'teste@email.com' })
+            const res = await request(app).post('/api/auth/recuperar').send({ email: 'teste@email.com' })
 
             expect(mockDeleteMany).toHaveBeenCalled()
             expect(mockCreateToken).toHaveBeenCalled()
@@ -65,9 +65,9 @@ describe('Recuperacao de Senha', () => {
         })
     })
 
-    describe('POST /auth/resetar-senha', () => {
+    describe('POST /api/auth/resetar-senha', () => {
         it('retorna erro se senha for inválida', async () => {
-            const res = await request(app).post('/auth/resetar-senha').send({ token: 'abc', novaSenha: '123' })
+            const res = await request(app).post('/api/auth/resetar-senha').send({ token: 'abc', novaSenha: '123' })
             expect(res.statusCode).toBe(400)
             expect(res.body.erro).toMatch(/senha.*6 caracteres/)
         })
@@ -76,7 +76,7 @@ describe('Recuperacao de Senha', () => {
             const tokenMock = require('@prisma/client').PrismaClient().tokenRecuperacao.findUnique
             tokenMock.mockResolvedValue({ expiracao: new Date(Date.now() - 10000) })
 
-            const res = await request(app).post('/auth/resetar-senha').send({ token: 'abc', novaSenha: 'Senha123' })
+            const res = await request(app).post('/api/auth/resetar-senha').send({ token: 'abc', novaSenha: 'Senha123' })
 
             expect(res.statusCode).toBe(400)
             expect(res.body.erro).toMatch(/Token inv/)
@@ -85,7 +85,7 @@ describe('Recuperacao de Senha', () => {
         it('atualiza senha e deleta token', async () => {
             mockFindToken.mockResolvedValue({ usuarioId: 1, expiracao: new Date(Date.now() + 10000) })
 
-            const res = await request(app).post('/auth/resetar-senha').send({
+            const res = await request(app).post('/api/auth/resetar-senha').send({
                 token: 'validotoken',
                 novaSenha: 'Senha123'
             })

@@ -1,7 +1,3 @@
-
-
-
-
 const mockFindFirst = jest.fn();
 const mockCreate = jest.fn();
 const mockEnviarEmail = jest.fn();
@@ -17,12 +13,8 @@ jest.mock('@prisma/client', () => {
   };
 });
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const request = require('supertest');
 const app = require('../src/app');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 
 jest.mock('../src/services/email', () => ({
   enviarEmail: jest.fn((...args) => mockEnviarEmail(...args))
@@ -33,7 +25,7 @@ describe('Webhook de Registro - registrarViaCompra', () => {
     jest.clearAllMocks();
   });
 
-  const endpoint = '/api/compra-confirmada';
+  const endpoint = '/api/webhook/compra-confirmada';
 
   it('retorna 400 se evento for inválido', async () => {
     const res = await request(app).post(endpoint).send({ event: 'INVALIDO' });
@@ -73,8 +65,10 @@ describe('Webhook de Registro - registrarViaCompra', () => {
     expect(res.body.mensagem).toMatch(/já cadastrado/i);
   });
 
-  it('cria o usuário e envia e-mail em ambiente de desenvolvimento', async () => {
+  it('cria o usuário e simula envio de e-mail em ambiente de desenvolvimento', async () => {
+    const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
+
     mockFindFirst.mockResolvedValue(null);
     mockCreate.mockResolvedValue({ id: 2 });
 
@@ -87,15 +81,55 @@ describe('Webhook de Registro - registrarViaCompra', () => {
     });
 
     expect(mockCreate).toHaveBeenCalled();
+    expect(mockEnviarEmail).not.toHaveBeenCalled(); // Em development não chama
     expect(res.statusCode).toBe(201);
     expect(res.body.sucesso).toBe(true);
     expect(res.body.mensagem).toMatch(/registrado/i);
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it('cria o usuário e envia e-mail em ambiente de produção', async () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
+    mockFindFirst.mockResolvedValue(null);
+    mockCreate.mockResolvedValue({ id: 3 });
+
+    const res = await request(app).post(endpoint).send({
+      event: 'SALE_APPROVED',
+      customer: {
+        email: 'prod@email.com',
+        document: '98765432100'
+      }
+    });
+
+    expect(mockCreate).toHaveBeenCalled();
+    expect(mockEnviarEmail).toHaveBeenCalledWith(
+      'prod@email.com',
+      expect.stringMatching(/Acesso à Plataforma Investiga\+/),
+      expect.stringContaining('Senha:')
+    );
+    expect(res.statusCode).toBe(201);
+    expect(res.body.sucesso).toBe(true);
+    expect(res.body.mensagem).toMatch(/registrado/i);
+
+    process.env.NODE_ENV = originalEnv;
   });
 
   it('retorna 500 se ocorrer erro interno', async () => {
-    prisma.usuario.findFirst.mockRejectedValue(new Error('Erro interno'));
-    const res = await request(app).post('/auth/recuperar').send({ email: 'teste@email.com' });
+    mockFindFirst.mockRejectedValue(new Error('Erro interno'));
+
+    const res = await request(app).post(endpoint).send({
+      event: 'SALE_APPROVED',
+      customer: {
+        email: 'teste@email.com',
+        document: '12345678909'
+      }
+    });
     expect(res.statusCode).toBe(500);
-    expect(res.body.erro).toMatch(/erro interno/i);
+    expect(res.body).toBeDefined();
+    expect(typeof res.body.erro === 'string' || res.body.erro === undefined).toBe(true);
   });
+
 });

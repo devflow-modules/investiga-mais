@@ -8,9 +8,10 @@ import {
     Text,
     VStack,
     Flex,
+    Portal
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { Select, Portal } from '@chakra-ui/react'
+import { Select } from '@chakra-ui/react'
 import { ufOptions, generoOptions } from './perfilOptions'
 
 export function CompletePerfilSection() {
@@ -27,21 +28,28 @@ export function CompletePerfilSection() {
 
     // Ao carregar componente → busca perfil atual
     useEffect(() => {
-        fetchPerfil()
+        const controller = new AbortController()
+        fetchPerfil(controller.signal)
+        return () => {
+            controller.abort()
+        }
     }, [])
 
-    const fetchPerfil = async () => {
+    const fetchPerfil = async (signal?: AbortSignal) => {
         try {
             const res = await fetch('/api/perfil', {
                 credentials: 'include',
+                signal,
             })
 
-            if (!res.ok) {
-                throw new Error('Erro ao obter perfil')
+            const data = await res.json()
+
+            if (!res.ok || !data.success) {
+                if (signal?.aborted) return // ignora se foi abortado
+                throw new Error(data?.message || 'Erro ao obter perfil')
             }
 
-            const data = await res.json()
-            const u = data.usuario
+            const u = data.data.usuario
 
             setNome(u.nome || '')
             setTelefone(u.telefone || '')
@@ -50,10 +58,12 @@ export function CompletePerfilSection() {
             setUf(u.uf || '')
             setGenero(u.genero || '')
             setBonusConcedidoAt(u.bonusConcedidoAt || null)
-        } catch (err) {
+        } catch (err: any) {
+            if (signal?.aborted) return // ignora se foi abortado
             console.error('[CompletePerfilSection] Erro ao obter perfil:', err)
         }
     }
+
 
     const handleSalvarPerfil = async () => {
         setCarregando(true)
@@ -78,12 +88,13 @@ export function CompletePerfilSection() {
 
             const data = await res.json()
 
-            if (!res.ok) {
-                // Aqui já usa a mensagem de erro vinda da API se existir
-                throw new Error(data?.erro || 'Erro ao salvar perfil')
+            if (!res.ok || !data.success) {
+                throw new Error(data?.message || 'Erro ao salvar perfil')
             }
 
-            if (data.bonusConcedido && !bonusConcedidoAt) {
+            const { bonusConcedido } = data.data
+
+            if (bonusConcedido && !bonusConcedidoAt) {
                 setBonusConcedidoAt(new Date().toISOString())
                 setMensagem('✅ Perfil atualizado com sucesso! 🎁 Você ganhou um bônus.')
             } else {
@@ -119,6 +130,7 @@ export function CompletePerfilSection() {
                 />
                 <Input
                     type="date"
+                    placeholder="Data de nascimento"
                     value={formatarDataISO(nascimento)}
                     onChange={(e) => setNascimento(e.target.value)}
                 />
@@ -127,6 +139,7 @@ export function CompletePerfilSection() {
                     value={cidade}
                     onChange={(e) => setCidade(e.target.value)}
                 />
+
                 <Select.Root
                     collection={ufOptions}
                     value={[uf]}
@@ -192,9 +205,9 @@ export function CompletePerfilSection() {
                 <Button
                     colorScheme="blue"
                     onClick={handleSalvarPerfil}
-                    disabled={carregando}
+                    loading={carregando}
                 >
-                    {carregando ? 'Salvando...' : 'Salvar e ganhar benefício 🎁'}
+                    Salvar e ganhar benefício 🎁
                 </Button>
 
                 {mensagem && (

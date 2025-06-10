@@ -36,6 +36,8 @@ model Usuario {
 
   tokenRecuperacao TokenRecuperacao[]
   logRecuperacoes  LogRecuperacao[]
+
+  consultaRiscos   ConsultaRisco[]
 }
 
 model TokenRecuperacao {
@@ -61,4 +63,20 @@ model DadosCNPJ {
   cnpj      String   @id
   dados     Json
   criadoEm  DateTime @default(now())
+}
+
+model ConsultaRisco {
+  id          Int      @id @default(autoincrement())
+  usuarioId   Int
+  tipo        String   // cpf_status | ip_check | email_verify | clearsale_cpf_check
+  parametro   String   // exemplo: CPF, IP, EMAIL, ORDER_ID
+  status      String   // success | error
+  resultado   Json
+  criadoEm    DateTime @default(now())
+
+  Usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId])
+  @@index([tipo])
+  @@index([status])
 }

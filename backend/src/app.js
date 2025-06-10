@@ -31,6 +31,7 @@ const cnpjRoutes = require('./routes/cnpj')
 const webhookRoutes = require('./routes/webhookRoutes')
 const consultaRoutes = require('./routes/consultaRoutes')
 const perfilRoutes = require('./routes/perfilRoutes')
+const segurancaRoutes = require('./routes/segurancaRoutes')
 
 // Rota de teste
 app.get('/', (req, res) => {
@@ -48,6 +49,7 @@ app.use('/api/webhook', webhookRoutes)
 // 🟢 Rotas protegidas sob /api
 app.use('/api/consulta', verifyToken, consultaRoutes)
 app.use('/api/perfil', perfilRoutes)
+app.use('/api/seguranca', segurancaRoutes)
 
 // Fallback 404 → com padrão sendError
 const { sendError } = require('../../shared/utils/sendResponse')

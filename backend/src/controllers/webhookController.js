@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const crypto = require('crypto');
-const { validarEmail } = require('../../../shared/validators/backend')
+const { validarEmail, validarCPF } = require('../../../shared/validators/backend')
 const { enviarEmail } = require('../services/email');
 
 exports.registrarViaCompra = async (req, res, next) => {

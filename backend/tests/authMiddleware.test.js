@@ -19,7 +19,11 @@ describe('Middleware verifyToken', () => {
     verifyToken(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ erro: 'Token não fornecido' });
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'Token não fornecido',
+      statusCode: 401,
+      success: false,
+    }))
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -29,7 +33,11 @@ describe('Middleware verifyToken', () => {
     verifyToken(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ erro: 'Token inválido' });
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'Token inválido',
+      statusCode: 403,
+      success: false,
+    }))
     expect(next).not.toHaveBeenCalled();
   });
 

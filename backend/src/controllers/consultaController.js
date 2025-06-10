@@ -20,35 +20,39 @@ async function consultarReceitaWSComRetry(cnpj, maxRetries = 2, delayMs = 1000) 
       console.log(`[ReceitaWS] Tentativa ${attempt + 1} para CNPJ ${cnpj}`)
 
       const receitaRes = await axios.get(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`)
-      
+
       console.log(`[ReceitaWS] Status: ${receitaRes.status}`)
 
       return receitaRes.data
     } catch (err) {
-      const status = err.response?.status
-      const message = err.response?.statusText
-      const data = err.response?.data
+      const status = err.response?.status;
+      const message = err.response?.statusText;
+      const data = err.response?.data;
 
-      console.error(`[ReceitaWS] Erro tentativa ${attempt + 1} | Status: ${status} | Message: ${message}`)
+      console.error(`[ReceitaWS] Erro tentativa ${attempt + 1} | Status: ${status} | Message: ${message}`);
       if (data) {
-        console.error(`[ReceitaWS] Response body:`, data)
+        console.error(`[ReceitaWS] Response body:`, data);
       }
 
-      // Se 429 → tenta novamente após delay
-      if (status === 429 && attempt < maxRetries) {
-        console.warn(`[ReceitaWS] 429 - aguardando ${delayMs}ms para nova tentativa...`)
-        await sleep(delayMs)
-        attempt++
-        continue
+      // Se 429 → tenta novamente ou lança MAX_RETRIES_EXCEEDED
+      if (status === 429) {
+        if (attempt < maxRetries) {
+          console.warn(`[ReceitaWS] 429 - aguardando ${delayMs}ms para nova tentativa...`);
+          await sleep(delayMs);
+          attempt++;
+          continue;
+        } else {
+          throw new Error('MAX_RETRIES_EXCEEDED');
+        }
       }
 
       // Se 404 → lança erro para ser tratado no controller
       if (status === 404 && data?.message === 'not in cache') {
-        throw new Error('NOT_IN_CACHE')
+        throw new Error('NOT_IN_CACHE');
       }
 
       // Outro erro → lança erro genérico
-      throw new Error('API_ERROR')
+      throw new Error('API_ERROR');
     }
   }
 
@@ -78,27 +82,36 @@ exports.consultarCNPJ = async (req, res) => {
     })
 
     if (!dadosCNPJ) {
-      console.log(`[ReceitaWS] Cache não encontrado para CNPJ ${cnpj}`)
+      console.log(`[ReceitaWS] Cache não encontrado para CNPJ ${cnpj}`);
 
-      let empresa
+      let empresa;
 
       try {
-        empresa = await consultarReceitaWSComRetry(cnpj)
+        empresa = await consultarReceitaWSComRetry(cnpj);
+
+        if (!empresa?.status) {
+          return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
+        }
+
+        if (!empresa?.nome) {
+          return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
+        }
+
       } catch (error) {
         if (error.message === 'NOT_IN_CACHE') {
-          return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.')
+          return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.');
         }
 
         if (error.message === 'MAX_RETRIES_EXCEEDED') {
-          return sendError(res, 429, 'Limite de consultas da ReceitaWS atingido. Tente novamente mais tarde.')
+          return sendError(res, 429, 'Limite de consultas da ReceitaWS atingido. Tente novamente mais tarde.');
         }
 
-        console.error(`[ReceitaWS] Erro inesperado:`, error)
-        return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.')
+        console.error(`[ReceitaWS] Erro inesperado:`, error);
+        return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.');
       }
 
       if (empresa.status === 'ERROR') {
-        return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.')
+        return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.');
       }
 
       // Salva os dados no cache
@@ -107,11 +120,15 @@ exports.consultarCNPJ = async (req, res) => {
           cnpj,
           dados: empresa
         }
-      })
+      });
 
-      console.log(`[ReceitaWS] Cache criado para CNPJ ${cnpj}`)
+      console.log(`[ReceitaWS] Cache criado para CNPJ ${cnpj}`);
     } else {
-      console.log(`[ReceitaWS] Usando cache para CNPJ ${cnpj}`)
+      console.log(`[ReceitaWS] Usando cache para CNPJ ${cnpj}`);
+
+      if (!dadosCNPJ?.dados || typeof dadosCNPJ.dados !== 'object') {
+        return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
+      }
     }
 
     // Cria a consulta se ainda não houver

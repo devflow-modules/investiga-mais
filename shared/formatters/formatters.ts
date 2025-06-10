@@ -7,7 +7,9 @@ export function formatarCNPJ(cnpj: string): string {
   )
 }
 
-export function formatarCPF(cpf: string): string {
+export function formatarCPF(cpf?: string): string {
+  if (!cpf) return '-'
+
   const cpfLimpo = cpf.replace(/[^\d]+/g, '')
   if (cpfLimpo.length !== 11) return cpf
   return cpfLimpo.replace(
@@ -15,7 +17,6 @@ export function formatarCPF(cpf: string): string {
     '$1.$2.$3-$4'
   )
 }
-
 export function formatarMoeda(valor: number | string): string {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',

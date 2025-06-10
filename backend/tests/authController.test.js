@@ -26,31 +26,31 @@ describe('Auth Controller', () => {
 
   test('Login sem email ou senha retorna erro 400', async () => {
     const res = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: '', senha: '' })
 
     expect(res.statusCode).toBe(400)
-    expect(res.body.erro).toBe('Email e senha obrigatórios.')
+    expect(res.body.error).toBe('Email e senha obrigatórios.')
   })
 
   test('Login com email ou senha inválido retorna erro 400', async () => {
     const res = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: 'invalido', senha: '123' })
 
     expect(res.statusCode).toBe(400)
-    expect(res.body.erro).toBe('Formato de e-mail ou senha inválido.')
+    expect(res.body.error).toBe('Formato de e-mail ou senha inválido.')
   })
 
   test('Login com credenciais inválidas retorna 401', async () => {
     mockFindUnique.mockResolvedValue(null)
 
     const res = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: 'teste@teste.com', senha: 'senha123' })
 
     expect(res.statusCode).toBe(401)
-    expect(res.body.erro).toBe('CREDENCIAIS_INVALIDAS')
+    expect(res.body.error).toBe('CREDENCIAIS_INVALIDAS')
   })
 
   test('Login bem-sucedido retorna token e usuário', async () => {
@@ -63,20 +63,21 @@ describe('Auth Controller', () => {
     bcrypt.compare.mockResolvedValue(true)
 
     const res = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: 'teste@teste.com', senha: 'senha123' })
 
     expect(res.statusCode).toBe(200)
-    expect(res.body.sucesso).toBe(true)
-    expect(res.body.usuario.email).toBe('teste@teste.com')
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.usuario.email).toBe('teste@teste.com')   
+    expect(res.body.data.usuario.id).toBe('123')                  
     expect(res.headers['set-cookie'][0]).toMatch(/token=/)
   })
 
-  test('Logout limpa o cookie e redireciona para login', async () => {
-    const res = await request(app).get('/auth/logout')
+  test('Logout limpa o cookie com sucesso', async () => {
+    const res = await request(app).get('/api/auth/logout')
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
     expect(res.headers['set-cookie'][0]).toMatch(/token=;/)
-    expect(res.headers.location).toBe('/login')
   })
 })

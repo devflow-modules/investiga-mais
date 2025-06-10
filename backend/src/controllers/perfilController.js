@@ -43,6 +43,7 @@ exports.atualizarPerfil = async (req, res) => {
       data: atualizacao
     })
 
+    // ✅ Retornar direto o objeto, não aninhado em `data`
     return sendSuccess(res, {
       mensagem: 'Perfil atualizado com sucesso',
       bonusConcedido: !!atualizacao.bonusConcedidoAt
@@ -86,11 +87,10 @@ exports.obterPerfil = async (req, res) => {
           .join(' ')
       : ''
 
+    // ✅ Retornar direto o objeto do usuário, não aninhado em `data`
     return sendSuccess(res, {
-      usuario: {
-        ...usuario,
-        nome: nomeFormatado
-      }
+      ...usuario,
+      nome: nomeFormatado
     })
   } catch (err) {
     console.error('[Perfil] Erro ao obter perfil:', err)

@@ -4,7 +4,7 @@ exports.sendSuccess = (res, data = {}, message = 'Operação realizada com suces
     statusCode: res.statusCode || 200,
     message,
     timestamp: new Date().toISOString(),
-    path: res.req.originalUrl,
+    path: res?.req?.originalUrl || 'unknown',
     data
   }
 
@@ -17,9 +17,9 @@ exports.sendError = (res, statusCode = 500, message = 'Erro interno', extra = {}
     statusCode,
     message,
     timestamp: new Date().toISOString(),
-    path: res.req.originalUrl,
+    path: res?.req?.originalUrl || 'unknown',
     error: message,
-    ...extra // permite passar campos extras se quiser
+    ...extra
   }
 
   return res.status(statusCode).json(responsePayload)

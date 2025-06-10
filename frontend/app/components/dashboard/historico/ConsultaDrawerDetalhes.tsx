@@ -14,16 +14,16 @@ import {
   Skeleton,
   Text,
   VStack,
+  Alert
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-
-// IMPORTA OS FORMATTERS CENTRALIZADOS
 import {
   formatarCNPJ,
   formatarMoeda,
   formatarDataHora,
   limparCNPJ,
 } from '../../../../../shared/formatters/formatters'
+import { MdError } from "react-icons/md";
 
 interface ConsultaDrawerDetalhesProps {
   cnpj: string | null
@@ -34,6 +34,7 @@ interface ConsultaDrawerDetalhesProps {
 export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawerDetalhesProps) {
   const [carregando, setCarregando] = useState(false)
   const [dadosEmpresa, setDadosEmpresa] = useState<any>(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
     if (isOpen && cnpj) {
@@ -44,6 +45,7 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
   const buscarDetalhes = async (cnpjLimpo: string) => {
     setCarregando(true)
     setDadosEmpresa(null)
+    setErro(null)
 
     try {
       const res = await fetch(`/api/consulta/${cnpjLimpo}`, {
@@ -52,16 +54,17 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
 
       console.log('[ConsultaDrawerDetalhes] Status:', res.status)
 
-      if (!res.ok) {
-        throw new Error('Erro ao buscar detalhes')
+      const data = await res.json()
+      console.log('[ConsultaDrawerDetalhes] Dados empresa:', data)
+
+      if (!res.ok || !data.success || !data.data?.empresa) {
+        throw new Error(data.message || 'Erro ao obter dados da empresa.')
       }
 
-      const data = await res.json()
-      console.log('[ConsultaDrawerDetalhes] Dados:', data)
-
-      setDadosEmpresa(data.empresa || null)
-    } catch (err) {
+      setDadosEmpresa(data.data?.empresa || null)
+    } catch (err: any) {
       console.error('[ConsultaDrawerDetalhes] Erro ao buscar detalhes:', err)
+      setErro(err.message || 'Erro ao buscar detalhes da empresa.')
       setDadosEmpresa(null)
     } finally {
       setCarregando(false)
@@ -70,6 +73,13 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
 
   const DividerLine = () => (
     <Box h="1px" w="full" bg="gray.200" my={2} />
+  )
+
+  const renderCampo = (label: string, valor?: any) => (
+    <Box>
+      <Text fontWeight="bold">{label}</Text>
+      <Text>{valor || '-'}</Text>
+    </Box>
   )
 
   return (
@@ -107,54 +117,75 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
                   <Skeleton key={i} height="20px" />
                 ))}
               </VStack>
+            ) : erro ? (
+              <Alert.Root status="error" borderRadius="md" mb={4} flexDirection="column" alignItems="start">
+                <Alert.Indicator>
+                  <MdError />
+                </Alert.Indicator>
+                <Alert.Title>Erro ao buscar detalhes</Alert.Title>
+                <Alert.Description fontSize="sm">{erro}</Alert.Description>
+              </Alert.Root>
             ) : dadosEmpresa ? (
               <VStack align="start" gap={3}>
-                <Box>
-                  <Text fontWeight="bold">Razão Social:</Text>
-                  <Text>{dadosEmpresa.nome}</Text>
-                </Box>
+                {renderCampo('Razão Social', dadosEmpresa.nome)}
+                <DividerLine />
+
+                {renderCampo('Nome Fantasia', dadosEmpresa.fantasia)}
+                <DividerLine />
+
+                {renderCampo('CNPJ', formatarCNPJ(dadosEmpresa.cnpj))}
+                <DividerLine />
+
+                {renderCampo('Situação', dadosEmpresa.situacao)}
+                <DividerLine />
+
+                {renderCampo('Data Situação', dadosEmpresa.data_situacao)}
+                <DividerLine />
+
+                {dadosEmpresa.situacao_especial && (
+                  <>
+                    {renderCampo('Situação Especial', dadosEmpresa.situacao_especial)}
+                    <DividerLine />
+                  </>
+                )}
+
+                {renderCampo('Abertura', dadosEmpresa.abertura)}
+                <DividerLine />
+
+                {renderCampo('Natureza Jurídica', dadosEmpresa.natureza_juridica)}
                 <DividerLine />
 
                 <Box>
-                  <Text fontWeight="bold">CNPJ:</Text>
-                  <Text>{formatarCNPJ(dadosEmpresa.cnpj)}</Text>
+                  <Text fontWeight="bold">Atividade Principal:</Text>
+                  <Text>
+                    {dadosEmpresa.atividade_principal?.map((a: any) => `${a.code} - ${a.text}`).join(', ') || '-'}
+                  </Text>
                 </Box>
                 <DividerLine />
 
-                <Box>
-                  <Text fontWeight="bold">Situação:</Text>
-                  <Text>{dadosEmpresa.situacao}</Text>
-                </Box>
+                {dadosEmpresa.atividades_secundarias?.length > 0 && (
+                  <>
+                    <Box>
+                      <Text fontWeight="bold">Atividades Secundárias:</Text>
+                      <VStack align="start" gap={1}>
+                        {dadosEmpresa.atividades_secundarias.map((a: any, i: number) => (
+                          <Text key={i}>
+                            {a.code} - {a.text}
+                          </Text>
+                        ))}
+                      </VStack>
+                    </Box>
+                    <DividerLine />
+                  </>
+                )}
+
+                {renderCampo('Capital Social', formatarMoeda(dadosEmpresa.capital_social))}
                 <DividerLine />
 
-                <Box>
-                  <Text fontWeight="bold">Abertura:</Text>
-                  <Text>{dadosEmpresa.abertura}</Text>
-                </Box>
+                {renderCampo('Tipo', dadosEmpresa.tipo)}
                 <DividerLine />
 
-                <Box>
-                  <Text fontWeight="bold">Natureza Jurídica:</Text>
-                  <Text>{dadosEmpresa.natureza_juridica}</Text>
-                </Box>
-                <DividerLine />
-
-                <Box>
-                  <Text fontWeight="bold">Capital Social:</Text>
-                  <Text>{formatarMoeda(dadosEmpresa.capital_social)}</Text>
-                </Box>
-                <DividerLine />
-
-                <Box>
-                  <Text fontWeight="bold">Tipo:</Text>
-                  <Text>{dadosEmpresa.tipo}</Text>
-                </Box>
-                <DividerLine />
-
-                <Box>
-                  <Text fontWeight="bold">Última atualização:</Text>
-                  <Text>{formatarDataHora(dadosEmpresa.ultima_atualizacao)}</Text>
-                </Box>
+                {renderCampo('Última atualização', formatarDataHora(dadosEmpresa.ultima_atualizacao))}
                 <DividerLine />
 
                 <Box>
@@ -162,6 +193,48 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
                   <Text>
                     {dadosEmpresa.logradouro}, {dadosEmpresa.numero}, {dadosEmpresa.bairro} <br />
                     {dadosEmpresa.municipio} - {dadosEmpresa.uf}, {dadosEmpresa.cep}
+                  </Text>
+                </Box>
+                <DividerLine />
+
+                {renderCampo('Email', dadosEmpresa.email)}
+                <DividerLine />
+
+                {renderCampo('Telefone', dadosEmpresa.telefone)}
+                <DividerLine />
+
+                {dadosEmpresa.qsa?.length > 0 && (
+                  <>
+                    <Box>
+                      <Text fontWeight="bold">Quadro Societário (QSA):</Text>
+                      <VStack align="start" gap={1}>
+                        {dadosEmpresa.qsa.map((q: any, i: number) => (
+                          <Text key={i}>
+                            {q.nome} - {q.qual}
+                          </Text>
+                        ))}
+                      </VStack>
+                    </Box>
+                    <DividerLine />
+                  </>
+                )}
+
+                <Box>
+                  <Text fontWeight="bold">Simples:</Text>
+                  <Text>
+                    {dadosEmpresa.simples?.optante
+                      ? `Optante desde ${formatarDataHora(dadosEmpresa.simples.data_opcao)}`
+                      : 'Não optante'}
+                  </Text>
+                </Box>
+                <DividerLine />
+
+                <Box>
+                  <Text fontWeight="bold">Simei:</Text>
+                  <Text>
+                    {dadosEmpresa.simei?.optante
+                      ? `Optante desde ${formatarDataHora(dadosEmpresa.simei.data_opcao)}`
+                      : 'Não optante'}
                   </Text>
                 </Box>
 
