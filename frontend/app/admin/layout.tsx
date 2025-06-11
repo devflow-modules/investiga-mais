@@ -3,7 +3,7 @@
 import { Flex, Box } from '@chakra-ui/react'
 import { useAuth } from 'src/hooks/useAuth'
 import { Toaster } from 'src/components/ui/toaster'
-import AdminSidebar from '@/components/admin/AdminSidebar'  // você cria este componente
+import AdminSidebar from '@/components/admin/AdminSidebar'
 import { usePathname } from 'next/navigation'
 import AdminLayoutContainer from '@/components/admin/AdminLayoutContainer'
 

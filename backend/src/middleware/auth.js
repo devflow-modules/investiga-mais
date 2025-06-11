@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { sendError } = require('../../../shared/utils/sendResponse')
+const { sendError } = require('../utils/sendResponse')
 
 const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev'
 

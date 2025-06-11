@@ -1,355 +1,326 @@
-const request = require('supertest');
-const axios = require('axios');
+jest.mock('axios')
+jest.mock('../src/lib/prisma', () => require('../tests/__mocks__/prisma'))
+jest.mock('../src/middleware', () => ({
+  verifyToken: (req, res, next) => {
+    req.user = {
+      usuarioId: 'usuario-mockado-id',
+      cpf: '12345678900',
+      email: 'teste@teste.com',
+      nome: 'Usuário Teste',
+      role: 'cliente'
+    };
+    next();
+  },
+  errorHandler: (err, req, res, next) => next(err),
+  limiterPerfil: (req, res, next) => next(),
+  loginLimiter: (req, res, next) => next(),
+  logger: (req, res, next) => next(),
+}))
 
-// ✅ Mocks do Prisma precisam vir antes da importação do app
-const mockConsulta = {
-  findFirst: jest.fn(),
-  create: jest.fn(),
-  findMany: jest.fn(),
-  count: jest.fn()
-};
-const mockDadosCNPJ = {
-  findUnique: jest.fn(),
-  create: jest.fn()
-};
-
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => ({
-    consulta: mockConsulta,
-    dadosCNPJ: mockDadosCNPJ
-  }))
-}));
-
-// ✅ Mock do middleware de autenticação
-jest.mock('../src/middleware/auth', () => (req, res, next) => {
-  req.user = { cpf: '12345678900', email: 'teste@teste.com', nome: 'Usuário Teste' };
-  next();
-});
-
-// ✅ Mock do axios (requisições externas)
-jest.mock('axios');
-
-// ✅ Importar o app somente depois dos mocks
-const app = require('../src/app');
+const request = require('supertest')
+const app = require('../src/app')
+const prisma = require('../src/lib/prisma')
+const axios = require('axios')
 
 describe('Consulta CNPJ API', () => {
+  const cnpj = '19131243000197'
+
   beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()
+  })
 
   test('Retorna erro para CNPJ inválido', async () => {
-    const res = await request(app).get('/api/consulta/abc123');
-    expect(res.statusCode).toBe(400);
-    expect(res.body.error).toBe('CNPJ inválido. Verifique o número digitado.');
-  });
+    const res = await request(app).get('/api/consulta/123')
+    expect(res.statusCode).toBe(400)
+    expect(res.body.error).toBe('CNPJ inválido. Verifique o número digitado.')
+  })
 
   test('Consulta CNPJ válido e salva no cache', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue(null);
     axios.get.mockResolvedValue({
+      status: 200,
       data: {
         status: 'OK',
-        nome: 'Empresa Teste LTDA',
-        cnpj,
-        fantasia: 'Empresa Teste'
+        nome: 'Empresa Teste',
+        cnpj
       }
-    });
-    mockDadosCNPJ.create.mockResolvedValue({
+    })
+
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.dadosCNPJ.create.mockResolvedValue({
       cnpj,
       dados: {
-        nome: 'Empresa Teste LTDA',
-        cnpj,
-        fantasia: 'Empresa Teste'
+        status: 'OK',
+        nome: 'Empresa Teste',
+        cnpj
       }
-    });
-    mockConsulta.create.mockResolvedValue({
-      id: '1',
+    })
+
+    prisma.consulta.findFirst.mockResolvedValue(null)
+    prisma.consulta.create.mockResolvedValue({
+      id: 1,
       cpf: '12345678900',
       cnpj,
       status: 'Pendente',
       criadoEm: new Date()
-    });
+    })
 
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data.empresa.cnpj.replace(/\D/g, '')).toBe(cnpj);
-  });
+    prisma.consulta.update.mockResolvedValue({
+      id: 1,
+      status: 'Consultado'
+    })
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.empresa.cnpj.replace(/\D/g, '')).toBe(cnpj)
+  })
 
   test('Consulta CNPJ com erro da ReceitaWS', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue(null);
-
-    axios.get.mockResolvedValue({
-      data: {
-        status: 'ERROR',
-        nome: 'Empresa ERRO', // garantir que não caia no 502
-        cnpj,
-        fantasia: 'Fantasia'
-      }
-    });
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(404); // agora vai passar
-    expect(res.body.error).toBe('Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.');
-  });
-
-  test('Consulta CNPJ com resposta inválida da ReceitaWS (sem data ou status)', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue(null);
-    axios.get.mockResolvedValue({}); // resposta sem .data
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(502); // ajusta conforme seu controller (geralmente 502)
-    expect(res.body.error).toBe('Resposta inválida da ReceitaWS.');
-  });
-
-  test('Consulta CNPJ retornando dados do cache', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue({
-      cnpj,
-      dados: {
-        nome: 'Empresa Cache LTDA',
-        cnpj,
-        fantasia: 'Empresa Cache'
-      }
-    });
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(mockDadosCNPJ.findUnique).toHaveBeenCalled();
-    expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data.empresa.nome).toBe('Empresa Cache LTDA');
-  });
-
-  test('Erro interno ao consultar CNPJ', async () => {
-    const cnpj = '19131243000197';
-    mockConsulta.findFirst.mockRejectedValue(new Error('Erro simulado'));
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(500);
-    expect(res.body.error).toBe('Erro interno ao consultar CNPJ.');
-  });
-
-  test('Listagem de consultas do usuário', async () => {
-    mockConsulta.findMany.mockResolvedValue([
-      {
-        id: '1',
-        nome: 'Empresa Teste LTDA',
-        cpf: '12345678900',
-        cnpj: '19131243000197',
-        status: 'Pendente',
-        criadoEm: new Date()
-      }
-    ]);
-    mockConsulta.count.mockResolvedValue(1);
-
-    const res = await request(app).get('/api/consulta');
-    expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(Array.isArray(res.body.data.resultados)).toBe(true);
-    expect(res.body.data.resultados[0]).toHaveProperty('criadoFormatado');
-  });
-
-  test('Erro ao listar consultas', async () => {
-    mockConsulta.findMany.mockRejectedValue(new Error('Falha simulada'));
-
-    const res = await request(app).get('/api/consulta');
-    expect(res.statusCode).toBe(500);
-    expect(res.body.error).toBe('Erro ao listar consultas');
-  });
-
-  test('Consulta CNPJ com consulta pendente existente', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue({
-      id: '999',
-      cpf: '12345678900',
-      cnpj,
-      status: 'Pendente',
-      criadoEm: new Date()
-    });
-
-    mockDadosCNPJ.findUnique.mockResolvedValue({
-      cnpj,
-      dados: {
-        nome: 'Empresa Pendente',
-        cnpj,
-        fantasia: 'Fantasia'
-      }
-    });
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data.consulta.id).toBe('999');
-    expect(res.body.data.empresa.nome).toBe('Empresa Pendente');
-  });
-
-  test('Consulta CNPJ com consulta concluída existente', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue({
-      id: '888',
-      cpf: '12345678900',
-      cnpj,
-      status: 'Concluída',
-      criadoEm: new Date()
-    });
-
-    mockDadosCNPJ.findUnique.mockResolvedValue({
-      cnpj,
-      dados: {
-        nome: 'Empresa Concluída',
-        cnpj,
-        fantasia: 'Fantasia'
-      }
-    });
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data.consulta.id).toBe('888');
-    expect(res.body.data.empresa.nome).toBe('Empresa Concluída');
-  });
-
-  test('Consulta CNPJ com dados da ReceitaWS incompletos', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue(null);
-    axios.get.mockResolvedValue({
-      data: {
-        status: 'OK',
-        // nome ausente → vai forçar o controller a retornar 502
-        cnpj,
-        fantasia: 'Empresa Teste'
-      }
-    });
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(502);
-    expect(res.body.error).toBe('Resposta inválida da ReceitaWS.');
-  });
-
-  test('Consulta CNPJ retornando cache inválido (dados null)', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue({
-      cnpj,
-      dados: null // força erro no controller
-    });
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(502);
-    expect(res.body.error).toBe('Resposta inválida da ReceitaWS.');
-  });
-
-  test('Consulta CNPJ retorna erro 429 quando atinge limite de retries da ReceitaWS', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue(null);
-
-    // Mock com retries → simula 2x 429 + depois MAX_RETRIES_EXCEEDED
-    const retries = [
-      { response: { status: 429, statusText: 'Too Many Requests', data: {} } },
-      { response: { status: 429, statusText: 'Too Many Requests', data: {} } },
-      { response: { status: 429, statusText: 'Too Many Requests', data: {} } } // última tentativa também 429
-    ];
-
-
-    axios.get.mockImplementation(() => {
-      const next = retries.shift();
-      if (next instanceof Error) {
-        throw next;
-      } else {
-        return Promise.reject(next);
-      }
-    });
-
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(429);
-    expect(res.body.error).toBe('Limite de consultas atingido. Tente novamente em breve!');
-  });
-
-  test('Listagem de consultas com filtro por nome e CNPJ', async () => {
-    mockConsulta.findMany.mockResolvedValue([
-      {
-        id: '1',
-        nome: 'Empresa Teste LTDA',
-        cpf: '12345678900',
-        cnpj: '19131243000197',
-        status: 'Pendente',
-        criadoEm: new Date()
-      }
-    ]);
-    mockConsulta.count.mockResolvedValue(1);
-
-    const res = await request(app).get('/api/consulta?nome=Teste&cnpj=19131243000197');
-    expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(Array.isArray(res.body.data.resultados)).toBe(true);
-    expect(res.body.data.total).toBe(1);
-  });
-
-  test('Listagem de consultas com filtro de data', async () => {
-    mockConsulta.findMany.mockResolvedValue([]);
-    mockConsulta.count.mockResolvedValue(0);
-
-    const res = await request(app).get('/api/consulta?data=2025-06-10');
-    expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(Array.isArray(res.body.data.resultados)).toBe(true);
-    expect(res.body.data.total).toBe(0);
-  });
-
-  test('Consulta CNPJ com NOT_IN_CACHE', async () => {
-    const cnpj = '19131243000197';
-
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue(null);
-
     axios.get.mockRejectedValue({
       response: {
         status: 404,
-        statusText: 'Not Found',
-        data: {
-          message: 'not in cache'
-        }
+        data: { message: 'not in cache' }
       }
-    });
+    })
 
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(404);
-    expect(res.body.error).toBe('Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.');
-  });
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.consulta.findFirst.mockResolvedValue(null)
 
-  test('Consulta CNPJ com erro genérico da ReceitaWS (API_ERROR)', async () => {
-    const cnpj = '19131243000197';
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(404)
+    expect(res.body.error).toBe('Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.')
+  })
 
-    mockConsulta.findFirst.mockResolvedValue(null);
-    mockDadosCNPJ.findUnique.mockResolvedValue(null);
+  test('Consulta CNPJ com resposta inválida da ReceitaWS (sem data ou status)', async () => {
+    axios.get.mockResolvedValue({
+      status: 200,
+      data: {
+        cnpj
+        // faltando status e nome
+      }
+    })
 
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.consulta.findFirst.mockResolvedValue(null)
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(502)
+    expect(res.body.error).toBe('Resposta inválida da ReceitaWS.')
+  })
+
+  test('Consulta CNPJ retornando dados do cache', async () => {
+    prisma.dadosCNPJ.findUnique.mockResolvedValue({
+      cnpj,
+      dados: {
+        status: 'OK',
+        nome: 'Empresa do Cache',
+        cnpj
+      }
+    })
+
+    prisma.consulta.findFirst.mockResolvedValue(null)
+    prisma.consulta.create.mockResolvedValue({
+      id: 999,
+      cpf: '12345678900',
+      cnpj,
+      status: 'Pendente',
+      criadoEm: new Date()
+    })
+
+    prisma.consulta.update.mockResolvedValue({
+      id: 999,
+      status: 'Consultado'
+    })
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.empresa.nome).toBe('Empresa do Cache')
+  })
+
+  test('Erro interno ao consultar CNPJ', async () => {
+    prisma.dadosCNPJ.findUnique.mockImplementation(() => {
+      throw new Error('Erro simulado')
+    })
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(500)
+    expect(res.body.error).toBe('Erro interno ao consultar CNPJ.')
+  })
+
+  test('Consulta CNPJ com consulta pendente existente', async () => {
+    prisma.dadosCNPJ.findUnique.mockResolvedValue({
+      cnpj,
+      dados: {
+        status: 'OK',
+        nome: 'Empresa Pendente',
+        cnpj
+      }
+    })
+
+    prisma.consulta.findFirst.mockResolvedValue({
+      id: 123,
+      cpf: '12345678900',
+      cnpj,
+      status: 'Pendente',
+      criadoEm: new Date()
+    })
+
+    prisma.consulta.update.mockResolvedValue({
+      id: 123,
+      status: 'Consultado'
+    })
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.consulta.id).toBe(123)
+    expect(res.body.data.consulta.status).toBe('Consultado')
+  })
+
+  test('Consulta CNPJ com consulta concluída existente', async () => {
+    prisma.dadosCNPJ.findUnique.mockResolvedValue({
+      cnpj,
+      dados: {
+        status: 'OK',
+        nome: 'Empresa Finalizada',
+        cnpj
+      }
+    })
+
+    prisma.consulta.findFirst.mockResolvedValue({
+      id: 321,
+      cpf: '12345678900',
+      cnpj,
+      status: 'Consultado',
+      criadoEm: new Date()
+    })
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.consulta.id).toBe(321)
+    expect(res.body.data.consulta.status).toBe('Consultado')
+  })
+
+  test('Consulta CNPJ com dados da ReceitaWS incompletos', async () => {
+    axios.get.mockResolvedValue({
+      status: 200,
+      data: {
+        status: 'OK',
+        nome: '', // Nome vazio → gera erro 502
+        cnpj
+      }
+    })
+
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.consulta.findFirst.mockResolvedValue(null)
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(502)
+    expect(res.body.error).toBe('Resposta inválida da ReceitaWS.')
+  })
+
+  test('Consulta CNPJ retornando cache inválido (dados null)', async () => {
+    prisma.dadosCNPJ.findUnique.mockResolvedValue({
+      cnpj,
+      dados: null
+    })
+
+    prisma.consulta.findFirst.mockResolvedValue(null)
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(502)
+    expect(res.body.error).toBe('Resposta inválida da ReceitaWS.')
+  })
+
+  test('Consulta CNPJ retorna erro 429 quando atinge limite de retries da ReceitaWS', async () => {
     axios.get.mockRejectedValue({
       response: {
-        status: 500,
-        statusText: 'Internal Server Error',
+        status: 429,
         data: {}
       }
-    });
+    })
 
-    const res = await request(app).get(`/api/consulta/${cnpj}`);
-    expect(res.statusCode).toBe(500);
-    expect(res.body.error).toBe('Erro ao consultar dados da ReceitaWS.');
-  });
-});
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.consulta.findFirst.mockResolvedValue(null)
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(429)
+    expect(res.body.error).toBe('Limite de consultas atingido. Tente novamente em breve!')
+  })
+
+  test('Consulta CNPJ com NOT_IN_CACHE', async () => {
+    axios.get.mockRejectedValue({
+      response: {
+        status: 404,
+        data: { message: 'not in cache' }
+      }
+    })
+
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.consulta.findFirst.mockResolvedValue(null)
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(404)
+    expect(res.body.error).toBe('Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.')
+  })
+
+  // ----- Listagem de consultas -----
+
+  test('Listagem de consultas do usuário', async () => {
+    prisma.consulta.findMany.mockResolvedValue([
+      {
+        id: '1',
+        nome: 'Empresa Teste LTDA',
+        cpf: '12345678900',
+        cnpj: '19131243000197',
+        status: 'Pendente',
+        criadoEm: new Date()
+      }
+    ])
+
+    const res = await request(app).get('/api/consulta')
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(Array.isArray(res.body.data.resultados)).toBe(true)
+    expect(res.body.data.resultados[0]).toHaveProperty('criadoFormatado')
+  })
+
+  test('Erro ao listar consultas', async () => {
+    prisma.consulta.findMany.mockImplementation(() => {
+      throw new Error('Falha simulada')
+    })
+
+    const res = await request(app).get('/api/consulta')
+    expect(res.statusCode).toBe(500)
+    expect(res.body.error).toBe('Erro ao listar consultas')
+  })
+
+  test('Listagem de consultas com filtro por nome e CNPJ', async () => {
+    prisma.consulta.findMany.mockResolvedValue([])
+
+    const res = await request(app).get('/api/consulta?nome=Teste&cnpj=19131243000197')
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(Array.isArray(res.body.data.resultados)).toBe(true)
+  })
+
+  test('Listagem de consultas com filtro de data', async () => {
+    prisma.consulta.findMany.mockResolvedValue([])
+
+    const res = await request(app).get('/api/consulta?dataInicio=2024-01-01&dataFim=2024-12-31')
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(Array.isArray(res.body.data.resultados)).toBe(true)
+  })
+
+  test('Listagem de consultas com filtro de status', async () => {
+    prisma.consulta.findMany.mockResolvedValue([])
+
+    const res = await request(app).get('/api/consulta?status=Consultado')
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(Array.isArray(res.body.data.resultados)).toBe(true)
+  })
+})

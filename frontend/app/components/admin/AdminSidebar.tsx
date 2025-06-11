@@ -22,9 +22,7 @@ import { Tooltip } from '@/components/dashboard/Tooltip'
 import { useState } from 'react'
 
 const adminLinks = [
-  { href: '/admin/registrar', label: 'Registrar Usuário', icon: FiUserPlus },
-  { href: '/admin/logs', label: 'Logs', icon: FiDatabase },
-  { href: '/admin/configuracoes', label: 'Configurações', icon: FiSettings },
+  { href: '/admin/registrar', label: 'Registrar Usuário', icon: FiUserPlus }
 ]
 
 interface SidebarProps {

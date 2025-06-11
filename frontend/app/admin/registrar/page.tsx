@@ -8,20 +8,24 @@ import {
   Input,
   VStack,
   Text,
+  Select,
+  Portal,
+  Spinner,
+  HStack,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { validarEmail, validarCPF, validarTelefone } from '../../../../shared/validators'
-import { formatarTelefone } from '../../../../shared/formatters/formatters'
 import { toaster } from '../../../src/components/ui/toaster'
 import { mascararCPF } from '../../../src/utils/mascararCPF'
 import { mascararTelefone } from '../../../src/utils/mascararTelefone'
-
+import { generoOptions } from '../../components/dashboard/historico/createListCollection'
 
 export default function RegistrarUsuarioManual() {
   const [email, setEmail] = useState('')
   const [cpf, setCpf] = useState('')
   const [nome, setNome] = useState('')
   const [telefone, setTelefone] = useState('')
+  const [genero, setGenero] = useState('')
 
   const [carregando, setCarregando] = useState(false)
 
@@ -29,8 +33,9 @@ export default function RegistrarUsuarioManual() {
   const isCPFValid = validarCPF(cpf.replace(/\D/g, ''))
   const isNomeValid = nome.trim().length >= 3
   const isTelefoneValid = !telefone || validarTelefone(telefone)
+  const isGeneroValid = genero !== ''
 
-  const isFormValid = isEmailValid && isCPFValid && isNomeValid && isTelefoneValid
+  const isFormValid = isEmailValid && isCPFValid && isNomeValid && isTelefoneValid && isGeneroValid
 
   const handleRegistrar = async () => {
     if (!isFormValid) {
@@ -55,7 +60,8 @@ export default function RegistrarUsuarioManual() {
           email,
           cpf: cpf.replace(/\D/g, ''),
           nome,
-          telefone
+          telefone,
+          genero
         })
       })
 
@@ -71,10 +77,7 @@ export default function RegistrarUsuarioManual() {
         type: 'success',
       })
 
-      setEmail('')
-      setCpf('')
-      setNome('')
-      setTelefone('')
+      handleLimparCampos()
 
     } catch (err: any) {
       console.error('[Admin] Erro ao registrar usuário:', err)
@@ -87,6 +90,14 @@ export default function RegistrarUsuarioManual() {
     } finally {
       setCarregando(false)
     }
+  }
+
+  const handleLimparCampos = () => {
+    setEmail('')
+    setCpf('')
+    setNome('')
+    setTelefone('')
+    setGenero('')
   }
 
   return (
@@ -113,10 +124,7 @@ export default function RegistrarUsuarioManual() {
             <Input
               placeholder="CPF *"
               value={mascararCPF(cpf)}
-              onChange={(e) => {
-                // Sempre salva o CPF "limpo" no state (só números)
-                setCpf(e.target.value.replace(/\D/g, ''))
-              }}
+              onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))}
             />
             {!isCPFValid && cpf !== '' && (
               <Text fontSize="xs" color="red.500" mt={1}>CPF inválido</Text>
@@ -147,18 +155,70 @@ export default function RegistrarUsuarioManual() {
             )}
           </Box>
 
+          {/* Gênero */}
+          <Box>
+            <Select.Root
+              collection={generoOptions}
+              value={[genero]}
+              onValueChange={(val) => setGenero(val?.value?.[0] ?? '')}
+              size="md"
+              width="100%"
+            >
+              <Select.HiddenSelect />
+              <Select.Control>
+                <Select.Trigger>
+                  <Select.ValueText>
+                    {generoOptions.items.find((item) => item.value === genero)?.label || 'Selecione o gênero'}
+                  </Select.ValueText>
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {generoOptions.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        {item.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+
+            {!isGeneroValid && (
+              <Text fontSize="xs" color="red.500" mt={1}>Selecione um gênero</Text>
+            )}
+          </Box>
+
         </VStack>
 
-        <Button
-          colorScheme="blue"
-          onClick={handleRegistrar}
-          loading={carregando}
-          disabled={!isFormValid || carregando}
-          loadingText="Registrando..."
-          width="full"
-        >
-          Registrar Usuário
-        </Button>
+        {/* Botões */}
+        <Box w="full" mt={4}>
+          <VStack gap={3}>
+            <Button
+              colorScheme="blue"
+              onClick={handleRegistrar}
+              disabled={!isFormValid || carregando}
+              width="full"
+            >
+              {carregando && <Spinner size="sm" mr={2} />} Registrar Usuário
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={handleLimparCampos}
+              width="full"
+            >
+              Limpar campos
+            </Button>
+          </VStack>
+        </Box>
+
       </Box>
     </Box>
   )

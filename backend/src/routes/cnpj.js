@@ -6,8 +6,7 @@ const verifyToken = require('../middleware/auth')
 const somenteRoles = require('../middleware/somenteRoles')
 const Roles = require('../utils/roles')
 
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
 
 const EXPIRACAO_MS = 7 * 24 * 60 * 60 * 1000
 const API_FALLBACK = 'https://publica.cnpj.ws/cnpj'

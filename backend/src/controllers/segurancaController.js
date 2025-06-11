@@ -1,8 +1,7 @@
 const axios = require('axios')
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
-const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
-const { calcularRiscoIPQS } = require('../../../shared/riskCalculators/ipqsRisk')
+const prisma = require('../lib/prisma')
+const { sendSuccess, sendError } = require('../utils/sendResponse')
+const { calcularRiscoIPQS } = require('../utils/ipqsRisk')
 
 const IPQS_API_KEY = process.env.IPQS_API_KEY
 const ABSTRACT_API_KEY = process.env.ABSTRACT_API_KEY

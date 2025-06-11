@@ -1,8 +1,7 @@
 const axios = require('axios')
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
 const { validarCNPJ } = require('../../../shared/validators/backend')
-const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
+const { sendSuccess, sendError } = require('../utils/sendResponse')
 
 /**
  * Sleep helper
@@ -12,21 +11,46 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 /**
  * Consulta a ReceitaWS com retry para 429
  */
-async function consultarReceitaWSComRetry(cnpj, maxRetries = 2, delayMs = 1000) {
-  let attempt = 0
+async function consultarReceitaWSComRetry(cnpj) {
+  const maxRetries = 3;
+  const delayMs = 300; // ajuste se quiser entre tentativas
 
-  while (attempt <= maxRetries) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    console.log(`[ReceitaWS] Tentativa ${attempt + 1} para CNPJ ${cnpj}`);
+
     try {
-      console.log(`[ReceitaWS] Tentativa ${attempt + 1} para CNPJ ${cnpj}`)
+      const response = await axios.get(`https://api.receitaws.com.br/v1/cnpj/${cnpj}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.RECEITAWS_API_KEY}`
+        }
+      });
 
-      const receitaRes = await axios.get(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`)
+      // Se a API respondeu com sucesso e tem dados válidos:
+      if (response.status === 200 && response.data?.status && response.data?.nome) {
+        return response.data;
+      }
 
-      console.log(`[ReceitaWS] Status: ${receitaRes.status}`)
+      // Se não veio no cache (API da ReceitaWS retorna 404 + message 'not in cache')
+      if (response.status === 404 && response.data?.message === 'not in cache') {
+        throw new Error('NOT_IN_CACHE');
+      }
 
-      return receitaRes.data
+      // Se vier com status 429 → limite atingido
+      if (response.status === 429) {
+        throw new Error('MAX_RETRIES_EXCEEDED');
+      }
+
+      // Se vier qualquer resposta inválida
+      throw new Error('INVALID_API_RESPONSE');
     } catch (err) {
+      // Se já é um erro conhecido → não loga e propaga
+      if (['NOT_IN_CACHE', 'MAX_RETRIES_EXCEEDED', 'INVALID_API_RESPONSE', 'API_ERROR'].includes(err.message)) {
+        throw err;
+      }
+
+      // Se veio do axios com response (erro HTTP mesmo)
       const status = err.response?.status;
-      const message = err.response?.statusText;
+      const message = err.response?.data?.message;
       const data = err.response?.data;
 
       console.error(`[ReceitaWS] Erro tentativa ${attempt + 1} | Status: ${status} | Message: ${message}`);
@@ -34,72 +58,101 @@ async function consultarReceitaWSComRetry(cnpj, maxRetries = 2, delayMs = 1000) 
         console.error(`[ReceitaWS] Response body:`, data);
       }
 
-      // Se 429 → tenta novamente ou lança MAX_RETRIES_EXCEEDED
-      if (status === 429) {
-        if (attempt < maxRetries) {
-          console.warn(`[ReceitaWS] 429 - aguardando ${delayMs}ms para nova tentativa...`);
-          await sleep(delayMs);
-          attempt++;
-          continue;
-        } else {
-          throw new Error('MAX_RETRIES_EXCEEDED');
-        }
-      }
-
-      // Se 404 → lança erro para ser tratado no controller
-      if (status === 404 && data?.message === 'not in cache') {
+      // Se for 404 'not in cache' → lança para controller tratar
+      if (status === 404 && message === 'not in cache') {
         throw new Error('NOT_IN_CACHE');
       }
 
-      // Outro erro → lança erro genérico
-      throw new Error('API_ERROR');
+      // Se for 429 → lança para controller tratar
+      if (status === 429) {
+        throw new Error('MAX_RETRIES_EXCEEDED');
+      }
+
+      // Se não tem response ou é um erro esquisito → tenta de novo
+      if (attempt === maxRetries - 1) {
+        // última tentativa → lança como API_ERROR
+        throw new Error('API_ERROR');
+      } else {
+        // espera antes de tentar de novo
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
     }
   }
-
-  throw new Error('MAX_RETRIES_EXCEEDED')
 }
+
 
 /**
  * Controller consultar CNPJ
  */
 exports.consultarCNPJ = async (req, res) => {
-  const { cnpj } = req.params
-  const { cpf } = req.user
+  const { cnpj } = req.params;
+  const { cpf } = req.user;
 
   if (!validarCNPJ(cnpj)) {
-    return sendError(res, 400, 'CNPJ inválido. Verifique o número digitado.')
+    return sendError(res, 400, 'CNPJ inválido. Verifique o número digitado.');
   }
 
   try {
     // Verifica se o usuário já consultou esse CNPJ
     const consultaExistente = await prisma.consulta.findFirst({
       where: { cpf, cnpj }
-    })
+    });
 
     // Tenta pegar os dados do cache
     let dadosCNPJ = await prisma.dadosCNPJ.findUnique({
       where: { cnpj }
-    })
+    });
 
-    let novaConsulta = consultaExistente
-    let consultado = true
+    let novaConsulta = consultaExistente;
+    let consultado = true;
 
     if (!dadosCNPJ) {
       console.log(`[ReceitaWS] Cache não encontrado para CNPJ ${cnpj}`);
 
-      let empresa
+      let empresa;
 
       try {
-        empresa = await consultarReceitaWSComRetry(cnpj)
+        empresa = await consultarReceitaWSComRetry(cnpj);
 
         if (!empresa?.status || !empresa?.nome) {
-          throw new Error('INVALID_API_RESPONSE')
+          throw new Error('INVALID_API_RESPONSE');
         }
 
       } catch (error) {
-        console.error(`[ReceitaWS] Erro inesperado:`, error)
+        // 1️⃣ PRIMEIRO → TRATA MENSAGENS ESPECÍFICAS (ANTES DE MEXER EM CONSULTA)
+        if (error.message === 'NOT_IN_CACHE') {
+          return sendError(res, 404, 'Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.');
+        }
 
-        // Se não havia consulta → cria como Pendente + marca como Erro
+        if (error.message === 'MAX_RETRIES_EXCEEDED') {
+          return sendError(res, 429, 'Limite de consultas atingido. Tente novamente em breve!');
+        }
+
+        if (error.message === 'INVALID_API_RESPONSE') {
+          return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
+        }
+
+        if (error.message === 'API_ERROR') {
+          return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.');
+        }
+
+        // 2️⃣ DEPOIS → pega status da response
+        const status = error.response?.status;
+        const message = error.response?.data?.message;
+
+        if (status === 404 && message === 'not in cache') {
+          return sendError(res, 404, 'Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.');
+        }
+
+        if (status === 429) {
+          return sendError(res, 429, 'Limite de consultas atingido. Tente novamente em breve!');
+        }
+
+        if (!error.response?.data || !error.response?.status) {
+          return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
+        }
+
+        // 3️⃣ Se não caiu em nenhum → agora sim mexe em consulta
         if (!consultaExistente) {
           try {
             novaConsulta = await prisma.consulta.create({
@@ -109,35 +162,23 @@ exports.consultarCNPJ = async (req, res) => {
                 cnpj,
                 status: 'Pendente'
               }
-            })
+            });
 
             await prisma.consulta.update({
               where: { id: novaConsulta.id },
               data: { status: 'Erro' }
-            })
+            });
 
-            novaConsulta.status = 'Erro'
-            console.log(`[ReceitaWS] Status da nova consulta ${novaConsulta.id} atualizado para 'Erro'`)
+            novaConsulta.status = 'Erro';
+            console.log(`[ReceitaWS] Status da nova consulta ${novaConsulta.id} atualizado para 'Erro'`);
           } catch (updateErr) {
-            console.error(`[ReceitaWS] Erro ao criar/atualizar consulta para 'Erro':`, updateErr)
+            console.error(`[ReceitaWS] Erro ao criar/atualizar consulta para 'Erro':`, updateErr);
           }
         }
 
-        // Decide tipo de erro para resposta
-        if (error.message === 'NOT_IN_CACHE') {
-          return sendError(res, 404, 'Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.')
-        }
-
-        if (error.message === 'MAX_RETRIES_EXCEEDED') {
-          return sendError(res, 429, 'Limite de consultas atingido. Tente novamente em breve!')
-        }
-
-        if (error.message === 'INVALID_API_RESPONSE') {
-          return sendError(res, 502, 'Resposta inválida da ReceitaWS.')
-        }
-
-        // Erro genérico
-        return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.')
+        // 4️⃣ Fallback final
+        console.error(`[ReceitaWS] Erro inesperado:`, error);
+        return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.');
       }
 
       // Se sucesso → salva no cache
@@ -146,14 +187,14 @@ exports.consultarCNPJ = async (req, res) => {
           cnpj,
           dados: empresa
         }
-      })
+      });
 
-      console.log(`[ReceitaWS] Cache criado para CNPJ ${cnpj}`)
+      console.log(`[ReceitaWS] Cache criado para CNPJ ${cnpj}`);
     } else {
-      console.log(`[ReceitaWS] Usando cache para CNPJ ${cnpj}`)
+      console.log(`[ReceitaWS] Usando cache para CNPJ ${cnpj}`);
 
       if (!dadosCNPJ?.dados || typeof dadosCNPJ.dados !== 'object') {
-        return sendError(res, 502, 'Resposta inválida da ReceitaWS.')
+        return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
       }
     }
 
@@ -166,8 +207,8 @@ exports.consultarCNPJ = async (req, res) => {
           cnpj,
           status: 'Pendente'
         }
-      })
-      consultado = false
+      });
+      consultado = false;
     }
 
     // Atualiza status para Consultado se foi sucesso (somente se estava como Pendente)
@@ -176,12 +217,12 @@ exports.consultarCNPJ = async (req, res) => {
         await prisma.consulta.update({
           where: { id: novaConsulta.id },
           data: { status: 'Consultado' }
-        })
+        });
 
-        novaConsulta.status = 'Consultado'
-        console.log(`[ReceitaWS] Status da consulta ${novaConsulta.id} atualizado para 'Consultado'`)
+        novaConsulta.status = 'Consultado';
+        console.log(`[ReceitaWS] Status da consulta ${novaConsulta.id} atualizado para 'Consultado'`);
       } catch (updateErr) {
-        console.error(`[ReceitaWS] Erro ao atualizar status para 'Consultado':`, updateErr)
+        console.error(`[ReceitaWS] Erro ao atualizar status para 'Consultado':`, updateErr);
       }
     }
 
@@ -196,15 +237,17 @@ exports.consultarCNPJ = async (req, res) => {
         criadoEm: novaConsulta.criadoEm
       },
       empresa: dadosCNPJ.dados
-    })
+    });
+
   } catch (err) {
-    console.error('Erro ao consultar CNPJ:', err)
+    console.error('Erro ao consultar CNPJ:', err);
     return sendError(res, 500, 'Erro interno ao consultar CNPJ.', {
       consulta: null,
       empresa: null
-    })
+    });
   }
-}
+};
+
 
 /**
  * Lista todas as consultas feitas pelo usuário autenticado.
@@ -287,3 +330,4 @@ exports.listarConsultas = async (req, res) => {
     })
   }
 }
+

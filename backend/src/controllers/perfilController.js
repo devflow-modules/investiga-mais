@@ -1,6 +1,5 @@
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
-const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
+const prisma = require('../lib/prisma')
+const { sendSuccess, sendError } = require('../utils/sendResponse')
 
 /**
  * Atualiza o perfil do usuário autenticado.

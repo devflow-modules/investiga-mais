@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const verifyToken = require('../middleware/auth')
+const { verifyToken } = require('../middleware') 
 const somenteRoles = require('../middleware/somenteRoles')
 const Roles = require('../utils/roles')
 

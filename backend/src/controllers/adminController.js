@@ -1,10 +1,9 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma')
 const { validarEmail, validarCPF } = require('../../../shared/validators/backend');
 const { enviarEmail } = require('../services/email');
-const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse');
+const { sendSuccess, sendError } = require('../utils/sendResponse');
 
 exports.registrarManual = async (req, res, next) => {
     try {

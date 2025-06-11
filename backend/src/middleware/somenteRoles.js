@@ -1,4 +1,4 @@
-const { sendError } = require('../../../shared/utils/sendResponse')
+const { sendError } = require('../utils/sendResponse')
 
 function somenteRoles(rolesPermitidas = []) {
   return (req, res, next) => {

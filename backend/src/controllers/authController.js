@@ -1,9 +1,8 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
 const { validarEmail, validarSenha } = require('../../../shared/validators/backend')
-const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
+const { sendSuccess, sendError } = require('../utils/sendResponse')
 
 const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev'
 

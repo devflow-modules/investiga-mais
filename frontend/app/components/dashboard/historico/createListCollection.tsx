@@ -10,3 +10,11 @@ export const statusOptions = createListCollection({
     { label: 'Erro', value: 'erro' },
   ]
 })
+
+export const generoOptions = createListCollection({
+  items: [
+    { label: 'Selecione o gênero', value: '' },
+    { label: 'Masculino', value: 'Masculino' },
+    { label: 'Feminino', value: 'Feminino' },
+  ],
+})

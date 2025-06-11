@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1749617691354" clover="3.2.0">
-  <project timestamp="1749617691354" name="All files">
-    <metrics statements="516" coveredstatements="290" conditionals="197" coveredconditionals="56" methods="35" coveredmethods="15" elements="748" coveredelements="361" complexity="0" loc="516" ncloc="516" packages="5" files="25" classes="25"/>
+<coverage generated="1749626799538" clover="3.2.0">
+  <project timestamp="1749626799538" name="All files">
+    <metrics statements="509" coveredstatements="293" conditionals="192" coveredconditionals="58" methods="34" coveredmethods="16" elements="735" coveredelements="367" complexity="0" loc="509" ncloc="509" packages="6" files="24" classes="24"/>
     <package name="src">
       <metrics statements="32" coveredstatements="30" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="app.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\app.js">
@@ -360,7 +360,7 @@
       </file>
     </package>
     <package name="src.middleware">
-      <metrics statements="77" coveredstatements="53" conditionals="34" coveredconditionals="15" methods="9" coveredmethods="5"/>
+      <metrics statements="63" coveredstatements="49" conditionals="29" coveredconditionals="17" methods="8" coveredmethods="6"/>
       <file name="auth.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\middleware\auth.js">
         <metrics statements="18" coveredstatements="16" conditionals="14" coveredconditionals="12" methods="1" coveredmethods="1"/>
         <line num="1" count="4" type="stmt"/>
@@ -391,16 +391,13 @@
         <line num="8" count="1" type="stmt"/>
       </file>
       <file name="index.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\middleware\index.js">
-        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
         <line num="3" count="5" type="stmt"/>
         <line num="4" count="5" type="stmt"/>
         <line num="5" count="5" type="stmt"/>
-        <line num="6" count="5" type="stmt"/>
         <line num="7" count="5" type="stmt"/>
-        <line num="8" count="5" type="stmt"/>
-        <line num="10" count="5" type="stmt"/>
       </file>
       <file name="limiterPerfil.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\middleware\limiterPerfil.js">
         <metrics statements="12" coveredstatements="3" conditionals="6" coveredconditionals="0" methods="1" coveredmethods="0"/>
@@ -435,53 +432,37 @@
         <line num="8" count="0" type="stmt"/>
         <line num="12" count="5" type="stmt"/>
       </file>
-      <file name="somenteAdmin.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\middleware\somenteAdmin.js">
-        <metrics statements="7" coveredstatements="2" conditionals="6" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <file name="somenteRoles.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\middleware\somenteRoles.js">
+        <metrics statements="10" coveredstatements="8" conditionals="5" coveredconditionals="3" methods="2" coveredmethods="2"/>
         <line num="1" count="5" type="stmt"/>
-        <line num="4" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="5" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="9" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="13" count="5" type="stmt"/>
-      </file>
-      <file name="somenteCliente.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\middleware\somenteCliente.js">
-        <metrics statements="7" coveredstatements="5" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
-        <line num="1" count="5" type="stmt"/>
-        <line num="4" count="25" type="cond" truecount="1" falsecount="1"/>
+        <line num="4" count="25" type="stmt"/>
         <line num="5" count="25" type="stmt"/>
-        <line num="6" count="25" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="13" count="5" type="stmt"/>
-      </file>
-      <file name="somenteOperador.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\middleware\somenteOperador.js">
-        <metrics statements="7" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="1" count="5" type="stmt"/>
-        <line num="4" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="13" count="5" type="stmt"/>
+        <line num="6" count="25" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="25" type="cond" truecount="1" falsecount="1"/>
+        <line num="9" count="25" type="stmt"/>
+        <line num="10" count="25" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
       </file>
     </package>
     <package name="src.routes">
-      <metrics statements="101" coveredstatements="75" conditionals="8" coveredconditionals="0" methods="5" coveredmethods="1"/>
+      <metrics statements="106" coveredstatements="80" conditionals="8" coveredconditionals="0" methods="5" coveredmethods="1"/>
       <file name="adminRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\adminRoutes.js">
-        <metrics statements="12" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="13" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
         <line num="4" count="5" type="stmt"/>
         <line num="5" count="5" type="stmt"/>
         <line num="6" count="5" type="stmt"/>
-        <line num="9" count="5" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="15" count="5" type="stmt"/>
-        <line num="16" count="5" type="stmt"/>
-        <line num="19" count="5" type="stmt"/>
+        <line num="8" count="5" type="stmt"/>
+        <line num="11" count="5" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="17" count="5" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
         <line num="21" count="5" type="stmt"/>
+        <line num="23" count="5" type="stmt"/>
       </file>
       <file name="authRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\authRoutes.js">
         <metrics statements="12" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
@@ -499,88 +480,92 @@
         <line num="26" count="5" type="stmt"/>
       </file>
       <file name="cnpj.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\cnpj.js">
-        <metrics statements="34" coveredstatements="13" conditionals="8" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="35" coveredstatements="14" conditionals="8" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
         <line num="3" count="5" type="stmt"/>
-        <line num="4" count="5" type="stmt"/>
         <line num="5" count="5" type="stmt"/>
         <line num="6" count="5" type="stmt"/>
         <line num="7" count="5" type="stmt"/>
         <line num="9" count="5" type="stmt"/>
         <line num="10" count="5" type="stmt"/>
+        <line num="12" count="5" type="stmt"/>
         <line num="13" count="5" type="stmt"/>
-        <line num="14" count="5" type="stmt"/>
-        <line num="16" count="5" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="21" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="23" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="27" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="37" count="0" type="stmt"/>
-        <line num="40" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="41" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-        <line num="57" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
-        <line num="64" count="5" type="stmt"/>
-      </file>
-      <file name="consultaRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\consultaRoutes.js">
-        <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="5" type="stmt"/>
-        <line num="2" count="5" type="stmt"/>
-        <line num="4" count="5" type="stmt"/>
-        <line num="5" count="5" type="stmt"/>
-        <line num="6" count="5" type="stmt"/>
-        <line num="9" count="5" type="stmt"/>
-        <line num="10" count="5" type="stmt"/>
-        <line num="13" count="5" type="stmt"/>
-        <line num="14" count="5" type="stmt"/>
-        <line num="16" count="5" type="stmt"/>
-      </file>
-      <file name="perfilRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\perfilRoutes.js">
-        <metrics statements="14" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="1" count="5" type="stmt"/>
-        <line num="2" count="5" type="stmt"/>
-        <line num="4" count="5" type="stmt"/>
-        <line num="5" count="5" type="stmt"/>
-        <line num="6" count="5" type="stmt"/>
-        <line num="7" count="5" type="stmt"/>
-        <line num="10" count="5" type="stmt"/>
-        <line num="11" count="8" type="stmt"/>
-        <line num="12" count="8" type="stmt"/>
         <line num="16" count="5" type="stmt"/>
         <line num="17" count="5" type="stmt"/>
-        <line num="20" count="5" type="stmt"/>
-        <line num="23" count="5" type="stmt"/>
-        <line num="25" count="5" type="stmt"/>
+        <line num="19" count="5" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="26" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="67" count="5" type="stmt"/>
       </file>
-      <file name="segurancaRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\segurancaRoutes.js">
-        <metrics statements="14" coveredstatements="12" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <file name="consultaRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\consultaRoutes.js">
+        <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
         <line num="4" count="5" type="stmt"/>
         <line num="5" count="5" type="stmt"/>
         <line num="6" count="5" type="stmt"/>
-        <line num="9" count="5" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="11" count="0" type="stmt"/>
+        <line num="8" count="5" type="stmt"/>
+        <line num="11" count="5" type="stmt"/>
+        <line num="12" count="5" type="stmt"/>
+        <line num="14" count="5" type="stmt"/>
         <line num="15" count="5" type="stmt"/>
-        <line num="16" count="5" type="stmt"/>
+        <line num="17" count="5" type="stmt"/>
+      </file>
+      <file name="perfilRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\perfilRoutes.js">
+        <metrics statements="15" coveredstatements="15" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="6" count="5" type="stmt"/>
+        <line num="8" count="5" type="stmt"/>
+        <line num="9" count="5" type="stmt"/>
+        <line num="12" count="5" type="stmt"/>
+        <line num="13" count="8" type="stmt"/>
+        <line num="14" count="8" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
         <line num="19" count="5" type="stmt"/>
+        <line num="21" count="5" type="stmt"/>
         <line num="22" count="5" type="stmt"/>
-        <line num="25" count="5" type="stmt"/>
-        <line num="27" count="5" type="stmt"/>
+        <line num="24" count="5" type="stmt"/>
+      </file>
+      <file name="segurancaRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\segurancaRoutes.js">
+        <metrics statements="15" coveredstatements="13" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="6" count="5" type="stmt"/>
+        <line num="8" count="5" type="stmt"/>
+        <line num="11" count="5" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="17" count="5" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
+        <line num="20" count="5" type="stmt"/>
+        <line num="21" count="5" type="stmt"/>
+        <line num="22" count="5" type="stmt"/>
+        <line num="24" count="5" type="stmt"/>
       </file>
       <file name="webhookRoutes.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\routes\webhookRoutes.js">
         <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
@@ -606,6 +591,14 @@
         <line num="20" count="1" type="stmt"/>
         <line num="21" count="1" type="stmt"/>
         <line num="25" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.utils">
+      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="roles.js" path="C:\Users\Xakep\Desktop\investiga-mais\backend\src\utils\roles.js">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="7" count="5" type="stmt"/>
       </file>
     </package>
   </project>

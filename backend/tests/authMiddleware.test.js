@@ -23,7 +23,7 @@ describe('Middleware verifyToken', () => {
       message: 'Token não fornecido',
       statusCode: 401,
       success: false,
-    }))
+    }));
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -37,18 +37,26 @@ describe('Middleware verifyToken', () => {
       message: 'Token inválido',
       statusCode: 403,
       success: false,
-    }))
+    }));
     expect(next).not.toHaveBeenCalled();
   });
 
   it('chama next() se o token for válido', () => {
-    const payload = { id: 123, email: 'teste@email.com' };
+    const payload = { id: 123, email: 'teste@email.com' }; // o middleware espera id aqui
     const tokenValido = jwt.sign(payload, SECRET_KEY);
     req.cookies.token = tokenValido;
 
     verifyToken(req, res, next);
 
-    expect(req.user).toMatchObject(payload);
+    // Agora checa a estrutura real de req.user (como o middleware monta)
+    expect(req.user).toMatchObject({
+      usuarioId: payload.id,
+      email: payload.email,
+      cpf: null,
+      nome: null,
+      role: 'cliente'
+    });
+
     expect(next).toHaveBeenCalled();
   });
 });

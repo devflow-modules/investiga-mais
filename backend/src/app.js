@@ -53,7 +53,7 @@ app.use('/api/seguranca', segurancaRoutes)
 app.use('/api/admin', adminRoutes);
 
 // Fallback 404 → com padrão sendError
-const { sendError } = require('../../shared/utils/sendResponse')
+const { sendError } = require('./utils/sendResponse')
 app.use((req, res) => {
   return sendError(res, 404, 'Rota não encontrada')
 })

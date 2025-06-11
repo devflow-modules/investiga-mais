@@ -12,9 +12,15 @@ jest.mock('@prisma/client', () => {
     };
 });
 
-// ✅ Mock do middleware de autenticação - tem que vir ANTES do app
+// ✅ Mock do middleware de autenticação - com ROLE 'cliente'
 jest.mock('../src/middleware/auth', () => (req, res, next) => {
-    req.user = { usuarioId: 'mocked-usuario-id', cpf: '12345678900', email: 'teste@teste.com', nome: 'Usuário Teste' };
+    req.user = {
+        usuarioId: 'mocked-usuario-id',
+        cpf: '12345678900',
+        email: 'teste@teste.com',
+        nome: 'Usuário Teste',
+        role: 'cliente' // 👈 ADICIONADO!
+    };
     next();
 });
 
@@ -109,7 +115,6 @@ describe('PerfilController', () => {
     });
 
     it('atualiza perfil normalmente se bônus já foi concedido', async () => {
-        // Simula que o usuário já tem bonusConcedidoAt preenchido
         mockFindUnique.mockResolvedValue({ bonusConcedidoAt: new Date() });
         mockUpdate.mockResolvedValue({});
 
@@ -122,12 +127,11 @@ describe('PerfilController', () => {
             genero: 'F'
         });
 
-        console.log('Response:', res.body); // opcional, ajuda no debug
+        console.log('Response:', res.body);
 
         expect(mockUpdate).toHaveBeenCalled();
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
-        // Mesmo com todos os campos preenchidos, se já tem bonusConcedidoAt, não concede novamente
         expect(res.body.data.bonusConcedido).toBe(false);
     });
 
@@ -165,7 +169,7 @@ describe('PerfilController', () => {
         mockFindUnique.mockResolvedValue({
             email: 'teste@email.com',
             cpf: '12345678909',
-            nome: null, // 👈 importante
+            nome: null,
             telefone: '11999999999',
             nascimento: new Date('1990-01-01'),
             cidade: 'São Paulo',
@@ -179,6 +183,6 @@ describe('PerfilController', () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
-        expect(res.body.data.nome).toBe(''); // <--- validando branch else
+        expect(res.body.data.nome).toBe('');
     });
 });
