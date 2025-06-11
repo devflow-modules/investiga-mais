@@ -202,8 +202,7 @@ exports.listarConsultas = async (req, res) => {
 
     if (filtroNome) {
       where.nome = {
-        contains: filtroNome,
-        mode: 'insensitive' // busca case-insensitive
+        contains: filtroNome
       }
     }
 

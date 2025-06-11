@@ -74,14 +74,14 @@ export default function HomePage() {
             Sair
           </Button>
         </Flex>
-
+        
         <Text color="gray.600" mb={6}>
           Olá,{' '}
           <Text as="span" fontWeight="bold" color="gray.800">
             {carregandoConsultas ? (
               <Spinner size="xs" color="blue.500" />
             ) : (
-              usuario
+              usuario?.trim() && usuario !== 'Usuário' ? usuario : 'Bem-vindo!'
             )}
           </Text>{' '}
           👋

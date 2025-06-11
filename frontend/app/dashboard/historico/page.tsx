@@ -100,6 +100,23 @@ export default function Historico() {
       <Box maxW="6xl" mx="auto" bg="white" p={8} rounded="lg" shadow="md">
         <Heading size="lg" mb={6}>Histórico de Consultas</Heading>
 
+        <Flex justify="flex-end" mb={4}>
+          <Button
+            size="sm"
+            variant="outline"
+            colorScheme="gray"
+            onClick={() => {
+              setPage(1)
+              setBuscaNome('')
+              setBuscaCnpj('')
+              setStatus('')
+              setData('')
+            }}
+          >
+            Limpar filtros
+          </Button>
+        </Flex>
+
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4} mb={6}>
           <Input
             placeholder="Buscar por nome"
@@ -117,10 +134,13 @@ export default function Historico() {
               setBuscaCnpj(e.target.value)
             }}
           />
-          <FiltroStatus value={status} onChange={(value) => {
-            setPage(1)
-            setStatus(value)
-          }} />
+          <FiltroStatus
+            value={status}
+            onChange={(value) => {
+              setPage(1)
+              setStatus(value.toLowerCase()) // garante lowercase
+            }}
+          />
           <Input
             type="date"
             value={data}

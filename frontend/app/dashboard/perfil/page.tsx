@@ -62,12 +62,11 @@ export default function Perfil() {
           return
         }
 
-        console.log('[Perfil] Perfil OK:', data.data.usuario)
+        console.log('[Perfil] Perfil OK:', data.data)
 
-        if (data.data?.usuario) {
-          setUsuario(data.data.usuario)
+        if (data.data) {
+          setUsuario(data.data)
         }
-
         setLastChecked(new Date().toLocaleString('pt-BR'))
       } catch (err) {
         console.error('[Perfil] Erro ao buscar perfil:', err)

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '../../src/hooks/useAuth'
 import Sidebar from '@/components/dashboard/Sidebar'
 import DashboardLayoutContainer from '@/components/dashboard/DashboardLayoutContainer'
+import { Toaster } from 'src/components/ui/toaster'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   useAuth()
@@ -17,6 +18,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Sidebar pathname={pathname} />
         <DashboardLayoutContainer>{children}</DashboardLayoutContainer>
       </Flex>
+
+      {/* Adiciona o Toaster globalmente aqui */}
+      <Toaster />
     </SidebarProvider>
   )
 }

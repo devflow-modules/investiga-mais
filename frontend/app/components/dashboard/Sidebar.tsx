@@ -14,7 +14,8 @@ import {
   LinkOverlay,
 } from '@chakra-ui/react'
 import { useState, type JSX } from 'react'
-import { FiMenu, FiHome, FiSearch, FiClock, FiUser, FiLogOut } from 'react-icons/fi'
+import { FiMenu, FiHome, FiSearch, FiClock, FiUser, FiLogOut  } from 'react-icons/fi'
+import { MdOutlineSecurity } from "react-icons/md";
 import { useRouter } from 'next/navigation'
 import NextLink from 'next/link'
 import { useSidebar } from '../../../src/context/SidebarContext'
@@ -26,6 +27,7 @@ const links = [
   { href: '/dashboard/consulta', label: 'Consulta CNPJ', icon: FiSearch },
   { href: '/dashboard/historico', label: 'Histórico', icon: FiClock },
   { href: '/dashboard/perfil', label: 'Meu Perfil', icon: FiUser },
+  { href: '/dashboard/seguranca', label: 'Segurança', icon: MdOutlineSecurity }
 ]
 
 interface SidebarProps {

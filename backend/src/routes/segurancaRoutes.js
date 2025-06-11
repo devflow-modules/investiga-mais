@@ -20,6 +20,6 @@ router.get('/ip-check', segurancaController.ipCheck)
 router.get('/email-verify/:email', segurancaController.emailVerify)
 
 // Safe Browsing URL Check
-router.get('/safe-browsing-check', segurancaController.safeBrowsingCheck)
+router.get('/safe-browsing', segurancaController.safeBrowsingCheck)
 
 module.exports = router
