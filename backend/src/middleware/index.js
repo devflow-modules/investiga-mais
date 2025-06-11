@@ -9,5 +9,5 @@ module.exports = {
   errorHandler,
   limiterPerfil,
   loginLimiter,
-  logger
+  logger,
 }

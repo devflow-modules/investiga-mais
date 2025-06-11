@@ -95,7 +95,7 @@ describe('Consulta CNPJ API', () => {
 
     const res = await request(app).get(`/api/consulta/${cnpj}`);
     expect(res.statusCode).toBe(404); // agora vai passar
-    expect(res.body.error).toBe('CNPJ não encontrado na base da ReceitaWS.');
+    expect(res.body.error).toBe('Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.');
   });
 
   test('Consulta CNPJ com resposta inválida da ReceitaWS (sem data ou status)', async () => {
@@ -279,7 +279,7 @@ describe('Consulta CNPJ API', () => {
 
     const res = await request(app).get(`/api/consulta/${cnpj}`);
     expect(res.statusCode).toBe(429);
-    expect(res.body.error).toBe('Limite de consultas da ReceitaWS atingido. Tente novamente mais tarde.');
+    expect(res.body.error).toBe('Limite de consultas atingido. Tente novamente em breve!');
   });
 
   test('Listagem de consultas com filtro por nome e CNPJ', async () => {
@@ -331,7 +331,7 @@ describe('Consulta CNPJ API', () => {
 
     const res = await request(app).get(`/api/consulta/${cnpj}`);
     expect(res.statusCode).toBe(404);
-    expect(res.body.error).toBe('CNPJ não encontrado na base da ReceitaWS.');
+    expect(res.body.error).toBe('Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.');
   });
 
   test('Consulta CNPJ com erro genérico da ReceitaWS (API_ERROR)', async () => {

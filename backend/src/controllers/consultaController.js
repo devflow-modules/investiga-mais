@@ -81,60 +81,83 @@ exports.consultarCNPJ = async (req, res) => {
       where: { cnpj }
     })
 
+    let novaConsulta = consultaExistente
+    let consultado = true
+
     if (!dadosCNPJ) {
       console.log(`[ReceitaWS] Cache não encontrado para CNPJ ${cnpj}`);
 
-      let empresa;
+      let empresa
 
       try {
-        empresa = await consultarReceitaWSComRetry(cnpj);
+        empresa = await consultarReceitaWSComRetry(cnpj)
 
-        if (!empresa?.status) {
-          return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
-        }
-
-        if (!empresa?.nome) {
-          return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
+        if (!empresa?.status || !empresa?.nome) {
+          throw new Error('INVALID_API_RESPONSE')
         }
 
       } catch (error) {
+        console.error(`[ReceitaWS] Erro inesperado:`, error)
+
+        // Se não havia consulta → cria como Pendente + marca como Erro
+        if (!consultaExistente) {
+          try {
+            novaConsulta = await prisma.consulta.create({
+              data: {
+                nome: 'Empresa não identificada',
+                cpf,
+                cnpj,
+                status: 'Pendente'
+              }
+            })
+
+            await prisma.consulta.update({
+              where: { id: novaConsulta.id },
+              data: { status: 'Erro' }
+            })
+
+            novaConsulta.status = 'Erro'
+            console.log(`[ReceitaWS] Status da nova consulta ${novaConsulta.id} atualizado para 'Erro'`)
+          } catch (updateErr) {
+            console.error(`[ReceitaWS] Erro ao criar/atualizar consulta para 'Erro':`, updateErr)
+          }
+        }
+
+        // Decide tipo de erro para resposta
         if (error.message === 'NOT_IN_CACHE') {
-          return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.');
+          return sendError(res, 404, 'Ainda não temos informações sobre este CNPJ. Nosso sistema está sempre se atualizando para proteger você de possíveis fraudes.')
         }
 
         if (error.message === 'MAX_RETRIES_EXCEEDED') {
-          return sendError(res, 429, 'Limite de consultas da ReceitaWS atingido. Tente novamente mais tarde.');
+          return sendError(res, 429, 'Limite de consultas atingido. Tente novamente em breve!')
         }
 
-        console.error(`[ReceitaWS] Erro inesperado:`, error);
-        return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.');
+        if (error.message === 'INVALID_API_RESPONSE') {
+          return sendError(res, 502, 'Resposta inválida da ReceitaWS.')
+        }
+
+        // Erro genérico
+        return sendError(res, 500, 'Erro ao consultar dados da ReceitaWS.')
       }
 
-      if (empresa.status === 'ERROR') {
-        return sendError(res, 404, 'CNPJ não encontrado na base da ReceitaWS.');
-      }
-
-      // Salva os dados no cache
+      // Se sucesso → salva no cache
       dadosCNPJ = await prisma.dadosCNPJ.create({
         data: {
           cnpj,
           dados: empresa
         }
-      });
+      })
 
-      console.log(`[ReceitaWS] Cache criado para CNPJ ${cnpj}`);
+      console.log(`[ReceitaWS] Cache criado para CNPJ ${cnpj}`)
     } else {
-      console.log(`[ReceitaWS] Usando cache para CNPJ ${cnpj}`);
+      console.log(`[ReceitaWS] Usando cache para CNPJ ${cnpj}`)
 
       if (!dadosCNPJ?.dados || typeof dadosCNPJ.dados !== 'object') {
-        return sendError(res, 502, 'Resposta inválida da ReceitaWS.');
+        return sendError(res, 502, 'Resposta inválida da ReceitaWS.')
       }
     }
 
-    // Cria a consulta se ainda não houver
-    let novaConsulta = consultaExistente
-    let consultado = true
-
+    // Se não havia consulta → cria como Pendente
     if (!consultaExistente) {
       novaConsulta = await prisma.consulta.create({
         data: {
@@ -145,6 +168,21 @@ exports.consultarCNPJ = async (req, res) => {
         }
       })
       consultado = false
+    }
+
+    // Atualiza status para Consultado se foi sucesso (somente se estava como Pendente)
+    if (novaConsulta.status === 'Pendente') {
+      try {
+        await prisma.consulta.update({
+          where: { id: novaConsulta.id },
+          data: { status: 'Consultado' }
+        })
+
+        novaConsulta.status = 'Consultado'
+        console.log(`[ReceitaWS] Status da consulta ${novaConsulta.id} atualizado para 'Consultado'`)
+      } catch (updateErr) {
+        console.error(`[ReceitaWS] Erro ao atualizar status para 'Consultado':`, updateErr)
+      }
     }
 
     // Retorno completo

@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { CompletePerfilSection } from '@/components/dashboard/perfil/CompletePerfilSection'
 import { formatarCPF } from '@shared/formatters/formatters'
-import { useLogout } from '../../../src/utils/logout'
+import { useLogout } from '../../../src/hooks/useLogout'
 import { Tooltip } from '../../../src/components/ui/tooltip'
 import { Avatar } from '../../../src/components/ui/avatar'
 

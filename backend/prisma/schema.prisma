@@ -30,7 +30,8 @@ model Usuario {
   cidade    String?
   uf        String?
   genero    String?
-  bonusConcedidoAt DateTime? 
+  bonusConcedidoAt DateTime?
+  role      String   @default("cliente")
 
   criadoEm  DateTime @default(now())
 

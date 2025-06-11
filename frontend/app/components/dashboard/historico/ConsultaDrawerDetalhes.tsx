@@ -43,10 +43,16 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
   }, [isOpen, cnpj])
 
   const buscarDetalhes = async (cnpjLimpo: string) => {
+    // Evita refetch se já temos dados válidos e não estamos carregando
+    if (dadosEmpresa?.cnpj === cnpjLimpo && !carregando) {
+      console.log('[ConsultaDrawerDetalhes] Dados já carregados, pulando fetch.')
+      return
+    }
+
     setCarregando(true)
-    setDadosEmpresa(null)
     setErro(null)
 
+    // Mantém dadosEmpresa atual até novo resultado (para UX mais suave)
     try {
       const res = await fetch(`/api/consulta/${cnpjLimpo}`, {
         credentials: 'include',
@@ -61,7 +67,8 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
         throw new Error(data.message || 'Erro ao obter dados da empresa.')
       }
 
-      setDadosEmpresa(data.data?.empresa || null)
+      // Adiciona cnpj no dadosEmpresa para próxima checagem
+      setDadosEmpresa({ ...data.data.empresa, cnpj: cnpjLimpo })
     } catch (err: any) {
       console.error('[ConsultaDrawerDetalhes] Erro ao buscar detalhes:', err)
       setErro(err.message || 'Erro ao buscar detalhes da empresa.')
@@ -70,6 +77,7 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
       setCarregando(false)
     }
   }
+
 
   const DividerLine = () => (
     <Box h="1px" w="full" bg="gray.200" my={2} />

@@ -1,16 +1,22 @@
 const express = require('express')
 const axios = require('axios')
 const router = express.Router()
+
+const verifyToken = require('../middleware/auth')
+const somenteRoles = require('../middleware/somenteRoles')
+const Roles = require('../utils/roles')
+
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const auth = require('../middleware/auth')
 
-const EXPIRACAO_MS = 7 * 24 * 60 * 60 * 1000 // 7 dias
-
-// Simulação de fallback: URL alternativa
+const EXPIRACAO_MS = 7 * 24 * 60 * 60 * 1000
 const API_FALLBACK = 'https://publica.cnpj.ws/cnpj'
 
-router.get('/:cnpj', auth, async (req, res) => {
+// Protege todas as rotas → OPERADOR
+router.use(verifyToken)
+router.use(somenteRoles([Roles.OPERADOR]))
+
+router.get('/:cnpj', async (req, res) => {
   const { cnpj } = req.params
   try {
     const cache = await prisma.dadosCNPJ.findUnique({ where: { cnpj } })
@@ -24,13 +30,11 @@ router.get('/:cnpj', auth, async (req, res) => {
     let data = null
     let origem = ''
 
-    // Primeiro tenta ReceitaWS
     try {
       const response = await axios.get(`https://receitaws.com.br/v1/cnpj/${cnpj}`)
       data = response.data
       origem = 'api_receitaws'
     } catch {
-      // Fallback: tenta API Pública alternativa
       const fallbackRes = await axios.get(`${API_FALLBACK}/${cnpj}`)
       data = fallbackRes.data
       origem = 'api_fallback'

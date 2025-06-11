@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation'
 import NextLink from 'next/link'
 import { useSidebar } from '../../../src/context/SidebarContext'
 import { Tooltip } from './Tooltip' // Tooltip customizado, com fallback de arrow + content
-import { useLogout } from '../../../src/utils/logout'
+import { useLogout } from '../../../src/hooks/useLogout'
 
 const links = [
   { href: '/dashboard', label: 'Início', icon: FiHome },

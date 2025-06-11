@@ -15,6 +15,8 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
+import type { UsuarioResponse } from '../../types/api'
+import { useUser } from '../../src/context/UserContext'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -29,6 +31,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [erroApi, setErroApi] = useState('')
 
+  const { setUser } = useUser()
+
   const {
     register,
     handleSubmit,
@@ -40,16 +44,38 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const json = await apiFetchJSON('/api/auth/login', {
+      const json = await apiFetchJSON<UsuarioResponse>('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
 
-      if (json.success) {
-        console.log('✅ Login bem-sucedido, redirecionando...')
-        router.push('/dashboard')
-        router.refresh() // Garante revalidação do middleware + layout
+      if (json.success && json.data?.usuario) {
+        console.log('🛡️ Role logada:', json.data.usuario.role)
+
+        // ✅ Atualiza UserContext com o usuario logado
+        setUser({
+          id: json.data.usuario.id,
+          email: json.data.usuario.email,
+          role: json.data.usuario.role,
+          nome: json.data.usuario.nome || '',
+        })
+
+        // ✅ Redireciona de acordo com a role
+        let destino = '/dashboard' // fallback default
+
+        if (json.data.usuario.role === 'admin') {
+          destino = '/admin/registrar'
+        } else if (json.data.usuario.role === 'operador') {
+          destino = '/painel'
+        } else if (json.data.usuario.role === 'cliente') {
+          destino = '/dashboard'
+        }
+
+        console.log(`[handleLogin] Redirecionando para: ${destino}`)
+
+        router.push(destino)
+        router.refresh()
       } else {
         setErroApi(json.error || json.message || 'Erro ao fazer login.')
       }
@@ -57,7 +83,6 @@ export default function Login() {
       setLoading(false)
     }
   }
-
 
   return (
     <Box

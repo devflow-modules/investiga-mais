@@ -2,6 +2,9 @@ const express = require('express')
 const router = express.Router()
 
 const verifyToken = require('../middleware/auth')
+const somenteRoles = require('../middleware/somenteRoles')
+const Roles = require('../utils/roles')
+
 const limiterPerfil = require('../middleware/limiterPerfil')
 const perfilController = require('../controllers/perfilController')
 
@@ -11,10 +14,11 @@ router.use((req, res, next) => {
   next()
 })
 
-// GET /perfil → obter perfil
-router.get('/', verifyToken, perfilController.obterPerfil)
+// Protege todas as rotas → CLIENTE
+router.use(verifyToken)
+router.use(somenteRoles([Roles.CLIENTE]))
 
-// POST /perfil → atualizar perfil (com limiter para evitar spam)
-router.post('/', verifyToken, limiterPerfil, perfilController.atualizarPerfil)
+router.get('/', perfilController.obterPerfil)
+router.post('/', limiterPerfil, perfilController.atualizarPerfil)
 
 module.exports = router

@@ -1,5 +1,7 @@
-const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
 const axios = require('axios')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+const { sendSuccess, sendError } = require('../../../shared/utils/sendResponse')
 const { calcularRiscoIPQS } = require('../../../shared/riskCalculators/ipqsRisk')
 
 const IPQS_API_KEY = process.env.IPQS_API_KEY
@@ -11,6 +13,7 @@ const SAFE_BROWSING_API_KEY = process.env.SAFE_BROWSING_API_KEY
  */
 exports.ipCheck = async (req, res) => {
     const { ip } = req.query
+    const { usuarioId } = req.user
 
     if (!ip) {
         return sendError(res, 400, 'IP não fornecido.')
@@ -30,6 +33,17 @@ exports.ipCheck = async (req, res) => {
         const data = resp.data
 
         const { risk_level, risk_recommendation } = calcularRiscoIPQS(data)
+
+        // Grava log de sucesso
+        await prisma.consultaRisco.create({
+            data: {
+                usuarioId,
+                tipo: 'ip_check',
+                parametro: ip,
+                status: 'success',
+                resultado: data,
+            },
+        })
 
         return sendSuccess(
             res,
@@ -71,15 +85,30 @@ exports.ipCheck = async (req, res) => {
         )
     } catch (err) {
         console.error(`[Seguranca] Erro ipCheck para IP ${ip}:`, err.response?.data || err)
+
+        // Grava log de erro
+        await prisma.consultaRisco.create({
+            data: {
+                usuarioId,
+                tipo: 'ip_check',
+                parametro: ip,
+                status: 'error',
+                resultado: err.response?.data || { message: err.message },
+            },
+        })
+
         return sendError(res, 500, 'Erro ao verificar reputação do IP.')
     }
 }
+
+
 
 /**
  * Verifica Email com AbstractAPI
  */
 exports.emailVerify = async (req, res) => {
     const { email } = req.params
+    const { usuarioId } = req.user
 
     if (!email) {
         return sendError(res, 400, 'Email não fornecido.')
@@ -95,6 +124,17 @@ exports.emailVerify = async (req, res) => {
         })
 
         const data = resp.data
+
+        // Grava log de sucesso
+        await prisma.consultaRisco.create({
+            data: {
+                usuarioId,
+                tipo: 'email_verify',
+                parametro: email,
+                status: 'success',
+                resultado: data,
+            },
+        })
 
         return sendSuccess(
             res,
@@ -121,18 +161,36 @@ exports.emailVerify = async (req, res) => {
         )
     } catch (err) {
         console.error(`[Seguranca] Erro emailVerify para ${email}:`, err.response?.data || err)
+
+        // Grava log de erro
+        await prisma.consultaRisco.create({
+            data: {
+                usuarioId,
+                tipo: 'email_verify',
+                parametro: email,
+                status: 'error',
+                resultado: err.response?.data || { message: err.message },
+            },
+        })
+
         return sendError(res, 500, 'Erro ao validar o email.')
     }
 }
+
 
 /**
  * Verifica URL com Google Safe Browsing API
  */
 exports.safeBrowsingCheck = async (req, res) => {
     const { url } = req.query
+    const { usuarioId } = req.user  // ✅ pega o usuarioId certinho
 
     if (!url) {
         return sendError(res, 400, 'URL não fornecida.')
+    }
+
+    if (!usuarioId) {
+        console.warn('[Seguranca] usuarioId não definido no token → não será gravado log.')
     }
 
     try {
@@ -162,6 +220,17 @@ exports.safeBrowsingCheck = async (req, res) => {
 
         const data = resp.data
 
+        // Grava log de sucesso ✅
+        await prisma.consultaRisco.create({
+            data: {
+                usuarioId: usuarioId ?? 1,
+                tipo: 'safe_browsing',
+                parametro: url,
+                status: 'success',
+                resultado: data,
+            },
+        })
+
         return sendSuccess(
             res,
             {
@@ -174,6 +243,18 @@ exports.safeBrowsingCheck = async (req, res) => {
         )
     } catch (err) {
         console.error(`[Seguranca] Erro safeBrowsingCheck para URL ${url}:`, err.response?.data || err)
+
+        // Grava log de erro ✅
+        await prisma.consultaRisco.create({
+            data: {
+                usuarioId,
+                tipo: 'safe_browsing',
+                parametro: url,
+                status: 'error',
+                resultado: err.response?.data || { message: err.message },
+            },
+        })
+
         return sendError(res, 500, 'Erro ao verificar segurança da URL.')
     }
 }

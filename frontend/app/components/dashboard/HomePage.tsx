@@ -13,10 +13,10 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Consulta } from '@types'
+import type { Consulta } from '../../../types/Consulta'
 import { formatarCNPJ, formatarCPF } from '@shared/formatters/formatters'
 import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
-import { useLogout } from '../../../src/utils/logout'
+import { useLogout } from '../../../src/hooks/useLogout'
 
 export default function HomePage() {
   const router = useRouter()

@@ -28,7 +28,13 @@ exports.login = async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { usuarioId: usuario.id, email: usuario.email, cpf: usuario.cpf },
+      {
+        id: usuario.id,
+        email: usuario.email,
+        cpf: usuario.cpf,
+        nome: usuario.nome,
+        role: usuario.role
+      },
       SECRET_KEY,
       { expiresIn: '1d' }
     )
@@ -45,6 +51,7 @@ exports.login = async (req, res, next) => {
       usuario: {
         id: usuario.id,
         email: usuario.email,
+        role: usuario.role
       }
     }, 'Login realizado com sucesso.')
   } catch (err) {

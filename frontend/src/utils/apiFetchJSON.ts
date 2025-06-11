@@ -1,9 +1,9 @@
-export interface ApiResponse {
+export interface ApiResponse<T = any> {
   success: boolean
   statusCode: number
   message: string
   error?: string
-  data?: any
+  data?: T
 }
 
 interface ApiFetchOptions extends RequestInit {
@@ -12,18 +12,18 @@ interface ApiFetchOptions extends RequestInit {
   logEnabled?: boolean
 }
 
-export async function apiFetchJSON(
+export async function apiFetchJSON<T = any>(
   url: string,
   options: ApiFetchOptions = {}
-): Promise<ApiResponse> {
-  const timeoutMs = options.timeoutMs ?? 10000 // 10 segundos padrão
-  const retryCount = options.retryCount ?? 1 // 1 tentativa de retry
-  const logEnabled = options.logEnabled ?? true // log por padrão habilitado
+): Promise<ApiResponse<T>> {
+  const timeoutMs = options.timeoutMs ?? 10000
+  const retryCount = options.retryCount ?? 1
+  const logEnabled = options.logEnabled ?? true
 
   let controller = new AbortController()
   let timeoutId: NodeJS.Timeout
 
-  const doFetch = async (attempt: number): Promise<ApiResponse> => {
+  const doFetch = async (attempt: number): Promise<ApiResponse<T>> => {
     controller = new AbortController()
     const startTime = Date.now()
 
@@ -49,7 +49,6 @@ export async function apiFetchJSON(
         )
       }
 
-      // Tratar 304 Not Modified
       if (statusCode === 304) {
         return {
           success: true,
@@ -59,7 +58,6 @@ export async function apiFetchJSON(
         }
       }
 
-      // Tenta fazer res.json()
       let json: any = {}
       try {
         json = await res.json()
@@ -67,29 +65,23 @@ export async function apiFetchJSON(
         json = {}
       }
 
-      // Sucesso
+      // ✅ Cast para ApiResponse<T> SEMPRE com data tipada corretamente
+      const response: ApiResponse<T> = {
+        success: json.success ?? res.ok,
+        statusCode,
+        message: json.message ?? res.statusText,
+        error: json.error,
+        data: json.data ?? undefined,
+      }
+
       if (res.ok) {
-        return {
-          success: json.success ?? true,
-          statusCode,
-          message: json.message ?? res.statusText,
-          error: json.error,
-          data: json.data,
-        }
+        return response
       }
 
-      // Se falha mas não é 500/network → não faz retry
       if (statusCode < 500 || attempt >= retryCount) {
-        return {
-          success: false,
-          statusCode,
-          message: json.message ?? res.statusText,
-          error: json.error ?? 'Erro inesperado',
-          data: json.data,
-        }
+        return response
       }
 
-      // Retry para 500
       if (logEnabled) {
         console.warn(`[apiFetchJSON] Retry ${attempt + 1}/${retryCount} para ${url}...`)
       }
@@ -109,6 +101,7 @@ export async function apiFetchJSON(
           statusCode: 0,
           message: 'Timeout ao conectar com o servidor.',
           error: 'Timeout',
+          data: undefined,
         }
       }
 
@@ -128,6 +121,7 @@ export async function apiFetchJSON(
         statusCode: 0,
         message: 'Erro de rede ao conectar com o servidor.',
         error: err.message,
+        data: undefined,
       }
     }
   }

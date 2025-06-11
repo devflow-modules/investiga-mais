@@ -1,9 +1,14 @@
 export function validarTelefone(telefone: string): boolean {
-  return /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(telefone)
+  return /^(\(?\d{2}\)?\s?)?(\d{4,5})-?(\d{4})$/.test(telefone)
 }
 
 export function validarNascimento(data: string): boolean {
-  return !isNaN(Date.parse(data))
+  const timestamp = Date.parse(data)
+  if (isNaN(timestamp)) return false
+
+  const dataObj = new Date(timestamp)
+  const ano = dataObj.getFullYear()
+  return ano >= 1900 && ano <= new Date().getFullYear()
 }
 
 export function validarUF(uf: string): boolean {

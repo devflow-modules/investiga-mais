@@ -19,7 +19,6 @@ app.use(cookieParser())
 const {
   verifyToken,
   errorHandler,
-  limiterPerfil,
   loginLimiter,
   logger
 } = require('./middleware')
@@ -32,6 +31,7 @@ const webhookRoutes = require('./routes/webhookRoutes')
 const consultaRoutes = require('./routes/consultaRoutes')
 const perfilRoutes = require('./routes/perfilRoutes')
 const segurancaRoutes = require('./routes/segurancaRoutes')
+const adminRoutes = require('./routes/adminRoutes');
 
 // Rota de teste
 app.get('/', (req, res) => {
@@ -50,6 +50,7 @@ app.use('/api/webhook', webhookRoutes)
 app.use('/api/consulta', verifyToken, consultaRoutes)
 app.use('/api/perfil', perfilRoutes)
 app.use('/api/seguranca', segurancaRoutes)
+app.use('/api/admin', adminRoutes);
 
 // Fallback 404 → com padrão sendError
 const { sendError } = require('../../shared/utils/sendResponse')
