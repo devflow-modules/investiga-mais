@@ -1,6 +1,5 @@
 'use client'
 
-import { chakra } from '@chakra-ui/react'
 import { HeroHeadingSection } from '../sections/HeroHeadingSection'
 import { RisksSection } from '../sections/RisksSection'
 

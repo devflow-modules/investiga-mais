@@ -96,7 +96,11 @@ export default function HowItWorks() {
 
         <CTAButton
           variant="cta"
-          onClick={() => router.push('/login')}
+          borderRadius="full"
+          withArrow
+          as="button"
+          href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
+          rel="noopener noreferrer"
         >
           QUERO GARANTIR MINHA SEGURANÇA
         </CTAButton>

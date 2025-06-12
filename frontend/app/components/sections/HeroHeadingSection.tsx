@@ -33,10 +33,16 @@ export function HeroHeadingSection() {
                     VOCÊ AINDA ESTÁ COMPRANDO NA INTERNET SEM INVESTIGAR A EMPRESA POR COMPLETO?
                 </Text>
 
-                <CTAButton as="a" href="/login">
+                <CTAButton
+                    variant="cta"
+                    borderRadius="full"
+                    withArrow
+                    as="button"
+                    href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
+                    rel="noopener noreferrer"
+                >
                     NÃO QUERO MAIS CAIR EM GOLPES
                 </CTAButton>
-
                 {/* Correção semântica aqui */}
                 <HStack gap={1} justify="center">
                     <Text fontSize="sm" color="whiteAlpha.800">
@@ -48,7 +54,7 @@ export function HeroHeadingSection() {
                         variant="ghostLink"
                         size="sm"
                         px="0"
-                        withArrow={false} // geralmente no link simples não precisa de seta
+                        withArrow={false}
                     >
                         Acesse aqui
                     </CTAButton>

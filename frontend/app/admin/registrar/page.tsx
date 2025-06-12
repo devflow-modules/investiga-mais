@@ -3,15 +3,13 @@
 import {
   Box,
   Button,
-  Flex,
   Heading,
   Input,
   VStack,
   Text,
   Select,
   Portal,
-  Spinner,
-  HStack,
+  Spinner
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { validarEmail, validarCPF, validarTelefone } from '../../../../shared/validators'

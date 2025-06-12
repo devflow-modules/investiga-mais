@@ -7,7 +7,6 @@ import {
   Input,
   VStack,
   Text,
-  useBreakpointValue,
   Spinner,
 } from '@chakra-ui/react'
 import { apiFetchJSON } from '../../src/utils/apiFetchJSON'
@@ -17,7 +16,6 @@ export default function RecuperarSenha() {
   const [mensagem, setMensagem] = useState('')
   const [erro, setErro] = useState('')
   const [loading, setLoading] = useState(false)
-  const isMobile = useBreakpointValue({ base: true, md: false })
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault()

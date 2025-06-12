@@ -13,10 +13,9 @@ import {
   useBreakpointValue,
   Drawer,
 } from '@chakra-ui/react'
-import { FiMenu, FiUserPlus, FiLogOut, FiDatabase, FiSettings } from 'react-icons/fi'
+import { FiMenu, FiUserPlus, FiLogOut } from 'react-icons/fi'
 import { useLogout } from '../../../src/hooks/useLogout'
 import NextLink from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
 import { useSidebar } from '../../../src/context/SidebarContext'
 import { Tooltip } from '@/components/dashboard/Tooltip'
 import { useState } from 'react'
@@ -32,7 +31,6 @@ interface SidebarProps {
 export default function AdminSidebar({ pathname }: SidebarProps) {
   const isMobile = useBreakpointValue({ base: true, md: false })
   const [open, setOpen] = useState(false)
-  const router = useRouter()
   const { isExpanded, toggleSidebar } = useSidebar()
   const { logout } = useLogout()
   

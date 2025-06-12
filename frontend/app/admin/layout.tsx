@@ -1,6 +1,6 @@
 'use client'
 
-import { Flex, Box } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { useAuth } from 'src/hooks/useAuth'
 import { Toaster } from 'src/components/ui/toaster'
 import AdminSidebar from '@/components/admin/AdminSidebar'

@@ -11,10 +11,10 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Consulta } from '../../../types/Consulta'
-import { formatarCNPJ, formatarCPF } from '@shared/formatters/formatters'
+import { formatarCNPJ } from '@shared/formatters/formatters'
 import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
 import { useLogout } from '../../../src/hooks/useLogout'
 
@@ -24,8 +24,6 @@ export default function HomePage() {
   const [consultas, setConsultas] = useState<Consulta[]>([])
   const [carregandoConsultas, setCarregandoConsultas] = useState(true)
   const { logout } = useLogout()
-
-  const isMobile = useBreakpointValue({ base: true, md: false })
 
   useEffect(() => {
     console.log('[HomePage] useEffect iniciou')

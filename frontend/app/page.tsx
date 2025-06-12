@@ -17,8 +17,11 @@ export default function HomePage() {
     <Box bg="white" color="gray.800">
       <Header />
       <HeroSection />
-      <Box as="section" id="como-funciona">
+      <Box as="section" id="features">
         <Features />
+      </Box>
+      <Box as="section" id="como-funciona">
+        <HowItWorks />
       </Box>
       <Box as="section" id="publico-alvo">
         <TargetAudience />
@@ -27,6 +30,7 @@ export default function HomePage() {
       <Box as="section" id="estatisticas">
         <StatsSection />
       </Box>
+
       <Box as="section" id="depoimentos">
         <Testimonials />
       </Box>

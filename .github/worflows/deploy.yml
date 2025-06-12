@@ -1,0 +1,47 @@
+name: Deploy to Hostinger via SSH
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no -p 65002 u659140805@82.25.67.217 << 'EOF'
+            cd /home/u659140805/public_html
+
+            echo "✅ Pulling latest code..."
+            git pull origin main
+
+            echo "✅ Installing backend dependencies..."
+            cd backend
+            npm install
+            npm run build || true
+            cd ..
+
+            echo "✅ Installing frontend dependencies..."
+            cd frontend
+            npm install
+            npm run build
+            cd ..
+
+            echo "✅ Starting or restarting apps with pm2..."
+            pm2 startOrRestart ecosystem.config.js --env production
+
+            echo "✅ Saving pm2 state..."
+            pm2 save
+          EOF

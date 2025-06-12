@@ -44,7 +44,6 @@ export default function RedefinirSenha() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const isMobile = useBreakpointValue({ base: true, md: false })
 
   const {
     register,
