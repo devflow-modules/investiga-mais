@@ -77,12 +77,13 @@ export default function RegistrarUsuarioManual() {
 
       handleLimparCampos()
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[Admin] Erro ao registrar usuário:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Erro inesperado.'
 
       toaster.create({
         title: 'Erro ao registrar usuário',
-        description: err.message || 'Erro inesperado.',
+        description: errorMessage,
         type: 'error',
       })
     } finally {

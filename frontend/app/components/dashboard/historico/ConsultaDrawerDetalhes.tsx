@@ -15,14 +15,15 @@ import {
   VStack,
   Alert
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   formatarCNPJ,
   formatarMoeda,
   formatarDataHora,
   limparCNPJ,
 } from '../../../../../shared/formatters/formatters'
-import { MdError } from "react-icons/md";
+import { MdError } from 'react-icons/md'
+import type { DadosEmpresaReceitaWS } from '../../../../types/DadosEmpresaReceitaWS'
 
 interface ConsultaDrawerDetalhesProps {
   cnpj: string | null
@@ -32,17 +33,10 @@ interface ConsultaDrawerDetalhesProps {
 
 export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawerDetalhesProps) {
   const [carregando, setCarregando] = useState(false)
-  const [dadosEmpresa, setDadosEmpresa] = useState<any>(null)
+  const [dadosEmpresa, setDadosEmpresa] = useState<(DadosEmpresaReceitaWS & { cnpj: string }) | null>(null)
   const [erro, setErro] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (isOpen && cnpj) {
-      buscarDetalhes(limparCNPJ(cnpj))
-    }
-  }, [isOpen, cnpj])
-
-  const buscarDetalhes = async (cnpjLimpo: string) => {
-    // Evita refetch se já temos dados válidos e não estamos carregando
+  const buscarDetalhes = useCallback(async (cnpjLimpo: string) => {
     if (dadosEmpresa?.cnpj === cnpjLimpo && !carregando) {
       console.log('[ConsultaDrawerDetalhes] Dados já carregados, pulando fetch.')
       return
@@ -51,7 +45,6 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
     setCarregando(true)
     setErro(null)
 
-    // Mantém dadosEmpresa atual até novo resultado (para UX mais suave)
     try {
       const res = await fetch(`/api/consulta/${cnpjLimpo}`, {
         credentials: 'include',
@@ -66,23 +59,30 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
         throw new Error(data.message || 'Erro ao obter dados da empresa.')
       }
 
-      // Adiciona cnpj no dadosEmpresa para próxima checagem
       setDadosEmpresa({ ...data.data.empresa, cnpj: cnpjLimpo })
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[ConsultaDrawerDetalhes] Erro ao buscar detalhes:', err)
-      setErro(err.message || 'Erro ao buscar detalhes da empresa.')
+
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao buscar detalhes da empresa.'
+
+      setErro(errorMessage)
       setDadosEmpresa(null)
     } finally {
       setCarregando(false)
     }
-  }
+  }, [dadosEmpresa, carregando])
 
+  useEffect(() => {
+    if (isOpen && cnpj) {
+      buscarDetalhes(limparCNPJ(cnpj))
+    }
+  }, [isOpen, cnpj, buscarDetalhes])
 
   const DividerLine = () => (
     <Box h="1px" w="full" bg="gray.200" my={2} />
   )
 
-  const renderCampo = (label: string, valor?: any) => (
+  const renderCampo = (label: string, valor?: React.ReactNode) => (
     <Box>
       <Text fontWeight="bold">{label}</Text>
       <Text>{valor || '-'}</Text>
@@ -165,7 +165,7 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
                 <Box>
                   <Text fontWeight="bold">Atividade Principal:</Text>
                   <Text>
-                    {dadosEmpresa.atividade_principal?.map((a: any) => `${a.code} - ${a.text}`).join(', ') || '-'}
+                    {dadosEmpresa.atividade_principal?.map((a) => `${a.code} - ${a.text}`).join(', ') || '-'}
                   </Text>
                 </Box>
                 <DividerLine />
@@ -175,7 +175,7 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
                     <Box>
                       <Text fontWeight="bold">Atividades Secundárias:</Text>
                       <VStack align="start" gap={1}>
-                        {dadosEmpresa.atividades_secundarias.map((a: any, i: number) => (
+                        {dadosEmpresa.atividades_secundarias.map((a, i) => (
                           <Text key={i}>
                             {a.code} - {a.text}
                           </Text>
@@ -186,7 +186,7 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
                   </>
                 )}
 
-                {renderCampo('Capital Social', formatarMoeda(dadosEmpresa.capital_social))}
+                {renderCampo('Capital Social', formatarMoeda(Number(dadosEmpresa.capital_social)))}
                 <DividerLine />
 
                 {renderCampo('Tipo', dadosEmpresa.tipo)}
@@ -215,7 +215,7 @@ export function ConsultaDrawerDetalhes({ cnpj, isOpen, onClose }: ConsultaDrawer
                     <Box>
                       <Text fontWeight="bold">Quadro Societário (QSA):</Text>
                       <VStack align="start" gap={1}>
-                        {dadosEmpresa.qsa.map((q: any, i: number) => (
+                        {dadosEmpresa.qsa.map((q, i) => (
                           <Text key={i}>
                             {q.nome} - {q.qual}
                           </Text>

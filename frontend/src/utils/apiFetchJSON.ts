@@ -1,4 +1,4 @@
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   statusCode: number
   message: string
@@ -12,7 +12,7 @@ interface ApiFetchOptions extends RequestInit {
   logEnabled?: boolean
 }
 
-export async function apiFetchJSON<T = any>(
+export async function apiFetchJSON<T = unknown>(
   url: string,
   options: ApiFetchOptions = {}
 ): Promise<ApiResponse<T>> {
@@ -58,20 +58,21 @@ export async function apiFetchJSON<T = any>(
         }
       }
 
-      let json: any = {}
+      let json: unknown = {}
       try {
         json = await res.json()
       } catch {
         json = {}
       }
 
-      // ✅ Cast para ApiResponse<T> SEMPRE com data tipada corretamente
+      const jsonObj = (typeof json === 'object' && json !== null) ? json as Record<string, unknown> : {}
+
       const response: ApiResponse<T> = {
-        success: json.success ?? res.ok,
+        success: jsonObj.success as boolean ?? res.ok,
         statusCode,
-        message: json.message ?? res.statusText,
-        error: json.error,
-        data: json.data ?? undefined,
+        message: jsonObj.message as string ?? res.statusText,
+        error: jsonObj.error as string | undefined,
+        data: jsonObj.data as T ?? undefined,
       }
 
       if (res.ok) {
@@ -87,12 +88,14 @@ export async function apiFetchJSON<T = any>(
       }
       return await doFetch(attempt + 1)
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId)
 
       const durationMs = Date.now() - startTime
 
-      if (err.name === 'AbortError') {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido.'
+
+      if (err instanceof DOMException && err.name === 'AbortError') {
         if (logEnabled) {
           console.error(`[apiFetchJSON] Timeout → ${url} (${durationMs} ms)`)
         }
@@ -120,7 +123,7 @@ export async function apiFetchJSON<T = any>(
         success: false,
         statusCode: 0,
         message: 'Erro de rede ao conectar com o servidor.',
-        error: err.message,
+        error: errorMessage,
         data: undefined,
       }
     }

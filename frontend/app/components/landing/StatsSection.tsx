@@ -6,12 +6,11 @@ import {
   Text,
   VStack,
   HStack,
-  Button,
   Icon,
   SimpleGrid,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { FiArrowRight, FiShield } from 'react-icons/fi'
+import { FiShield } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import { CTAButton } from '../ui/BaseButton'

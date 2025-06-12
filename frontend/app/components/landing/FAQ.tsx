@@ -7,11 +7,8 @@ import {
   VStack,
   HStack,
   Icon,
-  Link
 } from '@chakra-ui/react'
 import { FiChevronDown, FiChevronUp, FiHelpCircle, FiMessageCircle } from 'react-icons/fi'
-import { FaWhatsapp } from 'react-icons/fa'
-import { motion } from 'framer-motion'
 import { Collapse } from '@chakra-ui/transition'
 import { useState } from 'react'
 

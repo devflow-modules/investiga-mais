@@ -15,6 +15,10 @@ import DetalhesEmpresa from '../../components/dashboard/consulta/DetalhesEmpresa
 import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
 import { limparCNPJ } from '../../../../shared/formatters/formatters'
 
+type ConsultaResponse = {
+  empresa?: DadosEmpresaReceitaWS
+}
+
 export default function ConsultaCNPJ() {
   const [cnpj, setCnpj] = useState('')
   const [mensagem, setMensagem] = useState('')
@@ -37,7 +41,7 @@ export default function ConsultaCNPJ() {
       return
     }
 
-    const json = await apiFetchJSON(`/api/consulta/${cnpjLimpo}`, {
+    const json = await apiFetchJSON<ConsultaResponse>(`/api/consulta/${cnpjLimpo}`, {
       method: 'GET',
     })
 

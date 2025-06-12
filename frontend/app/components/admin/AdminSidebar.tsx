@@ -34,7 +34,7 @@ export default function AdminSidebar({ pathname }: SidebarProps) {
   const { isExpanded, toggleSidebar } = useSidebar()
   const { logout } = useLogout()
   
-  const renderLink = (href: string, label: string, Icon: any) => {
+  const renderLink = (href: string, label: string, Icon: React.ComponentType) => {
     const isActive = pathname === href
 
     const button = (

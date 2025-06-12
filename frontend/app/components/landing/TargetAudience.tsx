@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { FiUsers, FiBriefcase, FiUserCheck, FiShoppingCart } from 'react-icons/fi'
 import { AiFillStar } from 'react-icons/ai'
 import { CTAButton } from '../ui/BaseButton'
@@ -76,7 +75,6 @@ const testimonials = [
 
 export default function TargetAudience() {
   const [index, setIndex] = useState(0)
-  const router = useRouter()
 
   useEffect(() => {
     const interval = setInterval(() => {

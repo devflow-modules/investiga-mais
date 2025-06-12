@@ -6,15 +6,11 @@ import {
   Text,
   VStack,
   Icon,
-  Button,
   SimpleGrid,
-  Flex,
-  useBreakpointValue,
-  chakra
+  Flex
 } from '@chakra-ui/react'
 import { FiSearch, FiShield, FiAlertCircle } from 'react-icons/fi'
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import type { IconType } from 'react-icons'
 import { CTAButton } from '../ui/BaseButton'
 
@@ -39,8 +35,6 @@ const steps: { icon: IconType; title: string; description: string }[] = [
 const MotionBox = motion.div
 
 export default function HowItWorks() {
-  const isMobile = useBreakpointValue({ base: true, md: false })
-  const router = useRouter()
 
   return (
     <Box bg="background" py={{ base: 12, md: 24 }} px={{ base: 4, md: 8 }}>

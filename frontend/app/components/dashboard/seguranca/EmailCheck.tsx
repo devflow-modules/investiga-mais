@@ -1,10 +1,8 @@
 'use client'
 
 import {
-    Box,
     Button,
     Card,
-    Heading,
     Input,
     Stack,
     Text,

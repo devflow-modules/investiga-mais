@@ -1,14 +1,16 @@
 exports.sendSuccess = (res, data = {}, message = 'Operação realizada com sucesso.') => {
+  const statusCode = 200
+
   const responsePayload = {
     success: true,
-    statusCode: res.statusCode || 200,
+    statusCode,
     message,
     timestamp: new Date().toISOString(),
     path: res?.req?.originalUrl || 'unknown',
     data
   }
 
-  return res.status(responsePayload.statusCode).json(responsePayload)
+  return res.status(statusCode).json(responsePayload)
 }
 
 exports.sendError = (res, statusCode = 500, message = 'Erro interno', extra = {}) => {
@@ -18,7 +20,7 @@ exports.sendError = (res, statusCode = 500, message = 'Erro interno', extra = {}
     message,
     timestamp: new Date().toISOString(),
     path: res?.req?.originalUrl || 'unknown',
-    error: message,
+    error: message, // ou simplesmente: error: true
     ...extra
   }
 

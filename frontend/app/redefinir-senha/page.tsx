@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import {
   Box,
   Button,
   Input,
   VStack,
   Text,
-  useBreakpointValue,
   Spinner,
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
@@ -35,6 +34,14 @@ const schema = z
 type FormData = z.infer<typeof schema>
 
 export default function RedefinirSenha() {
+  return (
+    <Suspense fallback={<Spinner size="lg" color="blue.500" />}>
+      <RedefinirSenhaInner />
+    </Suspense>
+  )
+}
+
+function RedefinirSenhaInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -76,9 +83,11 @@ export default function RedefinirSenha() {
 
   if (!token) {
     return (
-      <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" px={6} bg="background">
-        <Text fontSize="lg" color="red.600">Token inválido ou ausente.</Text>
-      </Box>
+      <Suspense fallback={<Spinner size="lg" color="blue.500" />}>
+        <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" px={6} bg="background">
+          <Text fontSize="lg" color="red.600">Token inválido ou ausente.</Text>
+        </Box>
+      </Suspense>
     )
   }
 

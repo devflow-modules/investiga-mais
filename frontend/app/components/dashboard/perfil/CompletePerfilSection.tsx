@@ -69,9 +69,12 @@ export function CompletePerfilSection() {
             setUf(u.uf || '')
             setGenero(u.genero || '')
             setBonusConcedidoAt(u.bonusConcedidoAt || null)
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (signal?.aborted) return // ignora se foi abortado
             console.error('[CompletePerfilSection] Erro ao obter perfil:', err)
+
+            const errorMessage = err instanceof Error ? err.message : 'Erro ao obter perfil'
+            setMensagem(`❌ ${errorMessage}`)
         } finally {
             setCarregandoPerfil(false)
         }
@@ -113,9 +116,12 @@ export function CompletePerfilSection() {
             } else {
                 setMensagem('✅ Perfil atualizado com sucesso.')
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('[CompletePerfilSection] Erro ao salvar perfil:', err)
-            setMensagem(`❌ ${err.message || 'Erro ao salvar perfil. Tente novamente.'}`)
+
+            const errorMessage = err instanceof Error ? err.message : 'Erro ao salvar perfil. Tente novamente.'
+
+            setMensagem(`❌ ${errorMessage}`)
         } finally {
             setCarregando(false)
         }
@@ -132,7 +138,7 @@ export function CompletePerfilSection() {
 
             {carregandoPerfil ? (
                 <Flex justify="center" align="center" minH="200px">
-                    <Spinner size="lg" color="blue.500" borderWidth="4px" animationDuration ="0.65s" />
+                    <Spinner size="lg" color="blue.500" borderWidth="4px" animationDuration="0.65s" />
                 </Flex>
             ) : (
                 <VStack gap={3} align="stretch">

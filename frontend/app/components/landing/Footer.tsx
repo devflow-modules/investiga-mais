@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Flex, Link, Text, VStack, HStack, Icon } from '@chakra-ui/react'
+import { Box, Flex,  Text, VStack, HStack, Icon } from '@chakra-ui/react'
 import { FiShield, FiMapPin } from 'react-icons/fi'
 
 export default function Footer() {

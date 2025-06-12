@@ -8,7 +8,6 @@ import {
   Input,
   VStack,
   Text,
-  useBreakpointValue,
   Spinner,
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
@@ -27,7 +26,6 @@ type FormData = z.infer<typeof schema>
 
 export default function Login() {
   const router = useRouter()
-  const isMobile = useBreakpointValue({ base: true, md: false })
   const [loading, setLoading] = useState(false)
   const [erroApi, setErroApi] = useState('')
 

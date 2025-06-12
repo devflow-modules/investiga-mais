@@ -24,7 +24,9 @@ export function formatarMoeda(valor: number | string): string {
   }).format(Number(valor))
 }
 
-export function formatarDataHora(dataIso: string): string {
+export function formatarDataHora(dataIso?: string): string {
+  if (!dataIso) return '-'
+
   return new Date(dataIso).toLocaleString('pt-BR', {
     dateStyle: 'short',
     timeStyle: 'short'

@@ -16,7 +16,6 @@ import {
 import { useState, type JSX } from 'react'
 import { FiMenu, FiHome, FiSearch, FiClock, FiUser, FiLogOut  } from 'react-icons/fi'
 import { MdOutlineSecurity } from "react-icons/md";
-import { useRouter } from 'next/navigation'
 import NextLink from 'next/link'
 import { useSidebar } from '../../../src/context/SidebarContext'
 import { Tooltip } from './Tooltip' // Tooltip customizado, com fallback de arrow + content
@@ -37,7 +36,6 @@ interface SidebarProps {
 export default function Sidebar({ pathname }: SidebarProps) {
   const isMobile = useBreakpointValue({ base: true, md: false })
   const [open, setOpen] = useState(false)
-  const router = useRouter()
   const { isExpanded, toggleSidebar } = useSidebar()
   const { logout } = useLogout()
 

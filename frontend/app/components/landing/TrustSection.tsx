@@ -9,11 +9,8 @@ import {
   Icon,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
 import { FiSend } from 'react-icons/fi'
 import { CTAButton } from '../ui/BaseButton'
-
-const MotionButton = motion(Box)
 
 export default function SafetyStatement() {
   const headingSize = useBreakpointValue({ base: '2xl', md: '4xl' })

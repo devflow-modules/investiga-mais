@@ -9,16 +9,13 @@ import {
   HStack,
   Icon,
   Text,
-  chakra,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { FiShield, FiUsers, FiAlertTriangle, FiCheckCircle, FiArrowRight } from 'react-icons/fi'
+import { FiShield, FiUsers, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi'
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import { CTAButton } from '../ui/BaseButton'
 
 const MotionBox = motion(Box)
-const MotionStack = motion(Stack)
 
 const features = [
   {
@@ -44,7 +41,6 @@ const features = [
 ]
 
 export default function Features() {
-  const router = useRouter()
   const isMobile = useBreakpointValue({ base: true, md: false })
 
   return (

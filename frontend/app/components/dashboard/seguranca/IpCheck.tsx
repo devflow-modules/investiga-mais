@@ -3,7 +3,6 @@
 import {
     Button,
     Card,
-    Heading,
     Input,
     Stack,
     Text,

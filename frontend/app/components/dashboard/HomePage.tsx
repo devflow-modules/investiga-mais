@@ -9,14 +9,21 @@ import {
   Spinner,
   Stack,
   Text,
-  useBreakpointValue,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Consulta } from '../../../types/Consulta'
 import { formatarCNPJ } from '@shared/formatters/formatters'
 import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
 import { useLogout } from '../../../src/hooks/useLogout'
+
+type ConsultaResponse = {
+  resultados: Consulta[]
+  usuario?: {
+    nome?: string
+    email?: string
+  }
+}
 
 export default function HomePage() {
   const router = useRouter()
@@ -25,15 +32,10 @@ export default function HomePage() {
   const [carregandoConsultas, setCarregandoConsultas] = useState(true)
   const { logout } = useLogout()
 
-  useEffect(() => {
-    console.log('[HomePage] useEffect iniciou')
-    fetchConsultas()
-  }, [])
-
-  const fetchConsultas = async () => {
+  const fetchConsultas = useCallback(async () => {
     setCarregandoConsultas(true)
 
-    const json = await apiFetchJSON('/api/consulta')
+    const json = await apiFetchJSON<ConsultaResponse>('/api/consulta')
 
     if (json.success && Array.isArray(json.data?.resultados)) {
       console.log('[DEBUG] Resultados recebidos:', json.data.resultados)
@@ -55,7 +57,12 @@ export default function HomePage() {
     }
 
     setCarregandoConsultas(false)
-  }
+  }, [router])
+
+  useEffect(() => {
+    console.log('[HomePage] useEffect iniciou')
+    fetchConsultas()
+  }, [fetchConsultas])
 
   const verDetalhes = (cnpj: string) => {
     router.push(`/dashboard/historico?cnpj=${cnpj}`)
@@ -72,7 +79,7 @@ export default function HomePage() {
             Sair
           </Button>
         </Flex>
-        
+
         <Text color="gray.600" mb={6}>
           Olá,{' '}
           <Text as="span" fontWeight="bold" color="gray.800">
