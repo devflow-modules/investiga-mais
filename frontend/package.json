@@ -16,6 +16,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@hookform/resolvers": "^5.0.1",
+    "@radix-ui/react-slot": "^1.2.3",
     "axios": "^1.9.0",
     "framer-motion": "^12.16.0",
     "jwt-decode": "^4.0.0",

@@ -9,7 +9,7 @@ import {
   ListItem,
 } from '@chakra-ui/react'
 import React from 'react'
-import type { DadosEmpresaReceitaWS } from '../../../../types/DadosEmpresaReceitaWS'
+import type { DadosEmpresaReceitaWS } from '../../../../types'
 
 type DetalhesEmpresaProps = {
   dados: DadosEmpresaReceitaWS | null
