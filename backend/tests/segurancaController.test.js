@@ -14,7 +14,7 @@ describe('SegurancaController', () => {
       data: {
         id: 1,
         email: 'test@example.com',
-        senha: 'senhateste',
+        senhaHash: 'senhateste',
         nome: 'Usuário Teste',
         cpf: '12345678900', // <== OBRIGATÓRIO no seu schema
         telefone: null,

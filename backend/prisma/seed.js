@@ -1,61 +1,49 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
+require('dotenv').config()
 
-const prisma = new PrismaClient();
+const bcrypt = require('bcryptjs')
+const prisma = require('../src/lib/prisma')
 
 async function main() {
-  const senhaPlana = 'Senha1234@';
-  const senhaHash = await bcrypt.hash(senhaPlana, 10);
+  const senhaAdmin = '@Nexus0001'
+  const senhaHash = await bcrypt.hash(senhaAdmin, 10)
 
-  console.log('Hash gerada para senha padrão:', senhaHash);
+  const emailAdmin = 'admin@investigamais.com'
 
-  // Admin
-  await prisma.usuario.upsert({
-    where: { email: 'admin@investiga.com' },
-    update: {},
-    create: {
-      email: 'admin@investiga.com',
-      senha: senhaHash,
-      cpf: '00000000001',
+  // Verifica se já existe
+  const adminExistente = await prisma.usuario.findUnique({
+    where: { email: emailAdmin },
+  })
+
+  if (adminExistente) {
+    console.log(`✅ Admin já existe: ${emailAdmin} (id: ${adminExistente.id})`)
+    return
+  }
+
+  // Cria admin
+  const novoAdmin = await prisma.usuario.create({
+    data: {
+      email: emailAdmin,
+      senhaHash: senhaHash,
+      cpf: '00000000000',
       nome: 'Admin Master',
+      telefone: '13999999999',
+      nascimento: new Date('1990-01-01'),
+      cidade: 'Santos',
+      uf: 'SP',
+      genero: 'Masculino',
       role: 'admin',
     },
-  });
+  })
 
-  // Operador 1
-  await prisma.usuario.upsert({
-    where: { email: 'operador1@investiga.com' },
-    update: {},
-    create: {
-      email: 'operador1@investiga.com',
-      senha: senhaHash,
-      cpf: '00000000002',
-      nome: 'Operador Um',
-      role: 'operador',
-    },
-  });
-
-  // Operador 2
-  await prisma.usuario.upsert({
-    where: { email: 'operador2@investiga.com' },
-    update: {},
-    create: {
-      email: 'operador2@investiga.com',
-      senha: senhaHash,
-      cpf: '00000000003',
-      nome: 'Operador Dois',
-      role: 'operador',
-    },
-  });
-
-  console.log('✅ Usuários de seed criados com sucesso!');
+  console.log(`🎉 Admin criado com sucesso: ${novoAdmin.email} (id: ${novoAdmin.id})`)
 }
 
 main()
-  .catch((e) => {
-    console.error('Erro no seed:', e);
-    process.exit(1);
+  .then(() => {
+    console.log('✅ Seed finalizado')
+    process.exit(0)
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch((err) => {
+    console.error('❌ Erro no seed:', err)
+    process.exit(1)
+  })

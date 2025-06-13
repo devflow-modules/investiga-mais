@@ -35,7 +35,7 @@ exports.registrarManual = async (req, res, next) => {
     await prisma.usuario.create({
       data: {
         email: emailLower,
-        senha: senhaCriptografada,
+        senhaHash: senhaCriptografada,
         cpf,
         nome: nome || undefined,
         telefone: telefone || undefined,

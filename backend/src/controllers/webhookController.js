@@ -39,7 +39,7 @@ exports.registrarViaCompra = async (req, res, next) => {
     await prisma.usuario.create({
       data: {
         email,
-        senha: senhaCriptografada,
+        senhaHash: senhaCriptografada,
         cpf,
         nome: customer?.name || undefined,
         telefone: customer?.phone_number || undefined,
