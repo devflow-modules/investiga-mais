@@ -57,7 +57,7 @@ exports.registrarViaCompra = async (req, res, next) => {
           <p><strong>Senha:</strong> ${senhaGerada}</p>
         </div>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="http://localhost:3001/login" style="display: inline-block; padding: 12px 24px; background-color: #1e40af; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+          <a href="https://investigamais.com/login" style="display: inline-block; padding: 12px 24px; background-color: #1e40af; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
             Acessar Plataforma
           </a>
         </div>
