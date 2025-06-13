@@ -24,3 +24,6 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# PM2 ecosystem file (local VPS config)
+ecosystem.config.js

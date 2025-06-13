@@ -17,3 +17,6 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .vscode/
+
+# PM2 ecosystem file (local VPS config)
+ecosystem.config.js
