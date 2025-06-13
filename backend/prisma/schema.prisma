@@ -22,7 +22,7 @@ model Consulta {
 model Usuario {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  senhaHash String
+  senhaHash String @map("senha")
   cpf       String   @unique
   nome      String?
   telefone  String?
