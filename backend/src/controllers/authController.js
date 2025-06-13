@@ -22,7 +22,7 @@ exports.login = async (req, res, next) => {
   try {
     const usuario = await prisma.usuario.findUnique({ where: { email } })
 
-    if (!usuario || !(await bcrypt.compare(senha, usuario.senha))) {
+    if (!usuario || !(await bcrypt.compare(senha, usuario.senhaHash))) {
       return sendError(res, 401, 'CREDENCIAIS_INVALIDAS')
     }
 
