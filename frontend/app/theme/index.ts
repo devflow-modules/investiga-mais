@@ -1,4 +1,5 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react'
+import { inputRecipe } from './recipes/input'
 
 const customConfig = defineConfig({
     cssVarsRoot: ':where(:root, :host)',
@@ -54,6 +55,10 @@ const customConfig = defineConfig({
                 warning: { default: { value: '{colors.warning}' } },
             },
         },
+
+        recipes: {
+            input: inputRecipe
+        }
         
     },
 })

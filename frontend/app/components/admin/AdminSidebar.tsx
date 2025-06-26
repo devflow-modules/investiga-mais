@@ -14,6 +14,7 @@ import {
   Drawer,
 } from '@chakra-ui/react'
 import { FiMenu, FiUserPlus, FiLogOut } from 'react-icons/fi'
+import { IoMdChatbubbles } from "react-icons/io";
 import { useLogout } from '../../../src/hooks/useLogout'
 import NextLink from 'next/link'
 import { useSidebar } from '../../../src/context/SidebarContext'
@@ -21,7 +22,8 @@ import { Tooltip } from '@/components/dashboard/Tooltip'
 import { useState } from 'react'
 
 const adminLinks = [
-  { href: '/admin/registrar', label: 'Registrar Usuário', icon: FiUserPlus }
+  { href: '/admin/registrar', label: 'Registrar Usuário', icon: FiUserPlus },
+  { href: '/admin/chat', label: 'Chat', icon: IoMdChatbubbles }
   
 ]
 

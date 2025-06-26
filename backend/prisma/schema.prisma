@@ -94,18 +94,30 @@ model Conversa {
   @@index([numero])
 }
 
+enum Direcao {
+  entrada
+  saida
+}
+
+enum StatusMensagem {
+  pendente
+  simulada
+  enviada
+  entregue
+  lida
+  falhou
+}
+
+
 model Mensagem {
   id            Int       @id @default(autoincrement())
   conversaId    Int
-  direcao       String
+  direcao       Direcao
   conteudo      String
   timestamp     DateTime  @default(now())
-  status        String?
+  status        StatusMensagem?
   atendenteId   Int?
 
   Conversa      Conversa  @relation(fields: [conversaId], references: [id])
   Atendente     Usuario?  @relation("MensagensDoAtendente", fields: [atendenteId], references: [id])
-
-  @@index([conversaId])
-  @@index([direcao])
 }

@@ -182,15 +182,20 @@ exports.responderConversa = async (req, res) => {
 
     const token = req.token || req.headers.authorization?.split(' ')[1] || '';
 
-    let statusEnvio = await enviarMensagemWhatsApp({
+    const statusEnvio = await enviarMensagemWhatsApp({
       numero: conversa.numero,
       mensagem,
       token
     });
 
+    const statusTexto =
+      statusEnvio?.success === true
+        ? (statusEnvio.dev ? 'simulada' : 'enviada')
+        : 'falhou';
+
     await prisma.mensagem.update({
       where: { id: novaMensagem.id },
-      data: { status: statusEnvio },
+      data: { status: statusTexto },
     });
 
     await prisma.conversa.update({
