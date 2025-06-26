@@ -20,4 +20,13 @@ router.use(somenteRoles([Roles.ADMIN]))
 // POST /api/admin/registrar-manual
 router.post('/registrar-manual', adminController.registrarManual)
 
+// GET /api/admin/conversas
+router.get('/conversas', adminController.listarConversas)
+
+// GET /api/admin/conversas/:id/mensagens
+router.get('/conversas/:id/mensagens', adminController.listarMensagensDaConversa)
+
+// POST /api/conversas/:id/responder
+router.post('/conversas/:id/responder', adminController.responderConversa)
+
 module.exports = router

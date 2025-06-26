@@ -323,4 +323,39 @@ describe('Consulta CNPJ API', () => {
     expect(res.body.success).toBe(true)
     expect(Array.isArray(res.body.data.resultados)).toBe(true)
   })
+
+  test('Erro ao criar nova consulta', async () => {
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.consulta.findFirst.mockResolvedValue(null)
+
+    axios.get.mockResolvedValue({
+      status: 200,
+      data: {
+        status: 'OK',
+        nome: 'Empresa Teste',
+        cnpj
+      }
+    })
+
+    prisma.consulta.create.mockImplementation(() => {
+      throw new Error('Falha ao criar')
+    })
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(500)
+    expect(res.body.error).toBe('Erro interno ao consultar CNPJ.')
+  })
+
+  test('Erro desconhecido da ReceitaWS (sem response)', async () => {
+    axios.get.mockRejectedValue(new Error('Erro inesperado'))
+
+    prisma.dadosCNPJ.findUnique.mockResolvedValue(null)
+    prisma.consulta.findFirst.mockResolvedValue(null)
+
+    const res = await request(app).get(`/api/consulta/${cnpj}`)
+    expect(res.statusCode).toBe(500)
+    expect(res.body.error).toBe('Erro ao consultar dados da ReceitaWS.')
+  })
+
+
 })

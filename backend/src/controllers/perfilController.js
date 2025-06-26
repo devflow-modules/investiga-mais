@@ -6,7 +6,7 @@ const { sendSuccess, sendError } = require('../utils/sendResponse')
  */
 exports.atualizarPerfil = async (req, res) => {
   const { nome, telefone, nascimento, cidade, uf, genero } = req.body
-  const usuarioId = req.user.usuarioId
+  const usuarioId = req.user.id
 
   try {
     // Busca o usuário atual para verificar se já possui bônus
@@ -57,7 +57,7 @@ exports.atualizarPerfil = async (req, res) => {
  * Retorna o perfil do usuário autenticado.
  */
 exports.obterPerfil = async (req, res) => {
-  const usuarioId = req.user.usuarioId
+  const usuarioId = req.user.id
 
   try {
     const usuario = await prisma.usuario.findUnique({

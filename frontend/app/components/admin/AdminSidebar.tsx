@@ -22,6 +22,7 @@ import { useState } from 'react'
 
 const adminLinks = [
   { href: '/admin/registrar', label: 'Registrar Usuário', icon: FiUserPlus }
+  
 ]
 
 interface SidebarProps {

@@ -32,6 +32,7 @@ const consultaRoutes = require('./routes/consultaRoutes')
 const perfilRoutes = require('./routes/perfilRoutes')
 const segurancaRoutes = require('./routes/segurancaRoutes')
 const adminRoutes = require('./routes/adminRoutes');
+const whatsappRoutes = require('./routes/whatsappRoutes')
 
 // Rota de teste
 app.get('/', (req, res) => {
@@ -51,6 +52,7 @@ app.use('/api/consulta', verifyToken, consultaRoutes)
 app.use('/api/perfil', perfilRoutes)
 app.use('/api/seguranca', segurancaRoutes)
 app.use('/api/admin', adminRoutes);
+app.use('/api/whatsapp', whatsappRoutes)
 
 // Fallback 404 → com padrão sendError
 const { sendError } = require('./utils/sendResponse')

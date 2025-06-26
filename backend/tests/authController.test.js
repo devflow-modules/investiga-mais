@@ -1,7 +1,6 @@
 // ⬇️ Mock do bcrypt para simular verificação da senha
 jest.mock('bcryptjs')
 
-// ✅ MOVER ESSA DECLARAÇÃO PARA O TOPO
 const mockFindUnique = jest.fn()
 
 // ⬇️ Mock do Prisma Client com a função definida acima

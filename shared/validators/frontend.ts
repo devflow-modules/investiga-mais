@@ -3,6 +3,7 @@ export function validarEmail(email: string): boolean {
 }
 
 export function validarSenha(senha: string): boolean {
+  
   return senha.length >= 6 && /[A-Za-z]/.test(senha) && /\d/.test(senha)
 }
 

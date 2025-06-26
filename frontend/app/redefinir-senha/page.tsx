@@ -21,9 +21,8 @@ const schema = z
     novaSenha: z
       .string()
       .min(6, 'A senha deve ter no mínimo 6 caracteres')
-      .regex(/[A-Za-z]/, 'Deve conter letras')
-      .regex(/\d/, 'Deve conter números')
-      .regex(/[^A-Za-z0-9]/, 'Deve conter um símbolo'),
+      .regex(/[A-Za-z]/, 'Deve conter pelo menos uma letra')
+      .regex(/\d/, 'Deve conter pelo menos um número'),
     confirmarSenha: z.string(),
   })
   .refine((data) => data.novaSenha === data.confirmarSenha, {
@@ -63,6 +62,12 @@ function RedefinirSenhaInner() {
     setMensagem('')
     setErro('')
 
+    // 🔍 Verificando o que está sendo enviado
+    console.log('[ENVIANDO PARA BACKEND]', {
+      token,
+      novaSenha: data.novaSenha,
+    })
+
     try {
       const json = await apiFetchJSON('/api/auth/resetar-senha', {
         method: 'POST',
@@ -70,12 +75,18 @@ function RedefinirSenhaInner() {
         body: JSON.stringify({ token, novaSenha: data.novaSenha }),
       })
 
+      // 🔍 Verificando resposta do backend
+      console.log('[RESPOSTA DO BACKEND]', json)
+
       if (json.success) {
         setMensagem(json.message || 'Senha redefinida com sucesso!')
         setTimeout(() => router.push('/login'), 2500)
       } else {
         setErro(json.error || json.message || 'Erro ao redefinir senha.')
       }
+    } catch (err) {
+      console.error('[ERRO AO CHAMAR API]', err)
+      setErro('Erro ao conectar com o servidor.')
     } finally {
       setLoading(false)
     }

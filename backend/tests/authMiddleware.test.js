@@ -50,7 +50,7 @@ describe('Middleware verifyToken', () => {
 
     // Agora checa a estrutura real de req.user (como o middleware monta)
     expect(req.user).toMatchObject({
-      usuarioId: payload.id,
+      id: payload.id,
       email: payload.email,
       cpf: null,
       nome: null,

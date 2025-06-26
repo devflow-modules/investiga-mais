@@ -10,15 +10,23 @@ import {
   Text,
   HStack,
   Flex,
+  Link as ChakraLink,
   LinkBox,
   LinkOverlay,
 } from '@chakra-ui/react'
 import { useState, type JSX } from 'react'
-import { FiMenu, FiHome, FiSearch, FiClock, FiUser, FiLogOut  } from 'react-icons/fi'
-import { MdOutlineSecurity } from "react-icons/md";
+import {
+  FiMenu,
+  FiHome,
+  FiSearch,
+  FiClock,
+  FiUser,
+  FiLogOut,
+} from 'react-icons/fi'
+import { MdOutlineSecurity } from 'react-icons/md'
 import NextLink from 'next/link'
 import { useSidebar } from '../../../src/context/SidebarContext'
-import { Tooltip } from './Tooltip' // Tooltip customizado, com fallback de arrow + content
+import { Tooltip } from './Tooltip'
 import { useLogout } from '../../../src/hooks/useLogout'
 
 const links = [
@@ -26,7 +34,13 @@ const links = [
   { href: '/dashboard/consulta', label: 'Consulta CNPJ', icon: FiSearch },
   { href: '/dashboard/historico', label: 'Histórico', icon: FiClock },
   { href: '/dashboard/perfil', label: 'Meu Perfil', icon: FiUser },
-  { href: '/dashboard/seguranca', label: 'Segurança', icon: MdOutlineSecurity }
+  { href: '/dashboard/seguranca', label: 'Segurança', icon: MdOutlineSecurity },
+]
+
+const infoLinks = [
+  { href: '/politica-de-privacidade', label: 'Política de Privacidade' },
+  { href: '/termos-de-uso', label: 'Termos de Uso' },
+  { href: '/excluir-dados', label: 'Excluir Dados' },
 ]
 
 interface SidebarProps {
@@ -69,7 +83,6 @@ export default function Sidebar({ pathname }: SidebarProps) {
       </LinkBox>
     )
 
-    // ✅ Correção: garantir sempre uma key no root
     return (
       <Box key={href} w="full">
         {isExpanded ? (
@@ -82,7 +95,6 @@ export default function Sidebar({ pathname }: SidebarProps) {
       </Box>
     )
   }
-
 
   const renderFooter = () => (
     <>
@@ -106,6 +118,24 @@ export default function Sidebar({ pathname }: SidebarProps) {
         </HStack>
       </Button>
     </>
+  )
+
+  const renderInformationalLinks = () => (
+    <VStack align="start" gap={2}  px={isExpanded ? 2 : 0}>
+      <Box h="1px" w="full" bg="whiteAlpha.300" my={4} borderRadius="full" />
+      {infoLinks.map(({ href, label }) => (
+        <ChakraLink
+          as={NextLink}
+          key={href}
+          href={href}
+          fontSize="xs"
+          color="whiteAlpha.600"
+          _hover={{ color: 'whiteAlpha.800', textDecoration: 'underline' }}
+        >
+          {label}
+        </ChakraLink>
+      ))}
+    </VStack>
   )
 
   return (
@@ -142,7 +172,7 @@ export default function Sidebar({ pathname }: SidebarProps) {
                 color="white"
                 p={6}
                 rounded="md"
-                transition="all 0.3s ease" // mais suave
+                transition="all 0.3s ease"
               >
                 <Drawer.CloseTrigger asChild>
                   <IconButton
@@ -165,11 +195,20 @@ export default function Sidebar({ pathname }: SidebarProps) {
                   </IconButton>
                 </Drawer.CloseTrigger>
 
-                <Drawer.Header fontWeight="bold" fontSize="lg" color="whiteAlpha.900">
+                <Drawer.Header
+                  fontWeight="bold"
+                  fontSize="lg"
+                  color="whiteAlpha.900"
+                >
                   🔍 Investiga+
                 </Drawer.Header>
 
-                <Drawer.Body display="flex" flexDirection="column" justifyContent="space-between" h="full">
+                <Drawer.Body
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="space-between"
+                  h="full"
+                >
                   <VStack align="start" gap={3} mt={8}>
                     {links.map(({ href, label, icon: Icon }) => (
                       <Box key={href} w="full">
@@ -178,14 +217,16 @@ export default function Sidebar({ pathname }: SidebarProps) {
                     ))}
                   </VStack>
 
-                  {renderFooter()}
+                  <Box mt="auto">
+                    {renderFooter()}
+                    {renderInformationalLinks()}
+                  </Box>
                 </Drawer.Body>
               </Drawer.Content>
             </Drawer.Positioner>
           </Drawer.Root>
         </>
       )}
-
 
       {!isMobile && (
         <Box
@@ -229,17 +270,16 @@ export default function Sidebar({ pathname }: SidebarProps) {
               _hover={{
                 bg: 'whiteAlpha.300',
                 color: 'white',
-                transform: 'scale(1.1) rotate(5deg)', // micro animação no hover
+                transform: 'scale(1.1) rotate(5deg)',
               }}
               _active={{
-                transform: 'scale(0.95)', // feedback ao clicar
+                transform: 'scale(0.95)',
               }}
               transition="all 0.2s ease"
             >
               <FiMenu />
             </IconButton>
           </Flex>
-
 
           <VStack align="start" gap={3} mt={8}>
             {links.map(({ href, label, icon: Icon }) =>
@@ -249,6 +289,7 @@ export default function Sidebar({ pathname }: SidebarProps) {
 
           <Box mt="auto">
             {renderFooter()}
+            {renderInformationalLinks()}
           </Box>
         </Box>
       )}

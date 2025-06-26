@@ -1,13 +1,27 @@
+jest.resetModules();
+
+let axios;
+try {
+  axios = require('axios').default || require('axios');
+} catch (e) {
+  axios = require('axios');
+}
+
+if (!axios || typeof axios !== 'function' || !axios.request) {
+  throw new Error('axios inválido. Verifique se há mocks globais em outros testes.');
+}
+
+const MockAdapter = require('axios-mock-adapter');
+const mockAxios = new MockAdapter(axios);
+
 const segurancaController = require('../src/controllers/segurancaController');
 const httpMocks = require('node-mocks-http');
-const axios = require('axios');
-const MockAdapter = require('axios-mock-adapter');
 
-const mockAxios = new MockAdapter(axios);
+
 
 describe('SegurancaController', () => {
 
-  const prisma = require('../src/lib/prisma'); 
+  const prisma = require('../src/lib/prisma');
 
   beforeAll(async () => {
     await prisma.usuario.create({
@@ -29,7 +43,7 @@ describe('SegurancaController', () => {
   });
 
   afterAll(async () => {
-    await prisma.consultaRisco.deleteMany(); 
+    await prisma.consultaRisco.deleteMany();
     await prisma.usuario.deleteMany({ where: { id: 1 } }); // remove o usuário dummy
     await prisma.$disconnect(); // fecha conexão com o banco
   });
@@ -45,7 +59,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: { ip: '8.8.8.8' }
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -84,7 +98,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: {}
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -105,7 +119,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: { ip: '8.8.8.8' }
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -161,7 +175,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/',
         params: {}
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -182,7 +196,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/test@example.com',
         params: { email: 'test@example.com' }
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -207,7 +221,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: { url: 'http://example.com' }
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -236,7 +250,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: {}
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -257,7 +271,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: { url: 'http://example.com' }
       });
-      req.user = { usuarioId: 1 }; 
+      req.user = { usuarioId: 1 };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };

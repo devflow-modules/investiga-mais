@@ -1,17 +1,16 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const prisma = require('../lib/prisma')
+const prisma = require('../lib/prisma');
 const { validarEmail, validarCPF } = require('../../../shared/validators/backend');
 const { enviarEmail } = require('../services/email');
+const { enviarMensagemWhatsApp } = require('../services/whatsappService');
 const { sendSuccess, sendError } = require('../utils/sendResponse');
 
-exports.registrarManual = async (req, res, next) => {
+exports.registrarManual = async (req, res) => {
   try {
     const { email, cpf, nome, telefone } = req.body;
 
-    if (!email || !cpf) {
-      return sendError(res, 400, 'Email e CPF obrigatórios.');
-    }
+    if (!email || !cpf) return sendError(res, 400, 'Email e CPF obrigatórios.');
 
     const emailLower = email.toLowerCase();
 
@@ -25,9 +24,7 @@ exports.registrarManual = async (req, res, next) => {
       }
     });
 
-    if (existente) {
-      return sendError(res, 409, 'Usuário já cadastrado.');
-    }
+    if (existente) return sendError(res, 409, 'Usuário já cadastrado.');
 
     const senhaGerada = crypto.randomBytes(4).toString('hex');
     const senhaCriptografada = await bcrypt.hash(senhaGerada, 10);
@@ -72,6 +69,15 @@ exports.registrarManual = async (req, res, next) => {
       console.log(`📧 [DEV] Simulando envio de e-mail para ${emailLower} com senha: ${senhaGerada}`);
     }
 
+    // WhatsApp
+    if (telefone) {
+      await enviarMensagemWhatsApp({
+        numero: telefone,
+        mensagem: `🔐 Olá ${nome || 'usuário'}, seu acesso ao Investiga+ foi liberado!\n\n📧 Email: ${emailLower}\n🔑 Senha: ${senhaGerada}\n\nAcesse: https://investigamais.com/login`,
+        token: req.token || req.headers.authorization?.split(' ')[1] || ''
+      });
+    }
+
     return sendSuccess(res, {
       sucesso: true,
       mensagem: 'Usuário registrado manualmente e e-mail enviado.'
@@ -81,3 +87,125 @@ exports.registrarManual = async (req, res, next) => {
     return sendError(res, 500, 'Erro interno ao registrar usuário manualmente.');
   }
 };
+
+exports.listarConversas = async (req, res) => {
+  try {
+    const conversas = await prisma.conversa.findMany({
+      orderBy: { ultimaMensagemEm: 'desc' },
+      include: {
+        mensagens: {
+          orderBy: { timestamp: 'desc' },
+          take: 1,
+        },
+      },
+    });
+
+    const formatadas = conversas.map((c) => ({
+      id: c.id,
+      numero: c.numero,
+      nome: c.nome,
+      ultimaMensagem: c.mensagens[0]?.conteudo || '',
+      ultimaMensagemEm: c.ultimaMensagemEm,
+    }));
+
+    return sendSuccess(res, { conversas: formatadas });
+  } catch (err) {
+    console.error('Erro ao listar conversas:', err);
+    return sendError(res, 500, 'Erro ao buscar conversas');
+  }
+};
+
+exports.listarMensagensDaConversa = async (req, res) => {
+  try {
+    const conversaId = parseInt(req.params.id);
+    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido');
+
+    const conversa = await prisma.conversa.findUnique({
+      where: { id: conversaId },
+      include: {
+        mensagens: {
+          orderBy: { timestamp: 'asc' },
+          include: {
+            Atendente: {
+              select: { nome: true, email: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!conversa) return sendError(res, 404, 'Conversa não encontrada');
+
+    const mensagensFormatadas = conversa.mensagens.map((m) => ({
+      id: m.id,
+      direcao: m.direcao,
+      conteudo: m.conteudo,
+      timestamp: m.timestamp,
+      status: m.status,
+      atendente: m.Atendente ? { nome: m.Atendente.nome, email: m.Atendente.email } : null,
+    }));
+
+    return sendSuccess(res, {
+      conversaId,
+      numero: conversa.numero,
+      nome: conversa.nome,
+      mensagens: mensagensFormatadas,
+    });
+  } catch (err) {
+    console.error('Erro listarMensagensDaConversa:', err);
+    return sendError(res, 500, 'Erro ao buscar mensagens da conversa');
+  }
+};
+
+exports.responderConversa = async (req, res) => {
+  try {
+    const conversaId = parseInt(req.params.id);
+    const { mensagem } = req.body;
+    const atendenteId = req.user?.id;
+
+    if (!mensagem || mensagem.trim().length < 1) {
+      return sendError(res, 400, 'Mensagem é obrigatória');
+    }
+
+    const conversa = await prisma.conversa.findUnique({ where: { id: conversaId } });
+    if (!conversa) return sendError(res, 404, 'Conversa não encontrada');
+
+    const novaMensagem = await prisma.mensagem.create({
+      data: {
+        conversaId,
+        direcao: 'saida',
+        conteudo: mensagem,
+        atendenteId,
+        status: 'pendente',
+      },
+    });
+
+    const token = req.token || req.headers.authorization?.split(' ')[1] || '';
+
+    let statusEnvio = await enviarMensagemWhatsApp({
+      numero: conversa.numero,
+      mensagem,
+      token
+    });
+
+    await prisma.mensagem.update({
+      where: { id: novaMensagem.id },
+      data: { status: statusEnvio },
+    });
+
+    await prisma.conversa.update({
+      where: { id: conversaId },
+      data: { ultimaMensagemEm: new Date() },
+    });
+
+    return sendSuccess(res, {
+      sucesso: true,
+      mensagem: 'Mensagem enviada',
+      statusEnvio,
+    });
+  } catch (err) {
+    console.error('Erro responderConversa:', err);
+    return sendError(res, 500, 'Erro interno ao enviar resposta');
+  }
+};
+

@@ -10,8 +10,8 @@ datasource db {
 model Consulta {
   id        Int      @id @default(autoincrement())
   nome      String
-  cpf       String   // Pessoa física que consultou
-  cnpj      String   // CNPJ consultado
+  cpf       String
+  cnpj      String
   status    String
   criadoEm  DateTime @default(now())
 
@@ -20,25 +20,24 @@ model Consulta {
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  senhaHash String @map("senha")
-  cpf       String   @unique
-  nome      String?
-  telefone  String?
-  nascimento DateTime?
-  cidade    String?
-  uf        String?
-  genero    String?
-  bonusConcedidoAt DateTime?
-  role      String   @default("cliente")
+  id                Int           @id @default(autoincrement())
+  email             String        @unique
+  senhaHash         String        @map("senha")
+  cpf               String        @unique
+  nome              String?
+  telefone          String?
+  nascimento        DateTime?
+  cidade            String?
+  uf                String?
+  genero            String?
+  bonusConcedidoAt  DateTime?
+  role              String        @default("cliente")
+  criadoEm          DateTime      @default(now())
 
-  criadoEm  DateTime @default(now())
-
-  tokenRecuperacao TokenRecuperacao[]
-  logRecuperacoes  LogRecuperacao[]
-
-  consultaRiscos   ConsultaRisco[]
+  tokenRecuperacao  TokenRecuperacao[]
+  logRecuperacoes   LogRecuperacao[]
+  consultaRiscos    ConsultaRisco[]
+  mensagensEnviadas Mensagem[]    @relation("MensagensDoAtendente")
 }
 
 model TokenRecuperacao {
@@ -69,9 +68,9 @@ model DadosCNPJ {
 model ConsultaRisco {
   id          Int      @id @default(autoincrement())
   usuarioId   Int
-  tipo        String   // cpf_status | ip_check | email_verify | clearsale_cpf_check
-  parametro   String   // exemplo: CPF, IP, EMAIL, ORDER_ID
-  status      String   // success | error
+  tipo        String
+  parametro   String
+  status      String
   resultado   Json
   criadoEm    DateTime @default(now())
 
@@ -80,4 +79,33 @@ model ConsultaRisco {
   @@index([usuarioId])
   @@index([tipo])
   @@index([status])
+}
+
+model Conversa {
+  id               Int        @id @default(autoincrement())
+  numero           String     @unique
+  nome             String?
+  ultimaMensagemEm DateTime   @default(now())
+  criadoEm         DateTime   @default(now())
+  atualizadoEm     DateTime   @updatedAt
+
+  mensagens        Mensagem[]
+
+  @@index([numero])
+}
+
+model Mensagem {
+  id            Int       @id @default(autoincrement())
+  conversaId    Int
+  direcao       String
+  conteudo      String
+  timestamp     DateTime  @default(now())
+  status        String?
+  atendenteId   Int?
+
+  Conversa      Conversa  @relation(fields: [conversaId], references: [id])
+  Atendente     Usuario?  @relation("MensagensDoAtendente", fields: [atendenteId], references: [id])
+
+  @@index([conversaId])
+  @@index([direcao])
 }

@@ -22,14 +22,14 @@ function verifyToken(req, res, next) {
 
     // Padroniza req.user
     req.user = {
-      usuarioId: decoded.id,
+      id: decoded.id,
       cpf: decoded.cpf || null,
       email: decoded.email || null,
       nome: decoded.nome || null,
       role: decoded.role || 'cliente'  // garante fallback
     }
 
-    console.log('[verifyToken] Token OK → usuarioId:', req.user.usuarioId, '| role:', req.user.role)
+    console.log('[verifyToken] Token OK → usuarioId:', req.user.id, '| role:', req.user.role)
     next()
   } catch (err) {
     console.error('[verifyToken] Token inválido:', err.message)
