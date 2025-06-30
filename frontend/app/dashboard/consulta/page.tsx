@@ -12,8 +12,8 @@ import { useState } from 'react'
 import { validarCNPJ } from '../../../../shared/validators/frontend'
 import type { DadosEmpresaReceitaWS } from '../../../types'
 import DetalhesEmpresa from '../../components/dashboard/consulta/DetalhesEmpresa'
-import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
 import { limparCNPJ } from '../../../../shared/formatters/formatters'
+import { apiFetchJSON } from '@/utils/apiFetchJSON'
 
 type ConsultaResponse = {
   empresa?: DadosEmpresaReceitaWS

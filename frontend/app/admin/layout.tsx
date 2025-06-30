@@ -1,11 +1,11 @@
 'use client'
 
 import { Flex } from '@chakra-ui/react'
-import { useAuth } from 'src/hooks/useAuth'
 import { Toaster } from 'src/components/ui/toaster'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import { usePathname } from 'next/navigation'
 import AdminLayoutContainer from '@/components/admin/AdminLayoutContainer'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   useAuth()

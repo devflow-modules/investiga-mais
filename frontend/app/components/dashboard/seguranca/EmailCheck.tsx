@@ -8,9 +8,9 @@ import {
     Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { apiFetchJSON } from '../../../../src/utils/apiFetchJSON'
 import { toaster } from '../../../../src/components/ui/toaster'
 import SectionHeading from './SectionHeading'
+import { apiFetchJSON } from '@/utils/apiFetchJSON'
 
 
 type EmailResponse = {

@@ -15,7 +15,7 @@ import { FiUsers, FiBriefcase, FiUserCheck, FiShoppingCart } from 'react-icons/f
 import { AiFillStar } from 'react-icons/ai'
 import { CTAButton } from '../ui/BaseButton'
 
-const MotionBox = motion(Box)
+const MotionBox = motion.create(Box)
 
 const profiles = [
   {

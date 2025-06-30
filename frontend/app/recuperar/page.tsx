@@ -9,7 +9,7 @@ import {
   Text,
   Spinner,
 } from '@chakra-ui/react'
-import { apiFetchJSON } from '../../src/utils/apiFetchJSON'
+import { apiFetchJSON } from '@/utils/apiFetchJSON'
 
 export default function RecuperarSenha() {
   const [email, setEmail] = useState('')

@@ -2,14 +2,15 @@
 
 import { HStack, Input, Button, useToken } from '@chakra-ui/react'
 import type { FormEvent } from 'react'
+import type { ChatInputProps } from '@types'
 
-interface ChatInputProps {
-  mensagem: string
-  setMensagem: (valor: string) => void
-  onEnviar: () => void
-}
-
-export function ChatInput({ mensagem, setMensagem, onEnviar }: ChatInputProps) {
+export function ChatInput({
+  mensagem,
+  setMensagem,
+  onEnviar,
+  carregando,
+  inputRef
+}: ChatInputProps & { inputRef?: React.RefObject<HTMLInputElement | null> }) {
   const [accent, ctaBlue] = useToken('colors', ['accent', 'ctaBlue'])
 
   const handleSubmit = (e: FormEvent) => {
@@ -23,6 +24,7 @@ export function ChatInput({ mensagem, setMensagem, onEnviar }: ChatInputProps) {
     <form onSubmit={handleSubmit} style={{ width: '100%' }} aria-label="Formulário de envio de mensagem">
       <HStack mt={4} as="fieldset" gap={3}>
         <Input
+          ref={inputRef}
           placeholder="Digite uma mensagem..."
           value={mensagem}
           onChange={(e) => setMensagem(e.target.value)}
@@ -38,6 +40,7 @@ export function ChatInput({ mensagem, setMensagem, onEnviar }: ChatInputProps) {
           _hover={{ bg: ctaBlue }}
           disabled={isEmpty}
           aria-label="Botão de envio de mensagem"
+          loading={carregando}
         >
           Enviar
         </Button>

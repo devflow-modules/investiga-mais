@@ -1,6 +1,5 @@
 'use client'
 
-import { apiFetchJSON } from '../../src/utils/apiFetchJSON'
 import { useRouter } from 'next/navigation'
 import {
   Box,
@@ -15,7 +14,8 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import type { UsuarioResponse } from '../../types/api'
-import { useUser } from '../../src/context/UserContext'
+import { apiFetchJSON } from '@/utils/apiFetchJSON'
+import { useUser } from '@/context/UserContext'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),

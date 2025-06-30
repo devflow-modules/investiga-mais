@@ -15,7 +15,7 @@ import { FiShield, FiUsers, FiAlertTriangle, FiCheckCircle } from 'react-icons/f
 import { motion } from 'framer-motion'
 import { CTAButton } from '../ui/BaseButton'
 
-const MotionBox = motion(Box)
+const MotionBox = motion.create(Box)
 
 const features = [
   {

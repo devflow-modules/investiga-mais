@@ -14,9 +14,9 @@ import {
 import { useState } from 'react'
 import { validarEmail, validarCPF, validarTelefone } from '../../../../shared/validators'
 import { toaster } from '../../../src/components/ui/toaster'
-import { mascararCPF } from '../../../src/utils/mascararCPF'
-import { mascararTelefone } from '../../../src/utils/mascararTelefone'
 import { generoOptions } from '../../components/dashboard/historico/createListCollection'
+import { mascararCPF } from '@/utils/mascararCPF'
+import { mascararTelefone } from '@/utils/mascararTelefone'
 
 export default function RegistrarUsuarioManual() {
   const [email, setEmail] = useState('')

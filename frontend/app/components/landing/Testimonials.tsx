@@ -36,7 +36,7 @@ const testimonials = [
 
 const colors = ['blue.500', 'green.500', 'purple.500', 'red.500', 'orange.500']
 
-const MotionBox = motion(Box)
+const MotionBox = motion.create(Box)
 
 export default function Testimonials() {
   return (

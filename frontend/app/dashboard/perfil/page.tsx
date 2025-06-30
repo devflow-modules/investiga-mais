@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '../../../src/hooks/useAuth'
 import {
   Badge,
   Box,
@@ -14,9 +13,10 @@ import {
 } from '@chakra-ui/react'
 import { CompletePerfilSection } from '@/components/dashboard/perfil/CompletePerfilSection'
 import { formatarCPF } from '@shared/formatters/formatters'
-import { useLogout } from '../../../src/hooks/useLogout'
 import { Tooltip } from '../../../src/components/ui/tooltip'
 import { Avatar } from '../../../src/components/ui/avatar'
+import { useLogout } from '@/hooks/useLogout'
+import { useAuth } from '@/hooks/useAuth'
 
 // função que gera uma cor pastel a partir do email
 const gerarCorAvatar = (email?: string) => {

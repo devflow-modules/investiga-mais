@@ -15,7 +15,7 @@ import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import { CTAButton } from '../ui/BaseButton'
 
-const MotionBox = motion(Box)
+const MotionBox = motion.create(Box)
 
 export default function StatsSection() {
   const isMobile = useBreakpointValue({ base: true, md: false })

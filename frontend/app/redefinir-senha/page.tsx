@@ -14,7 +14,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
-import { apiFetchJSON } from '../../src/utils/apiFetchJSON'
+import { apiFetchJSON } from '@/utils/apiFetchJSON'
 
 const schema = z
   .object({

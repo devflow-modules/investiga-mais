@@ -9,7 +9,7 @@
     ],
     "allowJs": false,
     "skipLibCheck": true,
-    "baseUrl": ".", // <-- IMPORTANTE
+    "baseUrl": ".",
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -43,8 +43,9 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
-, "app/theme/components/CTAButton.tsx tsx"  ],
+    ".next/types/**/*.ts",
+    "app/theme/components/CTAButton.tsx"
+  ],
   "exclude": [
     "node_modules"
   ]

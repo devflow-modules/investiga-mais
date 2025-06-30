@@ -117,24 +117,33 @@ exports.listarConversas = async (req, res) => {
 
 exports.listarMensagensDaConversa = async (req, res) => {
   try {
-    const conversaId = parseInt(req.params.id);
-    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido');
+    const conversaId = parseInt(req.params.id)
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 20
+
+    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido')
 
     const conversa = await prisma.conversa.findUnique({
       where: { id: conversaId },
-      include: {
+      select: {
+        id: true,
+        numero: true,
+        nome: true,
         mensagens: {
+          skip,
+          take,
           orderBy: { timestamp: 'asc' },
           include: {
-            Atendente: {
-              select: { nome: true, email: true },
-            },
-          },
+            Atendente: { select: { nome: true, email: true } }
+          }
         },
-      },
-    });
+        _count: {
+          select: { mensagens: true }
+        }
+      }
+    })
 
-    if (!conversa) return sendError(res, 404, 'Conversa não encontrada');
+    if (!conversa) return sendError(res, 404, 'Conversa não encontrada')
 
     const mensagensFormatadas = conversa.mensagens.map((m) => ({
       id: m.id,
@@ -142,20 +151,23 @@ exports.listarMensagensDaConversa = async (req, res) => {
       conteudo: m.conteudo,
       timestamp: m.timestamp,
       status: m.status,
-      atendente: m.Atendente ? { nome: m.Atendente.nome, email: m.Atendente.email } : null,
-    }));
+      atendente: m.Atendente ? { nome: m.Atendente.nome, email: m.Atendente.email } : null
+    }))
 
     return sendSuccess(res, {
-      conversaId,
+      conversaId: conversa.id,
       numero: conversa.numero,
       nome: conversa.nome,
       mensagens: mensagensFormatadas,
-    });
+      total: conversa._count.mensagens,
+      hasMore: skip + take < conversa._count.mensagens
+    })
   } catch (err) {
-    console.error('Erro listarMensagensDaConversa:', err);
-    return sendError(res, 500, 'Erro ao buscar mensagens da conversa');
+    console.error('Erro listarMensagensDaConversa:', err)
+    return sendError(res, 500, 'Erro ao buscar mensagens da conversa')
   }
-};
+}
+
 
 exports.responderConversa = async (req, res) => {
   try {

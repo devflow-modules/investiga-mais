@@ -15,10 +15,10 @@ import { useEffect, useState, useCallback, Suspense } from 'react'
 import { FiltroStatus } from './FiltroStatus'
 import { ConsultaCard } from './ConsultaCard'
 import { ConsultaDrawerDetalhes } from './ConsultaDrawerDetalhes'
-import { useDebouncedValue } from '../../../../src/hooks/useDebouncedValue'
 import { useSearchParams } from 'next/navigation'
-import { apiFetchJSON } from '../../../../src/utils/apiFetchJSON'
 import { limparCNPJ } from '../../../../../shared/formatters/formatters'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import { apiFetchJSON } from '@/utils/apiFetchJSON'
 
 interface Consulta {
   id: number

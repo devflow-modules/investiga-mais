@@ -3,10 +3,10 @@
 import { Flex } from '@chakra-ui/react'
 import { SidebarProvider } from '../../src/context/SidebarContext'
 import { usePathname } from 'next/navigation'
-import { useAuth } from '../../src/hooks/useAuth'
 import Sidebar from '@/components/dashboard/Sidebar'
 import DashboardLayoutContainer from '@/components/dashboard/DashboardLayoutContainer'
 import { Toaster } from 'src/components/ui/toaster'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   useAuth()

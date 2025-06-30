@@ -14,8 +14,8 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Consulta } from '../../../types/Consulta'
 import { formatarCNPJ } from '@shared/formatters/formatters'
-import { apiFetchJSON } from '../../../src/utils/apiFetchJSON'
-import { useLogout } from '../../../src/hooks/useLogout'
+import { useLogout } from '@/hooks/useLogout'
+import { apiFetchJSON } from '@/utils/apiFetchJSON'
 
 type ConsultaResponse = {
   resultados: Consulta[]

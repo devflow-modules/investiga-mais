@@ -23,7 +23,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    // Evita rodar no lado do servidor (Next.js App Router + React 19)
     if (typeof window === 'undefined') return
 
     const fetchUser = async () => {
