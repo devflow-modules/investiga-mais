@@ -19,6 +19,7 @@ export interface Mensagem {
 }
 
 export interface Conversa {
+  atendenteId: any
   id: number
   nome?: string
   numero: string

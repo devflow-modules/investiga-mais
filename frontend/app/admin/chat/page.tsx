@@ -171,6 +171,33 @@ export default function ChatAdminPage() {
                   Conversando com: {conversaSelecionada.nome || conversaSelecionada.numero}
                 </Heading>
 
+                {conversaSelecionada?.atendenteId && (
+                  <Button
+                    size="xs"
+                    colorScheme="red"
+                    alignSelf="flex-start"
+                    onClick={async () => {
+                      const res = await fetch(`/api/admin/conversas/${conversaSelecionada.id}/liberar`, {
+                        method: 'POST',
+                        credentials: 'include'
+                      })
+                      const json = await res.json()
+                      if (json.success) {
+                        setConversas((prev) =>
+                          prev.map((c) =>
+                            c.id === conversaSelecionada.id ? { ...c, atendenteId: null } : c
+                          )
+                        )
+                        setConversaSelecionada((prev) =>
+                          prev ? { ...prev, atendenteId: null } : prev
+                        )
+                      }
+                    }}
+                  >
+                    Liberar Atendimento
+                  </Button>
+                )}
+
                 <Box
                   ref={mensagensRef}
                   flex="1"
