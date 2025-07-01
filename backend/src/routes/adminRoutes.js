@@ -4,7 +4,6 @@ const router = express.Router()
 const verifyToken = require('../middleware/auth')
 const somenteRoles = require('../middleware/somenteRoles')
 const Roles = require('../utils/roles')
-
 const adminController = require('../controllers/adminController')
 
 // Logger opcional
@@ -17,16 +16,12 @@ router.use((req, res, next) => {
 router.use(verifyToken)
 router.use(somenteRoles([Roles.ADMIN]))
 
-// POST /api/admin/registrar-manual
+// ROTAS
 router.post('/registrar-manual', adminController.registrarManual)
-
-// GET /api/admin/conversas
 router.get('/conversas', adminController.listarConversas)
-
-// GET /api/admin/conversas/:id/mensagens
 router.get('/conversas/:id/mensagens', adminController.listarMensagensDaConversa)
-
-// POST /api/conversas/:id/responder
 router.post('/conversas/:id/responder', adminController.responderConversa)
+router.post('/conversas/:id/atribuir', adminController.atribuirConversa)
+router.post('/conversas/:id/liberar', adminController.liberarConversa)
 
 module.exports = router

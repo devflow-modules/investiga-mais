@@ -168,7 +168,6 @@ exports.listarMensagensDaConversa = async (req, res) => {
   }
 }
 
-
 exports.responderConversa = async (req, res) => {
   try {
     const conversaId = parseInt(req.params.id);
@@ -223,6 +222,86 @@ exports.responderConversa = async (req, res) => {
   } catch (err) {
     console.error('Erro responderConversa:', err);
     return sendError(res, 500, 'Erro interno ao enviar resposta');
+  }
+};
+
+exports.atribuirConversa = async (req, res) => {
+  try {
+    const conversaId = parseInt(req.params.id);
+    const atendenteId = req.user?.id;
+
+    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido.');
+
+    const conversa = await prisma.conversa.findUnique({
+      where: { id: conversaId },
+      select: {
+        id: true,
+        atendenteId: true,
+      },
+    });
+
+    if (!conversa) return sendError(res, 404, 'Conversa não encontrada.');
+
+    // Se já atribuída a outro atendente
+    if (conversa.atendenteId && conversa.atendenteId !== atendenteId) {
+      return sendError(res, 409, 'Conversa já está sendo atendida por outro usuário.');
+    }
+
+    await prisma.conversa.update({
+      where: { id: conversaId },
+      data: {
+        atendenteId,
+        atendidaPorAutomacao: false,
+        atualizadoEm: new Date(),
+      },
+    });
+
+    // (Opcional) salvar log de atribuição
+
+    return sendSuccess(res, { mensagem: 'Conversa atribuída com sucesso.' });
+  } catch (err) {
+    console.error('Erro atribuirConversa:', err);
+    return sendError(res, 500, 'Erro interno ao atribuir conversa.');
+  }
+};
+
+exports.liberarConversa = async (req, res) => {
+  try {
+    const conversaId = parseInt(req.params.id);
+    const atendenteId = req.user?.id;
+
+    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido.');
+
+    const conversa = await prisma.conversa.findUnique({
+      where: { id: conversaId },
+      select: {
+        id: true,
+        atendenteId: true,
+      },
+    });
+
+    if (!conversa) return sendError(res, 404, 'Conversa não encontrada.');
+
+    if (conversa.atendenteId !== atendenteId) {
+      return sendError(res, 403, 'Você não pode liberar uma conversa que não está atendendo.');
+    }
+
+    await prisma.conversa.update({
+      where: { id: conversaId },
+      data: {
+        atendenteId: null,
+        atendidaPorAutomacao: true,
+        naoLido: true,
+        atualizadoEm: new Date(),
+      },
+    });
+
+    // (Opcional) salvar log de liberação
+
+    return sendSuccess(res, { mensagem: 'Conversa liberada com sucesso.' });
+  } catch (err) {
+    console.error('Erro liberarConversa:', err);
+    return sendError(res, 500, 'Erro interno ao liberar conversa.');
   }
 };
 
