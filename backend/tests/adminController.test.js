@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const adminController = require('../src/controllers/adminController');
 const prisma = require('../tests/__mocks__/prisma');
 const { verifyToken } = require('../tests/__mocks__');
+const { mensagem } = require('../src/lib/prisma');
 const app = express();
 
 app.use(bodyParser.json());
@@ -68,6 +69,9 @@ describe('AdminController', () => {
             Atendente: { nome: 'Atendente 1', email: 'a@a.com' },
           },
         ],
+        _count: {
+          mensagens: 1
+        }
       });
 
       const res = await request(app).get('/api/admin/conversas/1/mensagens');

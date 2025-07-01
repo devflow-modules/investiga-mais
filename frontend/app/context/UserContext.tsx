@@ -1,8 +1,8 @@
 'use client'
 
+import type { ApiResponse, UserRole, UsuarioResponse } from '@types'
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
-import type { UserRole, ApiResponse, UsuarioResponse } from '../../types'
 
 interface User {
   id: number
@@ -13,6 +13,7 @@ interface User {
 
 interface UserContextType {
   user: User | null
+  loading: boolean
   setUser: (user: User | null) => void
   logout: () => void
 }
@@ -21,10 +22,9 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-
     const fetchUser = async () => {
       try {
         const res = await fetch('/api/auth/verify', { credentials: 'include' })
@@ -37,16 +37,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             role: json.data.usuario.role,
             nome: json.data.usuario.nome || '',
           })
-
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('[UserContext] Usuario autenticado:', json.data.usuario)
-          }
+          console.log('[UserContext] Usuario autenticado:', json.data.usuario)
         } else {
           setUser(null)
         }
       } catch (err) {
         console.error('[UserContext] Erro ao verificar usuario:', err)
         setUser(null)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -58,7 +57,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, setUser, logout }}>
+    <UserContext.Provider value={{ user, loading, setUser, logout }}>
       {children}
     </UserContext.Provider>
   )

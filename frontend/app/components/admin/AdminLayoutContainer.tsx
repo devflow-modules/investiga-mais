@@ -1,5 +1,5 @@
+import { useSidebar } from '@/context/SidebarContext'
 import { Box } from '@chakra-ui/react'
-import { useSidebar } from '../../../src/context/SidebarContext'
 
 export default function AdminLayoutContainer({ children }: { children: React.ReactNode }) {
   const { isExpanded } = useSidebar()

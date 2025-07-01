@@ -77,7 +77,7 @@ exports.resetarSenha = async (req, res, next) => {
 
     await prisma.usuario.update({
       where: { id: registro.usuarioId },
-      data: { senha: senhaHash }
+      data: { senhaHash: senhaHash }
     });
 
     await prisma.tokenRecuperacao.delete({ where: { token } });

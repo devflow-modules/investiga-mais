@@ -13,10 +13,10 @@ import {
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { validarEmail, validarCPF, validarTelefone } from '../../../../shared/validators'
-import { toaster } from '../../../src/components/ui/toaster'
 import { generoOptions } from '../../components/dashboard/historico/createListCollection'
 import { mascararCPF } from '@/utils/mascararCPF'
 import { mascararTelefone } from '@/utils/mascararTelefone'
+import { toaster } from '@/components/ui/toaster'
 
 export default function RegistrarUsuarioManual() {
   const [email, setEmail] = useState('')

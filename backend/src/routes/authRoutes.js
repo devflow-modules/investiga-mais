@@ -4,13 +4,13 @@ const router = express.Router()
 const verifyToken = require('../middleware/auth')
 const authController = require('../controllers/authController')
 const recuperacaoController = require('../controllers/recuperacaoController')
+const { sendSuccess } = require('../utils/sendResponse')
 
 // ✅ Verificação de autenticação (usada no hook useAuth)
 router.get('/verify', verifyToken, (req, res) => {
-  res.json({
-    autenticado: true,
-    usuario: req.user,
-  })
+  return sendSuccess(res, {
+    usuario: req.user
+  }, 'Usuário autenticado')
 })
 
 // 🔐 Login

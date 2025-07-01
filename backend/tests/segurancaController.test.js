@@ -22,15 +22,15 @@ const httpMocks = require('node-mocks-http');
 describe('SegurancaController', () => {
 
   const prisma = require('../src/lib/prisma');
+  let usuarioId;
 
   beforeAll(async () => {
-    await prisma.usuario.create({
+    const novoUsuario = await prisma.usuario.create({
       data: {
-        id: 1,
-        email: 'test@example.com',
+        email: 'testeseguranca@example.com',
         senhaHash: 'senhateste',
         nome: 'Usuário Teste',
-        cpf: '12345678900', // <== OBRIGATÓRIO no seu schema
+        cpf: '99999999999', // cpf que ainda não exista
         telefone: null,
         nascimento: null,
         cidade: null,
@@ -40,12 +40,14 @@ describe('SegurancaController', () => {
         role: 'cliente',
       },
     });
+
+    usuarioId = novoUsuario.id;
   });
 
   afterAll(async () => {
     await prisma.consultaRisco.deleteMany();
-    await prisma.usuario.deleteMany({ where: { id: 1 } }); // remove o usuário dummy
-    await prisma.$disconnect(); // fecha conexão com o banco
+    await prisma.usuario.delete({ where: { id: usuarioId } }); // agora com ID dinâmico
+    await prisma.$disconnect();
   });
 
   afterEach(() => {
@@ -59,7 +61,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: { ip: '8.8.8.8' }
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -98,7 +100,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: {}
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -119,7 +121,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: { ip: '8.8.8.8' }
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -144,7 +146,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/test@example.com',
         params: { email: 'test@example.com' }
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -175,7 +177,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/',
         params: {}
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -196,7 +198,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/test@example.com',
         params: { email: 'test@example.com' }
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -221,7 +223,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: { url: 'http://example.com' }
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -250,7 +252,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: {}
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -271,7 +273,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: { url: 'http://example.com' }
       });
-      req.user = { usuarioId: 1 };
+      req.user = { usuarioId };
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };

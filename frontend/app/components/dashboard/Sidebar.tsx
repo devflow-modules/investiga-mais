@@ -25,9 +25,9 @@ import {
 } from 'react-icons/fi'
 import { MdOutlineSecurity } from 'react-icons/md'
 import NextLink from 'next/link'
-import { useSidebar } from '../../../src/context/SidebarContext'
 import { Tooltip } from './Tooltip'
 import { useLogout } from '@/hooks/useLogout'
+import { useSidebar } from '@/context/SidebarContext'
 
 const links = [
   { href: '/dashboard', label: 'Início', icon: FiHome },

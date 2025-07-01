@@ -13,10 +13,10 @@ import {
 } from '@chakra-ui/react'
 import { CompletePerfilSection } from '@/components/dashboard/perfil/CompletePerfilSection'
 import { formatarCPF } from '@shared/formatters/formatters'
-import { Tooltip } from '../../../src/components/ui/tooltip'
-import { Avatar } from '../../../src/components/ui/avatar'
 import { useLogout } from '@/hooks/useLogout'
 import { useAuth } from '@/hooks/useAuth'
+import { Avatar } from '@/components/ui/avatar'
+import { Tooltip } from '@/components/ui/tooltip'
 
 // função que gera uma cor pastel a partir do email
 const gerarCorAvatar = (email?: string) => {

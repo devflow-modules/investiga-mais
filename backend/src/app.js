@@ -5,6 +5,9 @@ const cookieParser = require('cookie-parser')
 
 const app = express()
 
+// 🚫 Desativa ETag para evitar 304 automáticos
+app.set('etag', false)
+
 app.use(express.json())
 
 // 🔥 CORS ajustado para aceitar frontend em localhost:3000

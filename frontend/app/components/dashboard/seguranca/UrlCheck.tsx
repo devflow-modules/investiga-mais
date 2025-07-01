@@ -9,9 +9,9 @@ import {
     Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { toaster } from '../../../../src/components/ui/toaster'
 import SectionHeading from './SectionHeading'
 import { apiFetchJSON } from '@/utils/apiFetchJSON'
+import { toaster } from '@/components/ui/toaster'
 
 type UrlResponse = {
     url: string

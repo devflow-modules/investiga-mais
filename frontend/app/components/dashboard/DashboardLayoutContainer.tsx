@@ -1,8 +1,11 @@
+import { useSidebar } from '@/context/SidebarContext'
+import { useAuth } from '@/hooks/useAuth'
 import { Box } from '@chakra-ui/react'
-import { useSidebar } from '../../../src/context/SidebarContext'
 
 export default function DashboardLayoutContainer({ children }: { children: React.ReactNode }) {
   const { isExpanded } = useSidebar()
+
+  useAuth() // 👈 movido para cá
 
   return (
     <Box

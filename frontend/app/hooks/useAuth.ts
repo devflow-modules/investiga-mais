@@ -7,10 +7,12 @@ import { useUser } from '../context/UserContext'
 export function useAuth() {
   const router = useRouter()
   const pathname = usePathname()
-  const { user } = useUser()
+  const { user, loading } = useUser()
 
   useEffect(() => {
     if (pathname === '/login') return
+
+    if (loading) return // ainda está verificando
 
     if (!user) {
       console.warn('[useAuth] Não autenticado, redirecionando.')
@@ -18,5 +20,5 @@ export function useAuth() {
     } else {
       console.log('[useAuth] Usuario OK:', user.role)
     }
-  }, [user, pathname, router])
+  }, [user, loading, pathname, router])
 }

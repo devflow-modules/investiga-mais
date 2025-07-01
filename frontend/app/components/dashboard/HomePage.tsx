@@ -36,14 +36,17 @@ export default function HomePage() {
     setCarregandoConsultas(true)
 
     const json = await apiFetchJSON<ConsultaResponse>('/api/consulta')
+    console.log('[HomePage] Resposta da API:', json)
 
-    if (json.success && Array.isArray(json.data?.resultados)) {
-      console.log('[DEBUG] Resultados recebidos:', json.data.resultados)
+    if (json.success && (json.statusCode === 304 || Array.isArray(json.data?.resultados))) {
+      console.log('[DEBUG] Resultados recebidos:', json.data?.resultados)
 
-      const formatado = json.data.resultados.map((c: Consulta): Consulta => ({
-        ...c,
-        criadoFormatado: new Date(c.criadoEm).toLocaleString('pt-BR'),
-      }))
+      const formatado: Consulta[] = Array.isArray(json.data?.resultados)
+        ? json.data.resultados.map((c: Consulta): Consulta => ({
+          ...c,
+          criadoFormatado: new Date(c.criadoEm).toLocaleString('pt-BR'),
+        }))
+        : []
 
       setConsultas(formatado)
 
