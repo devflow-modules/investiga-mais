@@ -1,10 +1,10 @@
 'use client'
 
-import type { Mensagem, UseMensagensConversaProps } from '@types'
+import type { MensagemComPossivelTempId, UseMensagensConversaProps } from '@types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export function useMensagensConversa({ conversaId, take = 20 }: UseMensagensConversaProps) {
-  const [mensagens, setMensagens] = useState<Mensagem[]>([])
+  const [mensagens, setMensagens] = useState<MensagemComPossivelTempId[]>([])
   const [total, setTotal] = useState<number>(0)
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)

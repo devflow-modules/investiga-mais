@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import type { Conversa, Mensagem } from '@types'
+import type { Conversa, MensagemComPossivelTempId } from '@types'
 
 export function useChatActions(
   conversa: Conversa | null,
-  mensagens: Mensagem[],
-  setMensagens: React.Dispatch<React.SetStateAction<Mensagem[]>>,
+  mensagens: MensagemComPossivelTempId[],
+  setMensagens: React.Dispatch<React.SetStateAction<MensagemComPossivelTempId[]>>,
   mensagem: string,
   setMensagem: (s: string) => void
 ) {
@@ -33,6 +33,7 @@ export function useChatActions(
         credentials: 'include',
         body: JSON.stringify({ mensagem }),
       })
+
       const json = await res.json()
       if (json.success) {
         setMensagens((prev) =>

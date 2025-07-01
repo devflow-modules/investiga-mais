@@ -47,3 +47,7 @@ export interface UseMensagensConversaProps {
   conversaId: number
   take?: number
 }
+
+export type TempMensagem = Omit<Mensagem, 'id'> & { id: string }
+
+export type MensagemComPossivelTempId = Mensagem | TempMensagem

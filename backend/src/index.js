@@ -5,6 +5,10 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
 
+// Inicia verificação automática de conversas inativas
+const { iniciarVerificadorDeConversas } = require('./services/inicializarCron');
+iniciarVerificadorDeConversas();
+
 // Erros não capturados
 process.on('uncaughtException', (err) => {
   console.error('❌ Erro inesperado não tratado:', err);

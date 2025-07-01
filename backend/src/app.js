@@ -23,7 +23,8 @@ const {
   verifyToken,
   errorHandler,
   loginLimiter,
-  logger
+  logger,
+  verificarCron
 } = require('./middleware')
 
 

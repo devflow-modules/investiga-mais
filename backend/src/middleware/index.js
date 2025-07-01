@@ -3,6 +3,7 @@ const errorHandler = require('./errorHandler')
 const limiterPerfil = require('./limiterPerfil')
 const loginLimiter = require('./rateLimiter')
 const logger = require('./logger')
+const verificarCron = require('./verificarCron')
 
 module.exports = {
   verifyToken,
@@ -10,4 +11,5 @@ module.exports = {
   limiterPerfil,
   loginLimiter,
   logger,
+  verificarCron
 }

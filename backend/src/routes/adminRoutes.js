@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const verifyToken = require('../middleware/auth')
+const verificarCron = require('../middleware/verificarCron');
 const somenteRoles = require('../middleware/somenteRoles')
 const Roles = require('../utils/roles')
 const adminController = require('../controllers/adminController')
@@ -23,5 +24,6 @@ router.get('/conversas/:id/mensagens', adminController.listarMensagensDaConversa
 router.post('/conversas/:id/responder', adminController.responderConversa)
 router.post('/conversas/:id/atribuir', adminController.atribuirConversa)
 router.post('/conversas/:id/liberar', adminController.liberarConversa)
+router.post('/admin/liberar-inativas', verificarCron, adminController.liberarConversasInativas);
 
 module.exports = router

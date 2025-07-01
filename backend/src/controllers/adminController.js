@@ -5,6 +5,7 @@ const { validarEmail, validarCPF } = require('../../../shared/validators/backend
 const { enviarEmail } = require('../services/email');
 const { enviarMensagemWhatsApp } = require('../services/whatsappService');
 const { sendSuccess, sendError } = require('../utils/sendResponse');
+const { subMinutes } = require('date-fns');
 
 exports.registrarManual = async (req, res) => {
   try {
@@ -305,3 +306,29 @@ exports.liberarConversa = async (req, res) => {
   }
 };
 
+exports.liberarConversasInativas = async (req, res) => {
+  try {
+    const limite = subMinutes(new Date(), 5);
+
+    const conversas = await prisma.conversa.findMany({
+      where: {
+        atendenteId: { not: null },
+        ultimaMensagemCliente: { lt: limite }
+      }
+    });
+
+    const ids = conversas.map(c => c.id);
+
+    await prisma.conversa.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        atendenteId: null
+      }
+    });
+
+    return res.json({ success: true, liberadas: ids.length });
+  } catch (err) {
+    console.error('Erro ao liberar conversas inativas:', err);
+    return res.status(500).json({ success: false, message: 'Erro interno ao liberar' });
+  }
+};
