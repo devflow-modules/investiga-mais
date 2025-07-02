@@ -52,3 +52,8 @@ export interface UseMensagensConversaProps {
 export type TempMensagem = Omit<Mensagem, 'id'> & { id: string }
 
 export type MensagemComPossivelTempId = Mensagem | TempMensagem
+
+export interface Options {
+  hasMore?: boolean
+  loading?: boolean
+}

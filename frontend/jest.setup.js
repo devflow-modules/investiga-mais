@@ -55,3 +55,7 @@ if (typeof window.IntersectionObserver === 'undefined') {
     })
 }
 
+// Simula scrollIntoView para jsdom
+if (!HTMLElement.prototype.scrollIntoView) {
+  HTMLElement.prototype.scrollIntoView = function () {}
+}
