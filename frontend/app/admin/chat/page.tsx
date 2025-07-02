@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 import { ChatMessage } from '@/components/admin/chat/ChatMessage'
 import { ChatInput } from '@/components/admin/chat/ChatInput'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -20,6 +19,7 @@ import { agruparPorData } from '@/utils/agruparPorData'
 import { useChatActions } from '@/hooks/useChatActions'
 import { useMensagensConversa } from '@/hooks/useMensagensConversa'
 import type { Conversa } from '@types'
+import { formatarDataBrasil } from '@/utils/formatarDataBrasil'
 
 const MotionBox = motion.create(Box)
 
@@ -213,7 +213,11 @@ export default function ChatAdminPage() {
                     {agruparPorData(mensagens).map((grupo, idx) => (
                       <Box key={idx}>
                         <Text fontSize="xs" color="gray.500" textAlign="center" my={2}>
-                          {format(new Date(grupo.data), 'dd/MM/yyyy', { locale: ptBR })}
+                          {(() => {
+                            const dataFormatada = formatarDataBrasil(grupo.data)
+                            console.log('[DATA AGRUPADA RENDERIZADA]:', grupo.data, '→', dataFormatada)
+                            return dataFormatada
+                          })()}
                         </Text>
                         {grupo.mensagens.map((m, i) => (
                           <ChatMessage

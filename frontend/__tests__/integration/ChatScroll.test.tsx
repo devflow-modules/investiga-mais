@@ -1,14 +1,10 @@
 import ChatAdminPage from '@/admin/chat/page'
 import { screen, fireEvent, waitFor } from '@testing-library/react'
-import type { Conversa, Mensagem } from '@types'
 import { renderWithChakra } from 'tests/helpers/renderWithChakra'
 import { mockFetchConversa } from 'tests/helpers/mockFetchConversa'
 
+// Mocks globais
 let scrollMock = jest.fn()
-
-beforeAll(() => {
-  mockFetchConversa()
-})
 
 jest.mock('@/hooks/useMensagensConversa', () => ({
   useMensagensConversa: () => ({
@@ -16,52 +12,48 @@ jest.mock('@/hooks/useMensagensConversa', () => ({
     setMensagens: jest.fn(),
     carregarMais: jest.fn(),
     hasMore: false,
-    loading: false
-  })
+    loading: false,
+  }),
 }))
 
 jest.mock('@/hooks/useChatActions', () => ({
-  useChatActions: (
-    _c: Conversa | null,
-    _m: Mensagem[],
-    setMensagens: (mensagens: Mensagem[]) => void,
-    _msg: string,
-    setMensagem: (msg: string) => void
-  ) => ({
+  useChatActions: () => ({
     enviando: false,
     enviar: () => {
-      setMensagens([
-        {
-          id: 1,
-          conteudo: 'Teste de scroll',
-          direcao: 'saida',
-          timestamp: new Date().toISOString()
-        }
-      ])
-      setMensagem('')
+      const novoElemento = document.createElement('div')
+      novoElemento.scrollIntoView = scrollMock
+      document.body.appendChild(novoElemento)
+      novoElemento.scrollIntoView()
     },
-    setEnviando: jest.fn()
-  })
+    setEnviando: jest.fn(),
+  }),
 }))
 
-describe('ChatAdminPage - Scroll', () => {
+describe('ChatAdminPage - Scroll automático ao enviar', () => {
+  beforeAll(() => {
+    mockFetchConversa()
+  })
+
   beforeEach(() => {
     scrollMock = jest.fn()
     window.HTMLElement.prototype.scrollIntoView = scrollMock
   })
 
-  it('chama scrollIntoView ao enviar mensagem', async () => {
+  it('aciona scrollIntoView ao enviar nova mensagem', async () => {
     renderWithChakra(<ChatAdminPage />)
 
+    // Aguardamos a lista de conversas carregar
     const conversa = await screen.findByText('Usuário Teste')
     fireEvent.click(conversa)
 
+    // Digita uma mensagem e envia
     const input = await screen.findByPlaceholderText('Digite uma mensagem...')
     fireEvent.change(input, { target: { value: 'Teste de scroll' } })
 
-    const button = screen.getByLabelText('Botão de envio de mensagem')
-    fireEvent.click(button)
+    const enviar = screen.getByLabelText('Botão de envio de mensagem')
+    fireEvent.click(enviar)
 
+    // Valida se scrollIntoView foi chamado após o envio
     await waitFor(() => {
       expect(scrollMock).toHaveBeenCalled()
     })

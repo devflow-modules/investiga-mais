@@ -1,41 +1,23 @@
 import ChatAdminPage from '@/admin/chat/page'
 import { screen, fireEvent, waitFor } from '@testing-library/react'
-import type { Conversa, Mensagem } from '@types'
 import { renderWithChakra } from 'tests/helpers/renderWithChakra'
+import type { Conversa, Mensagem } from '@types'
 import { mockFetchConversa } from 'tests/helpers/mockFetchConversa'
 
+// Estado simulado
+let mensagensFake: Mensagem[] = []
 const carregarMaisMock = jest.fn()
 
-beforeAll(() => {
-  mockFetchConversa()
-})
-
-beforeEach(() => {
-  // Mock do IntersectionObserver com captura de instância
-  observerInstances = []
-  global.IntersectionObserver = class {
-    constructor(callback: any) {
-      observerInstances.push({ callback })
-    }
-    observe = jest.fn()
-    unobserve = jest.fn()
-    disconnect = jest.fn()
-  } as any
-})
-
-let observerInstances: { callback: (entries: { isIntersecting: boolean }[]) => void }[] = []
+let observerInstances: {
+  callback: (entries: { isIntersecting: boolean }[]) => void
+}[] = []
 
 jest.mock('@/hooks/useMensagensConversa', () => ({
   useMensagensConversa: () => ({
-    mensagens: [
-      {
-        id: 1,
-        conteudo: 'Mensagem antiga',
-        direcao: 'entrada',
-        timestamp: new Date().toISOString()
-      }
-    ],
-    setMensagens: jest.fn(),
+    mensagens: mensagensFake,
+    setMensagens: (newMensagens: Mensagem[] | ((prev: Mensagem[]) => Mensagem[])) => {
+      mensagensFake = typeof newMensagens === 'function' ? newMensagens(mensagensFake) : newMensagens
+    },
     carregarMais: carregarMaisMock,
     hasMore: true,
     loading: false
@@ -54,7 +36,7 @@ jest.mock('@/hooks/useChatActions', () => ({
     enviar: () => {
       setMensagens([
         {
-          id: 2,
+          id: Date.now(),
           conteudo: 'Nova mensagem',
           direcao: 'saida',
           timestamp: new Date().toISOString()
@@ -66,23 +48,57 @@ jest.mock('@/hooks/useChatActions', () => ({
   })
 }))
 
+beforeAll(() => {
+  mockFetchConversa([
+    {
+      id: 1,
+      nome: 'Usuário Teste',
+      numero: '+5511999999999',
+      ultimaMensagemEm: new Date().toISOString(),
+      ultimaMensagem: 'Olá!',
+      atendenteId: null
+    }
+  ])
+
+  global.IntersectionObserver = class {
+    constructor(callback: any) {
+      observerInstances.push({ callback })
+    }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as any
+
+  HTMLElement.prototype.scrollIntoView = jest.fn()
+})
+
+beforeEach(() => {
+  mensagensFake = [
+    {
+      id: 1,
+      conteudo: 'Mensagem antiga',
+      direcao: 'entrada',
+      timestamp: new Date().toISOString()
+    }
+  ]
+  observerInstances = []
+  carregarMaisMock.mockClear()
+})
+
 describe('ChatAdminPage - Carregamento incremental', () => {
   it('chama carregarMais ao detectar interseção com topo', async () => {
     renderWithChakra(<ChatAdminPage />)
 
-    // Aguarda e clica na conversa
     const conversa = await screen.findByText('Usuário Teste')
     fireEvent.click(conversa)
 
-    // Aguarda até que o IntersectionObserver tenha sido instanciado
     await waitFor(() => {
       expect(observerInstances.length).toBeGreaterThan(0)
     })
 
-    // Simula interseção no topo
+    // Simula scroll no topo
     observerInstances[0].callback([{ isIntersecting: true }])
 
-    // Espera chamada do hook
     await waitFor(() => {
       expect(carregarMaisMock).toHaveBeenCalled()
     })
