@@ -1,4 +1,4 @@
-const { prisma } = require('../lib/prisma')
+const prisma = require('../lib/prisma');
 
 async function liberarConversasInativas(timeoutMinutos = 5) {
   const agora = new Date()

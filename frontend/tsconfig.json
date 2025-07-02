@@ -19,6 +19,7 @@
     "jsx": "preserve",
     "incremental": true,
     "verbatimModuleSyntax": true,
+    "types": ["jest"], 
     "plugins": [
       {
         "name": "next"
@@ -44,7 +45,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/theme/components/CTAButton.tsx"
+    "app/theme/components/CTAButton.tsx",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
