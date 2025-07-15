@@ -1,17 +1,22 @@
 const axios = require('axios');
-const prisma = require('../lib/prisma');
+const prisma = require('../lib/prisma.js');
 
 const WABA_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-exports.enviarMensagemWhatsApp = async ({ numero, mensagem }) => {
+async function enviarMensagemWhatsApp({ numero, mensagem }) {
   if (process.env.WHATSAPP_MODO_DEV === 'true') {
     console.log(`[SIMULADO] Enviando para ${numero}: ${mensagem}`);
     return {
       success: true,
       dev: true,
       message: 'Mensagem simulada com sucesso (modo desenvolvedor)',
-      data: { numero, mensagem, timestamp: new Date() },
+      data: {
+        message_id: 'simulado-dev-id',
+        numero,
+        mensagem,
+        timestamp: new Date()
+      }
     };
   }
 
@@ -22,32 +27,39 @@ exports.enviarMensagemWhatsApp = async ({ numero, mensagem }) => {
         messaging_product: 'whatsapp',
         to: numero,
         type: 'text',
-        text: { body: mensagem },
+        text: { body: mensagem }
       },
       {
         headers: {
           Authorization: `Bearer ${WABA_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       }
     );
+
+    const messageId = response.data?.messages?.[0]?.id;
 
     return {
       success: true,
       message: 'Mensagem enviada com sucesso',
-      data: response.data,
+      data: {
+        message_id: messageId,
+        numero,
+        mensagem,
+        timestamp: new Date()
+      }
     };
   } catch (error) {
     console.error('[WhatsApp API Error]', error.response?.data || error.message);
     return {
       success: false,
       message: 'Erro ao enviar mensagem',
-      data: error.response?.data || null,
+      data: error.response?.data || null
     };
   }
-};
+}
 
-exports.processarMensagemRecebida = async (body) => {
+async function processarMensagemRecebida(body) {
   try {
     const mensagemData = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
@@ -62,7 +74,7 @@ exports.processarMensagemRecebida = async (body) => {
 
     if (!conversa) {
       conversa = await prisma.conversa.create({
-        data: { numero, ultimaMensagemEm: new Date() },
+        data: { numero, ultimaMensagemEm: new Date() }
       });
     }
 
@@ -70,13 +82,13 @@ exports.processarMensagemRecebida = async (body) => {
       data: {
         conversaId: conversa.id,
         direcao: 'entrada',
-        conteudo,
-      },
+        conteudo
+      }
     });
 
     await prisma.conversa.update({
       where: { id: conversa.id },
-      data: { ultimaMensagemEm: new Date() },
+      data: { ultimaMensagemEm: new Date() }
     });
 
     console.log(`[Webhook WhatsApp] Mensagem recebida de ${numero}: ${conteudo}`);
@@ -85,4 +97,9 @@ exports.processarMensagemRecebida = async (body) => {
     console.error('[processarMensagemRecebida] Erro:', err);
     return { success: false, message: 'Erro interno' };
   }
+}
+
+module.exports = {
+  enviarMensagemWhatsApp,
+  processarMensagemRecebida
 };

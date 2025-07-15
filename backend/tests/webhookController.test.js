@@ -16,9 +16,10 @@ jest.mock('@prisma/client', () => {
 const request = require('supertest');
 const app = require('../src/app');
 
-jest.mock('../src/services/email', () => ({
+jest.mock('../src/services/emailService.js', () => ({
   enviarEmail: jest.fn((...args) => mockEnviarEmail(...args))
 }));
+
 
 describe('Webhook de Registro - registrarViaCompra', () => {
   beforeEach(() => {
@@ -30,13 +31,15 @@ describe('Webhook de Registro - registrarViaCompra', () => {
   it('retorna 400 se evento for inválido', async () => {
     const res = await request(app).post(endpoint).send({ event: 'INVALIDO' });
     expect(res.statusCode).toBe(400);
-    expect(res.body.erro).toMatch(/Evento inválido/i);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toMatch(/Evento inválido/i);
   });
 
   it('retorna 400 se email ou cpf estiverem ausentes', async () => {
     const res = await request(app).post(endpoint).send({ event: 'SALE_APPROVED', customer: {} });
     expect(res.statusCode).toBe(400);
-    expect(res.body.erro).toMatch(/dados ausentes/i);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toMatch(/dados ausentes/i);
   });
 
   it('retorna 400 se email ou cpf forem inválidos', async () => {
@@ -48,7 +51,8 @@ describe('Webhook de Registro - registrarViaCompra', () => {
       }
     });
     expect(res.statusCode).toBe(400);
-    expect(res.body.erro).toMatch(/formato inválido/i);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toMatch(/formato inválido/i);
   });
 
   it('retorna 200 se o usuário já existir', async () => {
@@ -61,8 +65,8 @@ describe('Webhook de Registro - registrarViaCompra', () => {
       }
     });
     expect(res.statusCode).toBe(200);
-    expect(res.body.sucesso).toBe(true);
-    expect(res.body.mensagem).toMatch(/já cadastrado/i);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toMatch(/já cadastrado/i);
   });
 
   it('cria o usuário e simula envio de e-mail em ambiente de desenvolvimento', async () => {
@@ -83,8 +87,8 @@ describe('Webhook de Registro - registrarViaCompra', () => {
     expect(mockCreate).toHaveBeenCalled();
     expect(mockEnviarEmail).not.toHaveBeenCalled(); // Em development não chama
     expect(res.statusCode).toBe(201);
-    expect(res.body.sucesso).toBe(true);
-    expect(res.body.mensagem).toMatch(/registrado/i);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toMatch(/registrado/i);
 
     process.env.NODE_ENV = originalEnv;
   });
@@ -111,8 +115,8 @@ describe('Webhook de Registro - registrarViaCompra', () => {
       expect.stringContaining('Senha:')
     );
     expect(res.statusCode).toBe(201);
-    expect(res.body.sucesso).toBe(true);
-    expect(res.body.mensagem).toMatch(/registrado/i);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toMatch(/registrado/i);
 
     process.env.NODE_ENV = originalEnv;
   });
@@ -128,8 +132,7 @@ describe('Webhook de Registro - registrarViaCompra', () => {
       }
     });
     expect(res.statusCode).toBe(500);
-    expect(res.body).toBeDefined();
-    expect(typeof res.body.erro === 'string' || res.body.erro === undefined).toBe(true);
+    expect(res.body.success).toBe(false);
+    expect(typeof res.body.error === 'string' || res.body.error === undefined).toBe(true);
   });
-
 });

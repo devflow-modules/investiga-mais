@@ -1,6 +1,6 @@
-exports.sendSuccess = (res, data = {}, message = 'Operação realizada com sucesso.') => {
-  const statusCode = 200
+const isDev = process.env.NODE_ENV !== 'production';
 
+function sendSuccess(res, data = {}, message = 'Operação realizada com sucesso.', statusCode = 200) {
   const responsePayload = {
     success: true,
     statusCode,
@@ -8,21 +8,27 @@ exports.sendSuccess = (res, data = {}, message = 'Operação realizada com suces
     timestamp: new Date().toISOString(),
     path: res?.req?.originalUrl || 'unknown',
     data
-  }
+  };
 
-  return res.status(statusCode).json(responsePayload)
+  return res.status(statusCode).json(responsePayload);
 }
 
-exports.sendError = (res, statusCode = 500, message = 'Erro interno', extra = {}) => {
+function sendError(res, statusCode = 500, message = 'Erro interno', extra = {}) {
   const responsePayload = {
     success: false,
     statusCode,
     message,
+    error: extra.error || message,
     timestamp: new Date().toISOString(),
     path: res?.req?.originalUrl || 'unknown',
-    error: message, // ou simplesmente: error: true
+    ...(isDev && extra.stack ? { stack: extra.stack } : {}),
     ...extra
-  }
+  };
 
-  return res.status(statusCode).json(responsePayload)
+  return res.status(statusCode).json(responsePayload);
 }
+
+module.exports = {
+  sendSuccess,
+  sendError
+};

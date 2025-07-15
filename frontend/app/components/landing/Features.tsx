@@ -43,6 +43,12 @@ const features = [
 export default function Features() {
   const isMobile = useBreakpointValue({ base: true, md: false })
 
+  const imagemSrc = useBreakpointValue({
+    base: '/imagem2.jpg', // mobile
+    md: '/imagem1.jpg'    // desktop
+  })
+
+
   return (
     <Box py={20} px={{ base: 4, md: 6 }} bg="white">
       <MotionBox
@@ -58,12 +64,11 @@ export default function Features() {
         viewport={{ once: true }}
       >
         <Image
-          src="/imagem1.jpg"
+          src={imagemSrc}
           alt="Tela do sistema de verificação de empresa"
           borderRadius="md"
           boxShadow="lg"
           loading="lazy"
-          display={{ base: 'none', md: 'block' }} // <== ESSA LINHA
         />
 
         <Box>

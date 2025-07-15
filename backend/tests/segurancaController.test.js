@@ -61,7 +61,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: { ip: '8.8.8.8' }
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -100,7 +100,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: {}
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -121,7 +121,7 @@ describe('SegurancaController', () => {
         url: '/ip-check',
         query: { ip: '8.8.8.8' }
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -146,7 +146,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/test@example.com',
         params: { email: 'test@example.com' }
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -177,7 +177,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/',
         params: {}
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -198,7 +198,7 @@ describe('SegurancaController', () => {
         url: '/email-verify/test@example.com',
         params: { email: 'test@example.com' }
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -223,7 +223,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: { url: 'http://example.com' }
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -252,7 +252,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: {}
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };
@@ -273,7 +273,7 @@ describe('SegurancaController', () => {
         url: '/safe-browsing-check',
         query: { url: 'http://example.com' }
       });
-      req.user = { usuarioId };
+      req.user = { id: usuarioId }; 
 
       const res = httpMocks.createResponse();
       res.req = { originalUrl: req.url };

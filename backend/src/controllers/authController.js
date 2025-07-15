@@ -1,68 +1,62 @@
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const prisma = require('../lib/prisma')
-const { validarEmail, validarSenha } = require('../../../shared/validators/backend')
-const { sendSuccess, sendError } = require('../utils/sendResponse')
+const { validarEmail, validarSenha } = require('../../../shared/validators/backend.js');
+const { sendSuccess, sendError } = require('../utils/sendResponse.js');
+const authService = require('../services/authService.js');
 
-const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev'
-
-exports.login = async (req, res, next) => {
-  let { email, senha } = req.body
+async function login(req, res) {
+  let { email, senha } = req.body;
 
   if (!email || !senha) {
-    return sendError(res, 400, 'Email e senha obrigatórios.')
+    return sendError(res, 400, 'Email e senha obrigatórios.');
   }
 
   if (!validarEmail(email) || !validarSenha(senha)) {
-    return sendError(res, 400, 'Formato de e-mail ou senha inválido.')
+    return sendError(res, 400, 'Formato de e-mail ou senha inválido.');
   }
 
-  email = email.toLowerCase()
+  email = email.toLowerCase();
 
   try {
-    const usuario = await prisma.usuario.findUnique({ where: { email } })
+    const { usuario, token } = await authService.autenticarUsuario(email, senha);
 
-    if (!usuario || !(await bcrypt.compare(senha, usuario.senhaHash))) {
-      return sendError(res, 401, 'CREDENCIAIS_INVALIDAS')
-    }
-
-    const token = jwt.sign(
-      {
-        id: usuario.id,
-        email: usuario.email,
-        cpf: usuario.cpf,
-        nome: usuario.nome,
-        role: usuario.role
-      },
-      SECRET_KEY,
-      { expiresIn: '1d' }
-    )
-
-    // 🔐 Define o token como cookie HTTP-only
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // 👈 deve estar false em desenvolvimento
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24
-    })
+      maxAge: 1000 * 60 * 60 * 24 // 24h
+    });
 
-    return sendSuccess(res, {
-      usuario: {
-        id: usuario.id,
-        email: usuario.email,
-        role: usuario.role
-      }
-    }, 'Login realizado com sucesso.')
+    return sendSuccess(
+      res,
+      {
+        usuario: {
+          id: usuario.id,
+          email: usuario.email,
+          role: usuario.role
+        }
+      },
+      'Login realizado com sucesso.'
+    );
   } catch (err) {
-    console.error('Erro no login:', err)
-    return sendError(res, 500, 'Erro interno no login.')
+    const status = err.message === 'CREDENCIAIS_INVALIDAS' ? 401 : 500;
+    const mensagem = status === 401
+      ? 'Credenciais inválidas.'
+      : 'Erro interno no login.';
+
+    console.error('[authController] Erro no login:', err);
+
+    return sendError(res, status, mensagem, {
+      error: err.message,
+      stack: err.stack
+    });
   }
 }
 
-exports.logout = (req, res) => {
-  // Invalida o cookie do token
-  res.setHeader('Set-Cookie', 'token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax;')
-
-  // Retorna sucesso com mensagem
-  return sendSuccess(res, {}, 'Logout realizado com sucesso.')
+function logout(req, res) {
+  authService.invalidarTokenCookie(res);
+  return sendSuccess(res, null, 'Logout realizado com sucesso.');
 }
+
+module.exports = {
+  login,
+  logout
+};

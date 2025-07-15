@@ -28,6 +28,20 @@ export interface Conversa {
   naoLidas: number
 }
 
+export interface ConversaComExtras extends Conversa {
+  atendente?: Atendente
+  atendidaPorAutomacao?: boolean
+}
+
+export interface NovaConversaPayload {
+  numero: string
+  nome?: string
+}
+
+export interface BotaoNovaConversaProps {
+  onConversaCriada?: (conversa: ConversaComExtras) => void
+}
+
 export interface ChatInputProps {
   mensagem: string
   setMensagem: Dispatch<SetStateAction<string>>

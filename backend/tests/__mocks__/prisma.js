@@ -10,11 +10,16 @@ const prismaMock = {
     findMany: jest.fn(),
     count: jest.fn(),
   },
+  usuario: {
+    findUnique: jest.fn(),
+  },
   conversa: {
     findUnique: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
+    updateMany: jest.fn(),
+    findFirst: jest.fn(),
   },
   mensagem: {
     create: jest.fn(),

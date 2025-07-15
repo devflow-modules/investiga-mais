@@ -5,6 +5,7 @@ import {
   Flex,
   Heading,
   Text,
+  HStack,
   VStack,
   Button,
   useBreakpointValue
@@ -18,8 +19,11 @@ import { retryEnvioMensagem } from '@/utils/retryEnvioMensagem'
 import { agruparPorData } from '@/utils/agruparPorData'
 import { useChatActions } from '@/hooks/useChatActions'
 import { useMensagensConversa } from '@/hooks/useMensagensConversa'
-import type { Conversa } from '@types'
+import type { ConversaComExtras } from '@types'
 import { formatarDataBrasil } from '@/utils/formatarDataBrasil'
+import { BotaoAssumirProxima } from '@/components/admin/chat/BotaoAssumirProxima'
+import { BotaoLiberarConversa } from '@/components/admin/chat/BotaoLiberarConversa' // ✅ também deve ser client
+import { BotaoNovaConversa } from '@/components/admin/chat/BotaoNovaConversa'
 
 const MotionBox = motion.create(Box)
 
@@ -31,8 +35,8 @@ export default function ChatAdminPage() {
 
   const isMobile = useBreakpointValue({ base: true, md: false })
 
-  const [conversas, setConversas] = useState<Conversa[]>([])
-  const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null)
+  const [conversas, setConversas] = useState<ConversaComExtras[]>([])
+  const [conversaSelecionada, setConversaSelecionada] = useState<ConversaComExtras | null>(null)
 
   const {
     mensagens,
@@ -78,14 +82,9 @@ export default function ChatAdminPage() {
       }
     })
 
-    if (topoRef.current) {
-      observer.observe(topoRef.current)
-    }
-
+    if (topoRef.current) observer.observe(topoRef.current)
     return () => {
-      if (topoRef.current) {
-        observer.unobserve(topoRef.current)
-      }
+      if (topoRef.current) observer.unobserve(topoRef.current)
     }
   }, [topoRef, hasMore, loading, carregarMais])
 
@@ -97,9 +96,7 @@ export default function ChatAdminPage() {
   }, [mensagens])
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus()
-    }
+    if (inputRef.current) inputRef.current.focus()
   }, [conversaSelecionada, mensagens.length])
 
   return (
@@ -120,7 +117,24 @@ export default function ChatAdminPage() {
             zIndex={2}
             bg="white"
           >
-            <Heading size="md" p={4}>Conversas</Heading>
+            <Flex justify="space-between" align="center" px={4} pt={4} pb={2}>
+              <Heading size="md">Conversas</Heading>
+              <HStack gap={2}>
+                <BotaoNovaConversa
+                  onConversaCriada={(nova) => {
+                    setConversas((prev) => [nova, ...prev])
+                    setConversaSelecionada(nova)
+                  }}
+                />
+                <BotaoAssumirProxima
+                  onConversaAssumida={(conversa) => {
+                    setConversas((prev) => [...prev.filter((c) => c.id !== conversa.id), conversa])
+                    setConversaSelecionada(conversa)
+                  }}
+                />
+              </HStack>
+            </Flex>
+
             <VStack align="stretch" gap={1} h="full" minH={0}>
               {conversas.map((c) => (
                 <Box
@@ -167,34 +181,46 @@ export default function ChatAdminPage() {
 
             {conversaSelecionada && (
               <Flex direction="column" h="full" gap={2} w="full" minH="0">
-                <Heading size="sm" mb={2}>
+                <Heading size="sm" mb={1}>
                   Conversando com: {conversaSelecionada.nome || conversaSelecionada.numero}
                 </Heading>
 
-                {conversaSelecionada?.atendenteId && (
+                {conversaSelecionada.atendente?.nome && (
+                  <Text fontSize="sm" color="gray.600">
+                    Sendo atendido por: <strong>{conversaSelecionada.atendente.nome}</strong>
+                  </Text>
+                )}
+
+                {conversaSelecionada.atendidaPorAutomacao && (
+                  <Text fontSize="xs" color="purple.500" fontWeight="bold">
+                    Atendimento por Automação
+                  </Text>
+                )}
+
+                {!conversaSelecionada?.atendenteId && (
                   <Button
                     size="xs"
-                    colorScheme="red"
+                    colorScheme="green"
                     alignSelf="flex-start"
                     onClick={async () => {
-                      const res = await fetch(`/api/admin/conversas/${conversaSelecionada.id}/liberar`, {
+                      const res = await fetch(`/api/admin/conversas/${conversaSelecionada.id}/atribuir`, {
                         method: 'POST',
-                        credentials: 'include'
+                        credentials: 'include',
                       })
                       const json = await res.json()
                       if (json.success) {
                         setConversas((prev) =>
                           prev.map((c) =>
-                            c.id === conversaSelecionada.id ? { ...c, atendenteId: null } : c
+                            c.id === conversaSelecionada.id ? { ...c, atendenteId: 'eu' } : c
                           )
                         )
                         setConversaSelecionada((prev) =>
-                          prev ? { ...prev, atendenteId: null } : prev
+                          prev ? { ...prev, atendenteId: 'eu' } : prev
                         )
                       }
                     }}
                   >
-                    Liberar Atendimento
+                    Assumir Conversa
                   </Button>
                 )}
 

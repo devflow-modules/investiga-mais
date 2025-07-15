@@ -38,6 +38,8 @@ model Usuario {
   logRecuperacoes   LogRecuperacao[]
   consultaRiscos    ConsultaRisco[]
   mensagensEnviadas Mensagem[]    @relation("MensagensDoAtendente")
+
+  conversasAtendidas Conversa[]    @relation("UsuarioAtendente")
 }
 
 model TokenRecuperacao {
@@ -85,30 +87,28 @@ model Conversa {
   id                    Int        @id @default(autoincrement())
   numero                String     @unique
   nome                  String?
-  status                String     @default("pendente") // aberta | pendente | fechada
+  status                String     @default("pendente")
   ultimaMensagemEm      DateTime   @default(now())
   ultimaMensagemCliente DateTime?
   criadoEm              DateTime   @default(now())
   atualizadoEm          DateTime   @updatedAt
 
-  // Relacionamento com atendente
-  atendenteId           Int?       @index
-  atendente             Usuario?   @relation(fields: [atendenteId], references: [id])
+  atendenteId           Int?
+  atendente             Usuario?   @relation("UsuarioAtendente", fields: [atendenteId], references: [id])
 
   mensagens             Mensagem[]
 
-  // Campos adicionais para otimização e UX
-  foiPago               Boolean    @default(false) // para separar clientes que já pagaram
-  tagQuente             Boolean    @default(false) // para destacar clientes quentes
-  naoLido               Boolean    @default(false) // se ainda não foi visualizada
-  atendidaPorAutomacao  Boolean    @default(true)  // se ainda está com a automação
-  ultimaMensagemFoiDoCliente Boolean @default(false) // indica se a última mensagem foi do cliente
+  foiPago               Boolean    @default(false)
+  tagQuente             Boolean    @default(false)
+  naoLido               Boolean    @default(false)
+  atendidaPorAutomacao  Boolean    @default(true)
+  ultimaMensagemFoiDoCliente Boolean @default(false)
 
   @@index([numero])
   @@index([status])
-  @@index([telefone])
   @@index([atendenteId])
 }
+
 
 enum Direcao {
   entrada

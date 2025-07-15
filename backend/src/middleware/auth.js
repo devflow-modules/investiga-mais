@@ -1,40 +1,49 @@
-const jwt = require('jsonwebtoken')
-const { sendError } = require('../utils/sendResponse')
-
-const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev'
-
 function verifyToken(req, res, next) {
-  const token = req.cookies?.token
+  const jwt = require('jsonwebtoken');
+  const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev';
+
+  const token = req.cookies?.token;
 
   if (!token) {
-    console.warn('[verifyToken] Token não fornecido')
-    return sendError(res, 401, 'Token não fornecido')
+    console.warn('[verifyToken] Token não fornecido');
+    return res.status(401).json({
+      success: false,
+      message: 'Token não fornecido',
+      statusCode: 401
+    });
   }
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY)
+    const decoded = jwt.verify(token, SECRET_KEY);
 
-    // Validação extra
     if (!decoded.id) {
-      console.warn('[verifyToken] Token inválido: usuarioId ausente', decoded)
-      return sendError(res, 403, 'Token inválido (usuário não identificado)')
+      console.warn('[verifyToken] Token inválido: usuarioId ausente', decoded);
+      return res.status(403).json({
+        success: false,
+        message: 'Token inválido (usuário não identificado)',
+        statusCode: 403
+      });
     }
 
-    // Padroniza req.user
     req.user = {
       id: decoded.id,
       cpf: decoded.cpf || null,
       email: decoded.email || null,
       nome: decoded.nome || null,
-      role: decoded.role || 'cliente'  // garante fallback
-    }
+      role: decoded.role || 'cliente'
+    };
 
-    console.log('[verifyToken] Token OK → usuarioId:', req.user.id, '| role:', req.user.role)
-    next()
+    console.log('[verifyToken] Token OK → usuarioId:', req.user.id, '| role:', req.user.role);
+    next();
   } catch (err) {
-    console.error('[verifyToken] Token inválido:', err.message)
-    return sendError(res, 403, 'Token inválido')
+    console.error('[verifyToken] Token inválido:', err.message);
+    return res.status(403).json({
+      success: false,
+      message: 'Token inválido',
+      statusCode: 403
+    });
   }
 }
 
-module.exports = verifyToken
+
+module.exports = verifyToken;

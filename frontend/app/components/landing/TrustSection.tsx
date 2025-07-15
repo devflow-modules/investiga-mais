@@ -48,7 +48,7 @@ export default function SafetyStatement() {
           rel="noopener noreferrer"
         >
           <HStack gap={3}>
-            <Text>NÃO QUERO MAIS CAIR EM GOLPES</Text>
+            <Text whiteSpace="nowrap">NÃO QUERO MAIS CAIR EM GOLPES</Text>
             <Icon as={FiSend} />
           </HStack>
         </CTAButton>

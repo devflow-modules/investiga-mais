@@ -107,7 +107,13 @@ export default function TargetAudience() {
           Se você compra ou vende online, presta serviços ou faz parcerias, precisa investigar antes de confiar. Ideal para consumidores e profissionais que não podem correr riscos.
         </Text>
 
-        <SimpleGrid columns={{ base: 1, md: 4 }} gap={8} mt={10}>
+        <SimpleGrid
+          columns={{ base: 1, md: 4 }}
+          gap={8}
+          mt={10}
+          alignItems="center"
+          justifyItems="center"
+        >
           {profiles.map((p, i) => (
             <VStack
               key={i}
@@ -115,11 +121,11 @@ export default function TargetAudience() {
               p={6}
               borderRadius="lg"
               boxShadow="sm"
-              align="start"
+              align="center" // centraliza tudo dentro
             >
               <Icon as={p.icon} boxSize={6} color="blue.500" />
-              <Text fontWeight="bold" fontSize="lg">{p.label}</Text>
-              <Text fontSize="sm" color="gray.600">{p.desc}</Text>
+              <Text fontWeight="bold" fontSize="lg" textAlign="center">{p.label}</Text>
+              <Text fontSize="sm" color="gray.600" textAlign="center">{p.desc}</Text>
             </VStack>
           ))}
         </SimpleGrid>

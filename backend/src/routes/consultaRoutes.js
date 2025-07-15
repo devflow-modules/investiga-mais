@@ -1,17 +1,19 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const verifyToken = require('../middleware/auth.js');
+const somenteRoles = require('../middleware/somenteRoles.js');
+const Roles = require('../utils/roles.js');
+const consultaController = require('../controllers/consultaController.js');
 
-const { verifyToken } = require('../middleware') 
-const somenteRoles = require('../middleware/somenteRoles')
-const Roles = require('../utils/roles')
+const router = express.Router();
 
-const consultaController = require('../controllers/consultaController')
+// Protege todas as rotas da consulta
+router.use(verifyToken);
+router.use(somenteRoles([Roles.CLIENTE]));
 
-// Protege todas as rotas
-router.use(verifyToken)
-router.use(somenteRoles([Roles.CLIENTE]))
+// Rota para consultar CNPJ
+router.get('/:cnpj', consultaController.consultarCNPJ);
 
-router.get('/:cnpj', consultaController.consultarCNPJ)
-router.get('/', consultaController.listarConsultas)
+// Rota para listar histórico de consultas
+router.get('/', consultaController.listarConsultas);
 
-module.exports = router
+module.exports = router;

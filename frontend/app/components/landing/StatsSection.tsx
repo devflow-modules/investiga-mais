@@ -92,7 +92,7 @@ export default function StatsSection() {
           size="lg"
           px={6}
           py={4}
-          borderRadius="full"
+          borderRadius="md"
           withArrow
           as="button"
           href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"

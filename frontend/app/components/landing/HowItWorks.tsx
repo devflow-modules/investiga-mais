@@ -90,11 +90,15 @@ export default function HowItWorks() {
 
         <CTAButton
           variant="cta"
-          borderRadius="full"
+          borderRadius="md"
           withArrow
-          as="button"
+          as="a"
           href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
           rel="noopener noreferrer"
+          fontSize={{ base: 'sm', md: 'md' }}
+          w={['90%', 'auto']}
+          mx="auto" 
+          whiteSpace="nowrap"
         >
           QUERO GARANTIR MINHA SEGURANÇA
         </CTAButton>

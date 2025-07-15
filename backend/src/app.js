@@ -1,70 +1,51 @@
-require('dotenv').config()
-const express = require('express')
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
-const app = express()
+const { errorHandler, loginLimiter, logger } = require('./middleware/index.js');
+const authRoutes = require('./routes/authRoutes.js');
+const webhookRoutes = require('./routes/webhookRoutes.js');
+const consultaRoutes = require('./routes/consultaRoutes.js');
+const perfilRoutes = require('./routes/perfilRoutes.js');
+const segurancaRoutes = require('./routes/segurancaRoutes.js');
+const adminRoutes = require('./routes/adminRoutes.js');
+const whatsappRoutes = require('./routes/whatsappRoutes.js');
 
-// 🚫 Desativa ETag para evitar 304 automáticos
-app.set('etag', false)
+const { sendError } = require('./utils/sendResponse.js');
 
-app.use(express.json())
+const app = express();
 
-// 🔥 CORS ajustado para aceitar frontend em localhost:3000
+app.set('etag', false);
+app.use(express.json());
+
 app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true
-}))
+}));
 
-app.use(cookieParser())
+app.use(cookieParser());
 
-// Middlewares (importados via index.js)
-const {
-  verifyToken,
-  errorHandler,
-  loginLimiter,
-  logger,
-  verificarCron
-} = require('./middleware')
-
-
-// Rotas
-const authRoutes = require('./routes/authRoutes')
-const cnpjRoutes = require('./routes/cnpj')
-const webhookRoutes = require('./routes/webhookRoutes')
-const consultaRoutes = require('./routes/consultaRoutes')
-const perfilRoutes = require('./routes/perfilRoutes')
-const segurancaRoutes = require('./routes/segurancaRoutes')
-const adminRoutes = require('./routes/adminRoutes');
-const whatsappRoutes = require('./routes/whatsappRoutes')
-
-// Rota de teste
 app.get('/', (req, res) => {
-  res.send('🔐 API Investiga Mais com autenticação JWT')
-})
+  res.send('🔐 API Investiga Mais com autenticação JWT');
+});
 
-app.use(logger) // 👈 aplica o logger aqui
+app.use(logger);
 
-// 🟢 Rotas públicas sob /api
-app.use('/api/auth/login', loginLimiter)
-app.use('/api/auth', authRoutes)
-app.use('/api/cnpj', cnpjRoutes)
-app.use('/api/webhook', webhookRoutes)
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth', authRoutes);
+app.use('/api/webhook', webhookRoutes);
 
-// 🟢 Rotas protegidas sob /api
-app.use('/api/consulta', verifyToken, consultaRoutes)
-app.use('/api/perfil', perfilRoutes)
-app.use('/api/seguranca', segurancaRoutes)
+app.use('/api/consulta', consultaRoutes);
+app.use('/api/perfil', perfilRoutes);
+app.use('/api/seguranca', segurancaRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/whatsapp', whatsappRoutes)
+app.use('/api/whatsapp', whatsappRoutes);
 
-// Fallback 404 → com padrão sendError
-const { sendError } = require('./utils/sendResponse')
 app.use((req, res) => {
-  return sendError(res, 404, 'Rota não encontrada')
-})
+  return sendError(res, 404, 'Rota não encontrada');
+});
 
-// Error handler global
-app.use(errorHandler)
+app.use(errorHandler);
 
-module.exports = app
+module.exports = app;

@@ -1,9 +1,9 @@
-const verifyToken = require('./auth')
-const errorHandler = require('./errorHandler')
-const limiterPerfil = require('./limiterPerfil')
-const loginLimiter = require('./rateLimiter')
-const logger = require('./logger')
-const verificarCron = require('./verificarCron')
+const verifyToken = require('./auth.js');
+const errorHandler = require('./errorHandler.js');
+const limiterPerfil = require('./limiterPerfil.js');
+const loginLimiter = require('./rateLimiter.js');
+const logger = require('./logger.js');
+const verificarCron = require('./verificarCron.js');
 
 module.exports = {
   verifyToken,
@@ -12,4 +12,4 @@ module.exports = {
   loginLimiter,
   logger,
   verificarCron
-}
+};

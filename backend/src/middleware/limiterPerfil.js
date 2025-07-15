@@ -1,20 +1,20 @@
-const { sendError } = require('../utils/sendResponse')
+const { sendError } = require('../utils/sendResponse.js');
 
+// Armazena o timestamp da última requisição por usuário
 const rateLimit = {}
 
 module.exports = (req, res, next) => {
-  const usuarioId = req.user?.usuarioId
-  if (!usuarioId) return next()
+  const usuarioId = req.user?.usuarioId || req.user?.id; // Compatível com estrutura `verifyToken`
+  if (!usuarioId) return next();
 
-  const now = Date.now()
-  const lastCall = rateLimit[usuarioId] || 0
+  const agora = Date.now();
+  const ultimaChamada = rateLimit[usuarioId] || 0;
+  const intervaloMinimo = 2000; // 2 segundos
 
-  const delayMs = 2000 // 2 segundos entre chamadas
-
-  if (now - lastCall < delayMs) {
-    return sendError(res, 429, 'Aguarde antes de tentar novamente')
+  if (agora - ultimaChamada < intervaloMinimo) {
+    return sendError(res, 429, 'Aguarde alguns segundos antes de tentar novamente.');
   }
 
-  rateLimit[usuarioId] = now
-  next()
-}
+  rateLimit[usuarioId] = agora;
+  next();
+};

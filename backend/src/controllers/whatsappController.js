@@ -1,48 +1,56 @@
-const { enviarMensagemWhatsApp, processarMensagemRecebida } = require('../services/whatsappService');
+const { enviarMensagemWhatsApp, processarMensagemRecebida } = require('../services/whatsappService.js');
+const { sendSuccess, sendError } = require('../utils/sendResponse.js');
 
-exports.enviarMensagem = async (req, res) => {
+async function enviarMensagem(req, res) {
   const { numero, mensagem } = req.body;
 
   try {
     const resultado = await enviarMensagemWhatsApp({ numero, mensagem });
 
     if (!resultado.success) {
-      return res.status(500).json({
-        success: false,
-        message: resultado.message || 'Erro ao enviar mensagem.',
-        data: resultado.data || null,
+      return sendError(res, 500, resultado.message || 'Erro ao enviar mensagem.', {
+        data: resultado.data || null
       });
     }
 
-    return res.json({
-      success: true,
-      dev: resultado.dev || false,
-      message: resultado.message,
-      data: resultado.data,
-    });
+    return sendSuccess(
+      res,
+      {
+        dev: resultado.dev || false,
+        message_id: resultado.data?.message_id,
+        numero: resultado.data?.numero || numero,
+        mensagem: resultado.data?.mensagem || mensagem
+      },
+      resultado.message || 'Mensagem enviada com sucesso'
+    );
   } catch (error) {
     console.error('[whatsappController] erro:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Erro inesperado ao enviar mensagem.',
+    return sendError(res, 500, 'Erro inesperado ao enviar mensagem.', {
+      error: error.message,
+      stack: error.stack
     });
   }
-};
+}
 
-exports.receberMensagemWebhook = async (req, res) => {
+async function receberMensagemWebhook(req, res) {
   try {
     const resultado = await processarMensagemRecebida(req.body);
 
     if (!resultado.success) {
-      return res.status(400).json(resultado);
+      return sendError(res, 400, resultado.message || 'Webhook inválido');
     }
 
-    return res.status(200).json(resultado);
+    return sendSuccess(res, {}, 'Mensagem recebida com sucesso.');
   } catch (err) {
     console.error('[whatsappController] webhook erro:', err);
-    return res.status(500).json({
-      success: false,
-      message: 'Erro interno ao processar webhook.',
+    return sendError(res, 500, 'Erro interno ao processar webhook.', {
+      error: err.message,
+      stack: err.stack
     });
   }
+}
+
+module.exports = {
+  enviarMensagem,
+  receberMensagemWebhook
 };

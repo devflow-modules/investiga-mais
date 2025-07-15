@@ -11,14 +11,8 @@ type CTAButtonProps = {
   href?: string
   target?: string
   rel?: string
-  onClick?: () => void
-  isDisabled?: boolean
   as?: ElementType
-  size?: ButtonProps['size']
-  px?: ButtonProps['px']
-  py?: ButtonProps['py']
-  borderRadius?: ButtonProps['borderRadius']
-}
+} & Omit<ButtonProps, 'variant'> // ← isso aqui resolve tudo
 
 export function CTAButton({
   children,
@@ -28,11 +22,12 @@ export function CTAButton({
   target = '_blank',
   rel = 'noopener noreferrer',
   onClick,
-  isDisabled = false,
+  disabled = false,
   size = 'lg',
   px = 6,
   py = 4,
   borderRadius = 'xl',
+  ...rest // ← captura w, maxW, etc
 }: CTAButtonProps) {
   const variantStyles = {
     cta: {
@@ -57,18 +52,18 @@ export function CTAButton({
 
   const styles = variantStyles[variant]
 
-  // Para Button
   const baseButtonProps = {
     fontWeight: 'bold',
     size,
     borderRadius,
     px,
     py,
-    isDisabled,
+    disabled,
+    onClick,
     ...styles,
+    ...rest,
   }
 
-  // Para ChakraLink → usando __css em vez de sx
   const baseLinkCss = {
     display: 'inline-flex',
     alignItems: 'center',
@@ -79,6 +74,7 @@ export function CTAButton({
     borderRadius,
     textDecoration: 'none',
     ...styles,
+    ...rest,
   }
 
   if (href) {
@@ -88,7 +84,7 @@ export function CTAButton({
         href={href}
         target={target}
         rel={rel}
-        css={baseLinkCss} // <-- aqui, com __css, zero erro
+        css={baseLinkCss}
       >
         {children}
         {withArrow && variant === 'cta' && (
@@ -104,7 +100,7 @@ export function CTAButton({
   }
 
   return (
-    <Button onClick={onClick} {...baseButtonProps}>
+    <Button {...baseButtonProps}>
       {children}
       {withArrow && variant === 'cta' && (
         <Icon

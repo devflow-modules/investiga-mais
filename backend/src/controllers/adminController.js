@@ -1,334 +1,169 @@
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const prisma = require('../lib/prisma');
-const { validarEmail, validarCPF } = require('../../../shared/validators/backend');
-const { enviarEmail } = require('../services/email');
-const { enviarMensagemWhatsApp } = require('../services/whatsappService');
-const { sendSuccess, sendError } = require('../utils/sendResponse');
-const { subMinutes } = require('date-fns');
+const adminService = require('../services/adminService.js');
+const { sendSuccess, sendError } = require('../utils/sendResponse.js');
 
-exports.registrarManual = async (req, res) => {
+// REGISTRAR USUÁRIO MANUAL
+async function registrarManual(req, res) {
   try {
-    const { email, cpf, nome, telefone } = req.body;
-
-    if (!email || !cpf) return sendError(res, 400, 'Email e CPF obrigatórios.');
-
-    const emailLower = email.toLowerCase();
-
-    if (!validarEmail(emailLower) || !validarCPF(cpf)) {
-      return sendError(res, 400, 'Email ou CPF em formato inválido.');
-    }
-
-    const existente = await prisma.usuario.findFirst({
-      where: {
-        OR: [{ email: emailLower }, { cpf }]
-      }
-    });
-
-    if (existente) return sendError(res, 409, 'Usuário já cadastrado.');
-
-    const senhaGerada = crypto.randomBytes(4).toString('hex');
-    const senhaCriptografada = await bcrypt.hash(senhaGerada, 10);
-
-    await prisma.usuario.create({
-      data: {
-        email: emailLower,
-        senhaHash: senhaCriptografada,
-        cpf,
-        nome: nome || undefined,
-        telefone: telefone || undefined,
-      }
-    });
-
-    const html = `
-      <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; border-radius: 8px; color: #111827;">
-        <h2 style="color: #1e3a8a; text-align: center;">🎉 Bem-vindo ao Investiga+</h2>
-        <p style="font-size: 16px; margin-top: 24px;">
-          Sua conta foi ativada com sucesso! Utilize os dados abaixo para acessar a plataforma:
-        </p>
-        <div style="background-color: #ffffff; padding: 16px 20px; border: 1px solid #e5e7eb; border-radius: 6px; margin: 20px 0;">
-          <p><strong>Email:</strong> ${emailLower}</p>
-          <p><strong>Senha:</strong> ${senhaGerada}</p>
-        </div>
-        <div style="text-align: center; margin-top: 20px;">
-          <a href="https://investigamais.com/login" style="display: inline-block; padding: 12px 24px; background-color: #1e40af; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
-            Acessar Plataforma
-          </a>
-        </div>
-        <p style="font-size: 14px; color: #6b7280; margin-top: 30px; text-align: center;">
-          Por segurança, recomendamos alterar sua senha após o primeiro acesso.
-        </p>
-        <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-top: 20px;">
-          © ${new Date().getFullYear()} Investiga+. Todos os direitos reservados.
-        </p>
-      </div>
-    `;
-
-    if (process.env.NODE_ENV === 'production') {
-      await enviarEmail(emailLower, 'Acesso à Plataforma Investiga+', html);
-    } else {
-      console.log(`📧 [DEV] Simulando envio de e-mail para ${emailLower} com senha: ${senhaGerada}`);
-    }
-
-    // WhatsApp
-    if (telefone) {
-      await enviarMensagemWhatsApp({
-        numero: telefone,
-        mensagem: `🔐 Olá ${nome || 'usuário'}, seu acesso ao Investiga+ foi liberado!\n\n📧 Email: ${emailLower}\n🔑 Senha: ${senhaGerada}\n\nAcesse: https://investigamais.com/login`,
-        token: req.token || req.headers.authorization?.split(' ')[1] || ''
-      });
-    }
-
-    return sendSuccess(res, {
-      sucesso: true,
-      mensagem: 'Usuário registrado manualmente e e-mail enviado.'
-    });
+    const { email, cpf, nome, telefone } = req.body
+    const { usuario } = await adminService.registrarManualService({ email, cpf, nome, telefone })
+    return sendSuccess(res, { usuario }, 'Usuário registrado com sucesso.')
   } catch (err) {
-    console.error('Erro registrarManual:', err);
-    return sendError(res, 500, 'Erro interno ao registrar usuário manualmente.');
-  }
-};
-
-exports.listarConversas = async (req, res) => {
-  try {
-    const conversas = await prisma.conversa.findMany({
-      orderBy: { ultimaMensagemEm: 'desc' },
-      include: {
-        mensagens: {
-          orderBy: { timestamp: 'desc' },
-          take: 1,
-        },
-      },
-    });
-
-    const formatadas = conversas.map((c) => ({
-      id: c.id,
-      numero: c.numero,
-      nome: c.nome,
-      ultimaMensagem: c.mensagens[0]?.conteudo || '',
-      ultimaMensagemEm: c.ultimaMensagemEm,
-    }));
-
-    return sendSuccess(res, { conversas: formatadas });
-  } catch (err) {
-    console.error('Erro ao listar conversas:', err);
-    return sendError(res, 500, 'Erro ao buscar conversas');
-  }
-};
-
-exports.listarMensagensDaConversa = async (req, res) => {
-  try {
-    const conversaId = parseInt(req.params.id)
-    const skip = parseInt(req.query.skip) || 0
-    const take = parseInt(req.query.take) || 20
-
-    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido')
-
-    const conversa = await prisma.conversa.findUnique({
-      where: { id: conversaId },
-      select: {
-        id: true,
-        numero: true,
-        nome: true,
-        mensagens: {
-          skip,
-          take,
-          orderBy: { timestamp: 'asc' },
-          include: {
-            Atendente: { select: { nome: true, email: true } }
-          }
-        },
-        _count: {
-          select: { mensagens: true }
-        }
-      }
-    })
-
-    if (!conversa) return sendError(res, 404, 'Conversa não encontrada')
-
-    const mensagensFormatadas = conversa.mensagens.map((m) => ({
-      id: m.id,
-      direcao: m.direcao,
-      conteudo: m.conteudo,
-      timestamp: m.timestamp,
-      status: m.status,
-      atendente: m.Atendente ? { nome: m.Atendente.nome, email: m.Atendente.email } : null
-    }))
-
-    return sendSuccess(res, {
-      conversaId: conversa.id,
-      numero: conversa.numero,
-      nome: conversa.nome,
-      mensagens: mensagensFormatadas,
-      total: conversa._count.mensagens,
-      hasMore: skip + take < conversa._count.mensagens
-    })
-  } catch (err) {
-    console.error('Erro listarMensagensDaConversa:', err)
-    return sendError(res, 500, 'Erro ao buscar mensagens da conversa')
+    console.error('[adminController] registrarManual:', err)
+    return sendError(res, err.status || 500, err.message, { stack: err.stack })
   }
 }
 
-exports.responderConversa = async (req, res) => {
+// LISTAR CONVERSAS
+async function listarConversas(req, res) {
   try {
-    const conversaId = parseInt(req.params.id);
+    const result = await adminService.listarConversasService();
+    const conversas = result?.conversas || [];
+    return sendSuccess(res, { conversas }, 'Conversas listadas com sucesso.');
+  } catch (err) {
+    console.error('[adminController] listarConversas:', err);
+    return sendError(res, err.status || 500, err.message, { stack: err.stack });
+  }
+}
+
+// LISTAR MENSAGENS DA CONVERSA
+async function listarMensagensDaConversa(req, res) {
+  try {
+    const { id } = req.params;
+    const { skip, take } = req.query;
+
+    const conversaId = Number(id);
+    if (isNaN(conversaId)) {
+      return sendError(res, 400, 'ID inválido');
+    }
+
+    const result = await adminService.listarMensagensDaConversaService(conversaId, parseInt(skip) || 0, parseInt(take) || 20);
+
+    if (!result || !Array.isArray(result.mensagens)) {
+      return sendError(res, 404, 'Conversa não encontrada');
+    }
+
+    return sendSuccess(res, { mensagens: result.mensagens }, 'Mensagens carregadas com sucesso.');
+  } catch (err) {
+    console.error('[adminController] listarMensagensDaConversa:', err);
+    return sendError(res, err.status || 500, err.message, { stack: err.stack });
+  }
+}
+
+// RESPONDER CONVERSA
+async function responderConversa(req, res) {
+  try {
+    const conversaId = Number(req.params.id);
     const { mensagem } = req.body;
     const atendenteId = req.user?.id;
 
-    if (!mensagem || mensagem.trim().length < 1) {
-      return sendError(res, 400, 'Mensagem é obrigatória');
+    if (!mensagem || mensagem.trim() === '') {
+      return sendError(res, 400, 'Mensagem obrigatória');
     }
 
-    const conversa = await prisma.conversa.findUnique({ where: { id: conversaId } });
-    if (!conversa) return sendError(res, 404, 'Conversa não encontrada');
+    const result = await adminService.responderConversaService({ conversaId, mensagem, atendenteId });
 
-    const novaMensagem = await prisma.mensagem.create({
-      data: {
-        conversaId,
-        direcao: 'saida',
-        conteudo: mensagem,
-        atendenteId,
-        status: 'pendente',
-      },
-    });
+    if (!result) {
+      return sendError(res, 404, 'Conversa não encontrada');
+    }
 
-    const token = req.token || req.headers.authorization?.split(' ')[1] || '';
+    const { sucesso = false, mensagem: retorno = '' } = result;
 
-    const statusEnvio = await enviarMensagemWhatsApp({
-      numero: conversa.numero,
-      mensagem,
-      token
-    });
-
-    const statusTexto =
-      statusEnvio?.success === true
-        ? (statusEnvio.dev ? 'simulada' : 'enviada')
-        : 'falhou';
-
-    await prisma.mensagem.update({
-      where: { id: novaMensagem.id },
-      data: { status: statusTexto },
-    });
-
-    await prisma.conversa.update({
-      where: { id: conversaId },
-      data: { ultimaMensagemEm: new Date() },
-    });
-
-    return sendSuccess(res, {
-      sucesso: true,
-      mensagem: 'Mensagem enviada',
-      statusEnvio,
-    });
+    return sendSuccess(res, { sucesso }, retorno);
   } catch (err) {
-    console.error('Erro responderConversa:', err);
-    return sendError(res, 500, 'Erro interno ao enviar resposta');
+    console.error('[adminController] responderConversa:', err);
+    return sendError(res, err.status || 500, err.message, { stack: err.stack });
   }
-};
+}
 
-exports.atribuirConversa = async (req, res) => {
+// ATRIBUIR CONVERSA
+async function atribuirConversaHandler(req, res) {
   try {
-    const conversaId = parseInt(req.params.id);
+    const conversaId = Number(req.params.id);
     const atendenteId = req.user?.id;
 
-    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido.');
+    const result = await adminService.atribuirConversa(conversaId, atendenteId);
 
-    const conversa = await prisma.conversa.findUnique({
-      where: { id: conversaId },
-      select: {
-        id: true,
-        atendenteId: true,
-      },
-    });
+    const { sucesso = false, mensagem = '' } = result || {};
 
-    if (!conversa) return sendError(res, 404, 'Conversa não encontrada.');
-
-    // Se já atribuída a outro atendente
-    if (conversa.atendenteId && conversa.atendenteId !== atendenteId) {
-      return sendError(res, 409, 'Conversa já está sendo atendida por outro usuário.');
-    }
-
-    await prisma.conversa.update({
-      where: { id: conversaId },
-      data: {
-        atendenteId,
-        atendidaPorAutomacao: false,
-        atualizadoEm: new Date(),
-      },
-    });
-
-    // (Opcional) salvar log de atribuição
-
-    return sendSuccess(res, { mensagem: 'Conversa atribuída com sucesso.' });
+    return sendSuccess(res, { sucesso }, mensagem);
   } catch (err) {
-    console.error('Erro atribuirConversa:', err);
-    return sendError(res, 500, 'Erro interno ao atribuir conversa.');
+    console.error('[adminController] atribuirConversa:', err);
+    return sendError(res, err.status || 400, err.message, { stack: err.stack });
   }
-};
+}
 
-exports.liberarConversa = async (req, res) => {
+// LIBERAR CONVERSA
+async function liberarConversaHandler(req, res) {
   try {
-    const conversaId = parseInt(req.params.id);
+    const conversaId = Number(req.params.id);
     const atendenteId = req.user?.id;
 
-    if (isNaN(conversaId)) return sendError(res, 400, 'ID da conversa inválido.');
+    const result = await adminService.liberarConversa(conversaId, atendenteId);
 
-    const conversa = await prisma.conversa.findUnique({
-      where: { id: conversaId },
-      select: {
-        id: true,
-        atendenteId: true,
-      },
-    });
+    const { sucesso = false, mensagem = 'Conversa liberada.' } = result || {};
 
-    if (!conversa) return sendError(res, 404, 'Conversa não encontrada.');
+    return sendSuccess(res, { sucesso }, mensagem);
+  } catch (err) {
+    console.error('[adminController] liberarConversa:', err);
+    return sendError(res, err.status || 400, err.message, { stack: err.stack });
+  }
+}
 
-    if (conversa.atendenteId !== atendenteId) {
-      return sendError(res, 403, 'Você não pode liberar uma conversa que não está atendendo.');
+// LIBERAR CONVERSAS INATIVAS
+async function liberarConversasInativasHandler(req, res) {
+  try {
+    const { totalLiberadas } = await adminService.liberarConversasInativas()
+    return sendSuccess(res, { totalLiberadas }, 'Conversas inativas liberadas com sucesso.')
+  } catch (err) {
+    console.error('[adminController] liberarConversasInativas:', err)
+    return sendError(res, err.status || 500, err.message, { stack: err.stack })
+  }
+}
+
+// ATRIBUIR CONVERSA DISPONÍVEL
+async function atribuirDisponivel(req, res) {
+  try {
+    const atendenteId = req.user?.id
+    const result = await adminService.atribuirConversaDisponivel(atendenteId)
+
+    if (!result) {
+      return sendSuccess(res, { mensagem: 'Nenhuma conversa disponível no momento.' })
     }
 
-    await prisma.conversa.update({
-      where: { id: conversaId },
-      data: {
-        atendenteId: null,
-        atendidaPorAutomacao: true,
-        naoLido: true,
-        atualizadoEm: new Date(),
-      },
-    });
-
-    // (Opcional) salvar log de liberação
-
-    return sendSuccess(res, { mensagem: 'Conversa liberada com sucesso.' });
+    return sendSuccess(res, result, 'Conversa atribuída com sucesso.')
   } catch (err) {
-    console.error('Erro liberarConversa:', err);
-    return sendError(res, 500, 'Erro interno ao liberar conversa.');
+    console.error('[adminController] atribuirDisponivel:', err)
+    return sendError(res, err.status || 500, err.message, { stack: err.stack })
   }
-};
+}
 
-exports.liberarConversasInativas = async (req, res) => {
+// CRIAR CONVERSA MANUAL
+async function criarConversaManualHandler(req, res) {
   try {
-    const limite = subMinutes(new Date(), 5);
-
-    const conversas = await prisma.conversa.findMany({
-      where: {
-        atendenteId: { not: null },
-        ultimaMensagemCliente: { lt: limite }
-      }
-    });
-
-    const ids = conversas.map(c => c.id);
-
-    await prisma.conversa.updateMany({
-      where: { id: { in: ids } },
-      data: {
-        atendenteId: null
-      }
-    });
-
-    return res.json({ success: true, liberadas: ids.length });
+    const { numero, nome } = req.body
+    const atendenteId = req.user?.id
+    const { conversa } = await adminService.criarConversaManualService({ numero, nome, atendenteId })
+    return sendSuccess(res, { conversa }, 'Conversa criada manualmente.')
   } catch (err) {
-    console.error('Erro ao liberar conversas inativas:', err);
-    return res.status(500).json({ success: false, message: 'Erro interno ao liberar' });
+    console.error('[adminController] criarConversaManualHandler:', err)
+    return sendError(res, err.status || 500, err.message, { stack: err.stack })
   }
+}
+
+// ASSUMIR CONVERSA (alias)
+async function assumirConversaDisponivel(req, res) {
+  return atribuirDisponivel(req, res)
+}
+
+module.exports = {
+  registrarManual,
+  listarConversas,
+  listarMensagensDaConversa,
+  responderConversa,
+  atribuirConversaHandler,
+  liberarConversaHandler,
+  liberarConversasInativasHandler,
+  atribuirDisponivel,
+  criarConversaManualHandler,
+  assumirConversaDisponivel
 };
