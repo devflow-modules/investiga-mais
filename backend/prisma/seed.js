@@ -1,36 +1,54 @@
 require('dotenv').config();
-
 const bcrypt = require('bcryptjs');
 const prisma = require('../src/lib/prisma');
 
 async function main() {
+  console.log('🌱 Iniciando seed...');
+
   const senhaPadrao = '@Nexus0001';
   const senhaHash = await bcrypt.hash(senhaPadrao, 10);
 
-  // Criação do admin
-  const emailAdmin = 'admin@investigamais.com';
-  const adminExistente = await prisma.usuario.findUnique({ where: { email: emailAdmin } });
-  if (!adminExistente) {
-    const admin = await prisma.usuario.create({
-      data: {
-        email: emailAdmin,
-        senhaHash,
-        cpf: '00000000000',
-        nome: 'Admin Master',
-        telefone: '13999999999',
-        nascimento: new Date('1990-01-01'),
-        cidade: 'Santos',
-        uf: 'SP',
-        genero: 'Masculino',
-        role: 'admin',
-      },
-    });
-    console.log(`✅ Admin criado: ${admin.email}`);
-  } else {
-    console.log(`ℹ️ Admin já existe: ${emailAdmin}`);
+  // === ADMINS ===
+  const admins = [
+    {
+      email: 'admin@investigamais.com',
+      nome: 'Admin Master',
+      telefone: '13999999999',
+      cpf: '00000000000',
+      nascimento: new Date('1990-01-01'),
+      cidade: 'Santos',
+      uf: 'SP',
+      genero: 'Masculino'
+    },
+    {
+      email: 'admin2@investigamais.com',
+      nome: 'Admin Suporte',
+      telefone: '11999998888',
+      cpf: '99999999999',
+      nascimento: new Date('1991-05-15'),
+      cidade: 'Campinas',
+      uf: 'SP',
+      genero: 'Feminino'
+    }
+  ];
+
+  for (const admin of admins) {
+    const existente = await prisma.usuario.findUnique({ where: { email: admin.email } });
+    if (!existente) {
+      await prisma.usuario.create({
+        data: {
+          ...admin,
+          senha: senhaHash,
+          role: 'admin'
+        }
+      });
+      console.log(`✅ Admin criado: ${admin.email}`);
+    } else {
+      console.log(`ℹ️ Admin já existe: ${admin.email}`);
+    }
   }
 
-  // Criação de usuários clientes
+  // === CLIENTES ===
   const clientes = [
     {
       email: 'cliente1@teste.com',
@@ -60,7 +78,7 @@ async function main() {
       await prisma.usuario.create({
         data: {
           ...cliente,
-          senhaHash,
+          senha: senhaHash,
           role: 'cliente'
         }
       });
@@ -70,7 +88,7 @@ async function main() {
     }
   }
 
-  // Conversa com mensagens simuladas
+  // === CONVERSA SIMULADA ===
   const conversa = await prisma.conversa.create({
     data: {
       numero: '5599999999999',
@@ -88,16 +106,16 @@ async function main() {
             conteudo: 'Claro! Posso te ajudar.',
             timestamp: new Date(),
             status: 'entregue',
-            Atendente: { connect: { email: emailAdmin } }
+            Atendente: { connect: { email: 'admin@investigamais.com' } }
           }
         ]
       }
     }
   });
 
-  console.log(`💬 Conversa criada com ID ${conversa.id}`);
+  console.log(`💬 Conversa simulada criada (ID: ${conversa.id})`);
 
-  // Consulta simulada
+  // === CONSULTA SIMULADA ===
   await prisma.consulta.create({
     data: {
       nome: 'Empresa Exemplo LTDA',
@@ -107,8 +125,10 @@ async function main() {
     }
   });
 
-  // Token de recuperação para admin (expira em 1h)
-  const admin = await prisma.usuario.findUnique({ where: { email: emailAdmin } });
+  console.log('🔍 Consulta simulada criada.');
+
+  // === TOKEN DE RECUPERAÇÃO ===
+  const admin = await prisma.usuario.findUnique({ where: { email: 'admin@investigamais.com' } });
   await prisma.tokenRecuperacao.create({
     data: {
       token: 'token-exemplo-123456',
@@ -117,7 +137,8 @@ async function main() {
     }
   });
 
-  console.log('🎯 Seed finalizada com dados completos.');
+  console.log('🔑 Token de recuperação gerado para admin.');
+  console.log('🎯 Seed finalizada com sucesso.');
 }
 
 main()
