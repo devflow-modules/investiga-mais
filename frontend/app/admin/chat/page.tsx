@@ -81,11 +81,15 @@ export default function ChatAdminPage() {
       }
     })
 
-    if (topoRef.current) observer.observe(topoRef.current)
+    const target = topoRef.current 
+
+    if (target) observer.observe(target)
+
     return () => {
-      if (topoRef.current) observer.unobserve(topoRef.current)
+      if (target) observer.unobserve(target)
     }
-  }, [topoRef, hasMore, loading, carregarMais])
+  }, [hasMore, loading, carregarMais]) 
+
 
   useEffect(() => {
     const timeout = setTimeout(() => {

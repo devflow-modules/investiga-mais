@@ -34,7 +34,7 @@ export function BotaoLiberarConversa({
       } else {
         toaster.error(json.message || 'Não foi possível liberar a conversa.')
       }
-    } catch (err: unknown) {
+    } catch {
       toaster.error({
         title: 'Erro ao liberar conversa.',
         description: 'Tente novamente mais tarde.',
