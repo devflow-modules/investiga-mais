@@ -31,9 +31,11 @@ export function useMensagensConversa({ conversaId, take = 20 }: UseMensagensConv
 
       setTotal(json.data.total || 0)
       setHasMore(skipRef.current < (json.data.total || 0))
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Erro ao carregar mensagens'
       console.error('[useMensagensConversa] Erro ao carregar:', err)
-      setError(err.message || 'Erro ao carregar mensagens')
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -45,7 +47,7 @@ export function useMensagensConversa({ conversaId, take = 20 }: UseMensagensConv
     setMensagens([])
     setHasMore(true)
     carregarMais()
-  }, [conversaId])
+  }, [conversaId, carregarMais])
 
   return {
     mensagens,

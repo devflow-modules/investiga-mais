@@ -22,7 +22,6 @@ import { useMensagensConversa } from '@/hooks/useMensagensConversa'
 import type { ConversaComExtras } from '@types'
 import { formatarDataBrasil } from '@/utils/formatarDataBrasil'
 import { BotaoAssumirProxima } from '@/components/admin/chat/BotaoAssumirProxima'
-import { BotaoLiberarConversa } from '@/components/admin/chat/BotaoLiberarConversa' // ✅ também deve ser client
 import { BotaoNovaConversa } from '@/components/admin/chat/BotaoNovaConversa'
 
 const MotionBox = motion.create(Box)

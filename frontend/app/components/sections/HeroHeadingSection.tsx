@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack, Text, Heading, HStack, Center } from '@chakra-ui/react'
+import { Box, Stack, Text, Heading, HStack } from '@chakra-ui/react'
 import { CTAButton } from '../ui/BaseButton'
 
 export function HeroHeadingSection() {

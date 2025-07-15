@@ -34,7 +34,7 @@ export function BotaoLiberarConversa({
       } else {
         toaster.error(json.message || 'Não foi possível liberar a conversa.')
       }
-    } catch (err) {
+    } catch (err: unknown) {
       toaster.error({
         title: 'Erro ao liberar conversa.',
         description: 'Tente novamente mais tarde.',
@@ -50,9 +50,10 @@ export function BotaoLiberarConversa({
       variant="ghostLink"
       size="sm"
       withArrow={false}
-      isDisabled={carregando}
+      disabled={carregando}
+      aria-label="Botão para liberar conversa"
     >
-      <MdOutlineBlock style={{ marginRight: '6px' }} />
+      <MdOutlineBlock />
       {carregando ? 'Liberando...' : 'Liberar conversa'}
     </CTAButton>
   )
