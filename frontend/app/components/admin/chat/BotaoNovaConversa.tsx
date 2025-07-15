@@ -101,7 +101,7 @@ export function BotaoNovaConversa({ onConversaCriada }: BotaoNovaConversaProps) 
             </VStack>
           </DialogBody>
           <DialogFooter>
-            <CTAButton variant="cta" onClick={handleCriar} isDisabled={carregando}>
+            <CTAButton variant="cta" onClick={handleCriar} disabled={carregando}>
               Criar
             </CTAButton>
           </DialogFooter>

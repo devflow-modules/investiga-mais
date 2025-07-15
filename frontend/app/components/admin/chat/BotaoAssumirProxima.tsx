@@ -63,7 +63,7 @@ export function BotaoAssumirProxima({ onConversaAssumida }: BotaoAssumirProximaP
       variant="solid"
       size="md"
       withArrow={false}
-      isDisabled={carregando}
+      disabled={carregando}
     >
       <MdAssignment style={{ marginRight: '8px' }} />
       {carregando ? 'Assumindo...' : 'Assumir próxima disponível'}
