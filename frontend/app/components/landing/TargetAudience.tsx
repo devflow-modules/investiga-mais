@@ -7,12 +7,18 @@ import {
   SimpleGrid,
   VStack,
   Icon,
-  HStack
+  HStack,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { FiUsers, FiBriefcase, FiUserCheck, FiShoppingCart } from 'react-icons/fi'
-import { AiFillStar } from 'react-icons/ai'
+import {
+  FiUsers,
+  FiBriefcase,
+  FiUserCheck,
+  FiShoppingCart,
+  FiStar
+} from 'react-icons/fi'
 import { CTAButton } from '../ui/BaseButton'
 
 const MotionBox = motion.create(Box)
@@ -44,37 +50,44 @@ const testimonials = [
   {
     name: 'Sandra A.',
     role: 'Consumidora online experiente',
-    quote: 'Já quase comprei em um site falso. Agora sempre checo com o Investiga+ antes de fazer qualquer compra.'
+    quote:
+      'Já quase comprei em um site falso. Agora sempre checo com o Investiga+ antes de fazer qualquer compra.'
   },
   {
     name: 'Marcelo R.',
     role: 'Usuário digital ativo',
-    quote: 'Hoje em dia tudo é online. Com o Investiga+ me sinto mais seguro para comprar e proteger meus dados.'
+    quote:
+      'Hoje em dia tudo é online. Com o Investiga+ me sinto mais seguro para comprar e proteger meus dados.'
   },
   {
     name: 'Carlos M.',
     role: 'Desenvolvedor autônomo',
-    quote: 'Antes do Investiga+, já caí em duas fraudes. Hoje só negocio com quem eu consigo verificar — me sinto muito mais seguro.'
+    quote:
+      'Antes do Investiga+, já caí em duas fraudes. Hoje só negocio com quem eu consigo verificar — me sinto muito mais seguro.'
   },
   {
     name: 'Juliana R.',
     role: 'Empreendedora digital',
-    quote: 'Usamos o Investiga+ para cada novo cliente. É rápido e nos protege de dores de cabeça futuras.'
+    quote:
+      'Usamos o Investiga+ para cada novo cliente. É rápido e nos protege de dores de cabeça futuras.'
   },
   {
     name: 'Eduardo V.',
     role: 'Especialista em vendas B2B',
-    quote: 'Minhas recomendações agora têm muito mais segurança. O Investiga+ virou parte do meu processo.'
+    quote:
+      'Minhas recomendações agora têm muito mais segurança. O Investiga+ virou parte do meu processo.'
   },
   {
     name: 'Rafael C.',
     role: 'Gestor de e-commerce',
-    quote: 'Avalio todos os fornecedores antes de fechar negócio. O Investiga+ trouxe agilidade e confiança.'
+    quote:
+      'Avalio todos os fornecedores antes de fechar negócio. O Investiga+ trouxe agilidade e confiança.'
   }
 ]
 
 export default function TargetAudience() {
   const [index, setIndex] = useState(0)
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -84,35 +97,35 @@ export default function TargetAudience() {
   }, [])
 
   return (
-    <Box id="publico-alvo" py={20} px={6} bg="white">
+    <Box as="section" id="publico-alvo" py={20} px={6} bg="white">
       <MotionBox
         textAlign="center"
-        maxW="4xl"
+        maxW="5xl"
         mx="auto"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         viewport={{ once: true }}
       >
-        <Heading fontSize="3xl" mb={4} color="textPrimary">
+        <Heading fontSize={{ base: '2xl', md: '4xl' }} mb={4} color="textPrimary">
           Quem já usa o Investiga+ para evitar golpes e prejuízos?
         </Heading>
+
         <Text
           fontSize="md"
           color="gray.600"
           maxW="2xl"
           mx="auto"
-          textAlign={{ base: 'center', md: 'left' }}
+          textAlign="center"
         >
           Se você compra ou vende online, presta serviços ou faz parcerias, precisa investigar antes de confiar. Ideal para consumidores e profissionais que não podem correr riscos.
         </Text>
 
         <SimpleGrid
-          columns={{ base: 1, md: 4 }}
+          columns={{ base: 1, sm: 2, md: 4 }}
           gap={8}
           mt={10}
-          alignItems="center"
-          justifyItems="center"
+          alignItems="stretch"
         >
           {profiles.map((p, i) => (
             <VStack
@@ -121,11 +134,13 @@ export default function TargetAudience() {
               p={6}
               borderRadius="lg"
               boxShadow="sm"
-              align="center" // centraliza tudo dentro
+              textAlign="center"
+              gap={3}
+              h="100%"
             >
-              <Icon as={p.icon} boxSize={6} color="blue.500" />
-              <Text fontWeight="bold" fontSize="lg" textAlign="center">{p.label}</Text>
-              <Text fontSize="sm" color="gray.600" textAlign="center">{p.desc}</Text>
+              <Icon as={p.icon} boxSize={6} color="blue.500" aria-hidden />
+              <Text fontWeight="bold" fontSize="lg">{p.label}</Text>
+              <Text fontSize="sm" color="gray.600">{p.desc}</Text>
             </VStack>
           ))}
         </SimpleGrid>
@@ -151,7 +166,9 @@ export default function TargetAudience() {
               <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }}>
                 {testimonials[index].name}
               </Text>
-              <Text fontSize="sm" color="gray.500">{testimonials[index].role}</Text>
+              <Text fontSize="sm" color="gray.500">
+                {testimonials[index].role}
+              </Text>
               <Text mt={4} fontSize="sm" color="gray.700">
                 “{testimonials[index].quote}”
               </Text>
@@ -159,15 +176,8 @@ export default function TargetAudience() {
           </AnimatePresence>
 
           <HStack gap={1} mt={4} justify="center">
-            {[...Array(5)].map((_, i) => (
-              <Box
-                key={i}
-                as={AiFillStar}
-                color="yellow.400"
-                _hover={{ color: 'yellow.600' }}
-                transition="color 0.2s"
-                cursor="pointer"
-              />
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Icon as={FiStar} key={i} color="yellow.400" boxSize={4} />
             ))}
           </HStack>
 
@@ -180,6 +190,7 @@ export default function TargetAudience() {
                 bg={i === index ? 'gray.700' : 'gray.400'}
                 cursor="pointer"
                 onClick={() => setIndex(i)}
+                transition="background 0.3s"
               />
             ))}
           </HStack>

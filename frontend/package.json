@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "cross-env NODE_ENV=test TZ=America/Sao_Paulo jest"
+    "test": "cross-env NODE_ENV=test TZ=America/Sao_Paulo jest",
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
     "@chakra-ui/input": "^2.1.2",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.4.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

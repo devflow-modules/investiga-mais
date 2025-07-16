@@ -6,14 +6,14 @@ import {
   HStack,
   IconButton,
   Stack,
-  useDisclosure,
-  Image,
   Text,
-  Link as ChakraLink
+  Link as ChakraLink,
+  useDisclosure
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { FiMenu, FiX } from 'react-icons/fi'
 import { CTAButton } from '../ui/BaseButton'
+import Image from 'next/image'
 
 const Links = [
   { label: 'Início', href: '/' },
@@ -56,7 +56,16 @@ export default function Header() {
           alignItems="center"
           gap={2}
         >
-          <Image src="/logo.png" alt="Logo" boxSize="32px" />
+          <Box boxSize="32px" borderRadius="full" overflow="hidden">
+            <Image
+              src="/og-image.webp"
+              alt="Logo Investiga+"
+              width={32}
+              height={32}
+              priority
+            />
+          </Box>
+
           <Text fontWeight="bold" fontSize="xl" color="gray.800">INVESTIGA+</Text>
         </ChakraLink>
 
@@ -99,7 +108,6 @@ export default function Header() {
               </NavLink>
             ))}
 
-            {/* Mobile CTA button → mesmo seu CTAButton, não precisa de NextLink */}
             <CTAButton
               href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
               rel="noopener noreferrer"

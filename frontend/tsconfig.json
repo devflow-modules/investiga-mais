@@ -13,31 +13,24 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "verbatimModuleSyntax": true,
-    "types": ["jest"], 
+    "types": ["jest"],
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": [
-        "app/*"
-      ],
-      "@types/*": [
-        "types/*"
-      ],
-      "@types": [
-        "types/index.ts"
-      ],
-      "@shared/*": [
-        "../shared/*"
-      ]
+      "@/*": ["app/*"],
+      "@types/*": ["types/*"],
+      "@types": ["types/index.ts"],
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": [
@@ -45,10 +38,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/theme/components/CTAButton.tsx",
-    ".next/types/**/*.ts"
+    "app/theme/components/CTAButton.tsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

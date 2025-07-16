@@ -32,17 +32,22 @@ const steps: { icon: IconType; title: string; description: string }[] = [
   }
 ]
 
-const MotionBox = motion.div
+const MotionBox = motion.create(Box)
 
 export default function HowItWorks() {
-
   return (
-    <Box bg="background" py={{ base: 12, md: 24 }} px={{ base: 4, md: 8 }}>
+    <Box as="section" bg="background" py={{ base: 16, md: 24 }} px={{ base: 4, md: 8 }}>
       <VStack gap={6} maxW="5xl" mx="auto" textAlign="center">
-        <Text fontSize="sm" fontWeight="bold" color="green.400" textTransform="uppercase">
+        <Text
+          fontSize="sm"
+          fontWeight="bold"
+          color="green.400"
+          textTransform="uppercase"
+          letterSpacing="wide"
+        >
           Conheça o Investiga+
         </Text>
-        <Heading fontSize={{ base: '2xl', md: '4xl' }} color="textPrimary">
+        <Heading as="h2" fontSize={{ base: '2xl', md: '4xl' }} color="textPrimary">
           Como funciona?
         </Heading>
       </VStack>
@@ -53,7 +58,8 @@ export default function HowItWorks() {
             key={index}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
           >
             <VStack gap={4} textAlign="center">
               <Flex
@@ -65,11 +71,12 @@ export default function HowItWorks() {
                 color="white"
                 fontSize="2xl"
                 fontWeight="bold"
+                aria-label={`Passo ${step.title}`}
               >
                 {step.title}
               </Flex>
-              <Icon as={step.icon} boxSize={8} color="accent" />
-              <Text fontSize="md" fontWeight="medium" color="textPrimary">
+              <Icon as={step.icon} boxSize={8} color="accent" aria-hidden />
+              <Text as="p" fontSize="md" fontWeight="medium" color="textPrimary">
                 {step.description}
               </Text>
             </VStack>
@@ -78,14 +85,20 @@ export default function HowItWorks() {
       </SimpleGrid>
 
       <VStack gap={6} mt={16}>
-        <Flex gap={2} align="center" justify="center">
-          <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="bold" color="textPrimary">
-            <Icon as={FiShield} color="green.400" boxSize={5} aria-label="Seguro" /> Seguro
-          </Text>
+        <Flex gap={3} align="center" justify="center" wrap="wrap">
+          <Flex align="center" gap={1}>
+            <Icon as={FiShield} color="green.400" boxSize={5} aria-hidden />
+            <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="bold" color="textPrimary">
+              Seguro
+            </Text>
+          </Flex>
           <Text color="gray.400">|</Text>
-          <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="bold" color="textPrimary">
-            <Icon as={FiAlertCircle} color="red.400" boxSize={5} aria-label="Golpe" /> Golpe
-          </Text>
+          <Flex align="center" gap={1}>
+            <Icon as={FiAlertCircle} color="red.400" boxSize={5} aria-hidden />
+            <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="bold" color="textPrimary">
+              Golpe
+            </Text>
+          </Flex>
         </Flex>
 
         <CTAButton
@@ -96,9 +109,8 @@ export default function HowItWorks() {
           href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
           rel="noopener noreferrer"
           fontSize={{ base: 'sm', md: 'md' }}
-          w={['90%', 'auto']}
-          mx="auto" 
-          whiteSpace="nowrap"
+          w={{ base: '90%', md: 'auto' }}
+          mx="auto"
         >
           QUERO GARANTIR MINHA SEGURANÇA
         </CTAButton>

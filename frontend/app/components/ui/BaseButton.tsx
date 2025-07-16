@@ -6,13 +6,13 @@ import type { ElementType, ReactNode } from 'react'
 
 type CTAButtonProps = {
   children: ReactNode
-  variant?: 'cta' | 'ghostLink' | 'solid'
+  variant?: 'cta' | 'ghostLink' | 'solid' | 'whatsapp'
   withArrow?: boolean
   href?: string
   target?: string
   rel?: string
   as?: ElementType
-} & Omit<ButtonProps, 'variant'> // ← isso aqui resolve tudo
+} & Omit<ButtonProps, 'variant'> // <-- só para o caso de Button!
 
 export function CTAButton({
   children,
@@ -27,7 +27,7 @@ export function CTAButton({
   px = 6,
   py = 4,
   borderRadius = 'xl',
-  ...rest // ← captura w, maxW, etc
+  ...rest
 }: CTAButtonProps) {
   const variantStyles = {
     cta: {
@@ -48,43 +48,33 @@ export function CTAButton({
       _hover: { bg: '#1E40AF' },
       _active: { bg: '#1E40AF' },
     },
+    whatsapp: {
+      bg: '#25D366', // cor oficial do botão WhatsApp
+      color: 'white',
+      _hover: { bg: '#1ebe5d' },
+      _active: { bg: '#1aa44c' },
+    },
   } as const
 
   const styles = variantStyles[variant]
 
-  const baseButtonProps = {
-    fontWeight: 'bold',
-    size,
-    borderRadius,
-    px,
-    py,
-    disabled,
-    onClick,
-    ...styles,
-    ...rest,
-  }
-
-  const baseLinkCss = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 'bold',
-    px,
-    py,
-    borderRadius,
-    textDecoration: 'none',
-    ...styles,
-    ...rest,
-  }
-
+  // ✅ Evite reutilizar ButtonProps aqui
   if (href) {
-    const ChakraLink = chakra.a
     return (
-      <ChakraLink
+      <chakra.a
         href={href}
         target={target}
         rel={rel}
-        css={baseLinkCss}
+        display="inline-flex"
+        alignItems="center"
+        justifyContent="center"
+        fontWeight="bold"
+        px={px}
+        py={py}
+        borderRadius={borderRadius}
+        {...styles}
+        // 🔴 NÃO passe onClick, disabled, etc. aqui — só o necessário
+        {...(variant === 'cta' ? { 'aria-label': 'Botão CTA com link' } : {})}
       >
         {children}
         {withArrow && variant === 'cta' && (
@@ -95,12 +85,23 @@ export function CTAButton({
             boxSize="1.25em"
           />
         )}
-      </ChakraLink>
+      </chakra.a>
     )
   }
 
+  // ✅ Se não tiver href, renderiza como Button
   return (
-    <Button {...baseButtonProps}>
+    <Button
+      onClick={onClick}
+      disabled={disabled}
+      size={size}
+      px={px}
+      py={py}
+      borderRadius={borderRadius}
+      fontWeight="bold"
+      {...styles}
+      {...rest}
+    >
       {children}
       {withArrow && variant === 'cta' && (
         <Icon

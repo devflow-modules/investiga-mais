@@ -4,7 +4,6 @@ import {
   Box,
   Grid,
   Heading,
-  Image,
   Stack,
   HStack,
   Icon,
@@ -13,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { FiShield, FiUsers, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { CTAButton } from '../ui/BaseButton'
 
 const MotionBox = motion.create(Box)
@@ -44,13 +44,12 @@ export default function Features() {
   const isMobile = useBreakpointValue({ base: true, md: false })
 
   const imagemSrc = useBreakpointValue({
-    base: '/imagem2.jpg', // mobile
-    md: '/imagem1.jpg'    // desktop
+    base: '/imagem2.webp',
+    md: '/imagem1.webp'
   })
 
-
   return (
-    <Box py={20} px={{ base: 4, md: 6 }} bg="white">
+    <Box as="section" aria-labelledby="feature-heading" py={20} px={{ base: 4, md: 6 }} bg="white">
       <MotionBox
         maxW="6xl"
         mx="auto"
@@ -63,26 +62,42 @@ export default function Features() {
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
       >
-        <Image
-          src={imagemSrc}
-          alt="Tela do sistema de verificação de empresa"
-          borderRadius="md"
-          boxShadow="lg"
-          loading="lazy"
-        />
+        {/* ✅ Otimização com next/image */}
+        <Box position="relative" w="100%" aspectRatio={{ base: 'auto', md: '3/4' }} maxH={{ base: '220px', md: '500px' }}>
+          <Image
+            src={imagemSrc || '/fallback.webp'}
+            alt="Tela do sistema de verificação de empresa"
+            fill
+            priority={false}
+            sizes="(max-width: 768px) 100vw, 50vw"
+            style={{ objectFit: isMobile ? 'cover' : 'contain', borderRadius: '0.5rem' }}
+          />
+        </Box>
 
         <Box>
-          <Heading fontSize={{ base: '2xl', md: '3xl' }} mb={4} color="textPrimary" id="feature-heading" textAlign={{ base: 'center', md: 'left' }}>
+          <Heading
+            fontSize={{ base: '2xl', md: '3xl' }}
+            mb={4}
+            color="textPrimary"
+            id="feature-heading"
+            textAlign={{ base: 'center', md: 'left' }}
+          >
             Verifique a credibilidade do site antes de correr riscos
           </Heading>
 
-          <Text fontSize="md" mb={6} color="gray.600" id="feature-sub" textAlign={{ base: 'center', md: 'left' }}>
+          <Text
+            fontSize="md"
+            mb={6}
+            color="gray.600"
+            id="feature-sub"
+            textAlign={{ base: 'center', md: 'left' }}
+          >
             Veja se a empresa é legítima e se o site merece sua confiança.
           </Text>
 
-          <Stack color="gray.700" gap={6} role="list" aria-labelledby="feature-heading" aria-describedby="feature-sub">
+          <Stack color="gray.700" gap={6} role="list" aria-labelledby="feature-heading">
             {features.map((item, index) => (
-              <Box key={index}>
+              <Box key={item.label} as="article" role="listitem">
                 <HStack align="start" gap={4}>
                   <Box
                     bg="blue.50"
@@ -91,16 +106,24 @@ export default function Features() {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
+                    aria-hidden
                   >
                     <Icon as={item.icon} boxSize={5} color="blue.500" mt={1} />
                   </Box>
-                  <Text dangerouslySetInnerHTML={{ __html: item.text }} />
+                  <Text
+                    fontSize="md"
+                    dangerouslySetInnerHTML={{ __html: item.text }}
+                    color="textPrimary"
+                  />
                 </HStack>
-                {isMobile && index < features.length - 1 && <Box as="hr" borderColor="gray.200" my={4} />}
+                {isMobile && index < features.length - 1 && (
+                  <Box as="hr" borderColor="gray.200" my={4} />
+                )}
               </Box>
             ))}
           </Stack>
 
+          {/* Badge de confiança */}
           <MotionBox
             mt={6}
             bg="gray.50"
@@ -120,7 +143,7 @@ export default function Features() {
             </Text>
           </MotionBox>
 
-          {/* Botão personalizado */}
+          {/* Botão CTA */}
           <MotionBox
             mt={8}
             mx="auto"
@@ -135,6 +158,7 @@ export default function Features() {
               href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Comece a Verificar Agora"
             >
               Comece a Verificar Agora
             </CTAButton>

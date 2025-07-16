@@ -1,11 +1,23 @@
 'use client'
 
-import { Box, Flex, Heading, Icon, VStack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Heading,
+  Icon,
+  VStack,
+  Text,
+} from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { RiskItem } from './RiskItem'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+
+const MotionIcon = motion.create(Icon)
 
 export function RisksSection() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+
   const problemas = [
     'Oferta com preço muito abaixo do normal',
     'O site solicita informações pessoais desnecessárias',
@@ -18,17 +30,17 @@ export function RisksSection() {
   ]
 
   return (
-<Box
-  as="section"
-  role="region"
-  aria-labelledby="risks-heading"
-  minH="55vh"
-  bg="linear-gradient(to bottom, #f0f4f8, #e3eaf5, #d6e1f1)" // ou um tom azul pastel bonito
-  py={{ base: 12, md: 24 }}
-  px={{ base: 6, md: 10, lg: 16 }}
-  display="flex"
-  alignItems="center"
->
+    <Box
+      as="section"
+      role="region"
+      bg="background"
+      aria-labelledby="risks-heading"
+      minH="55vh"
+      py={{ base: 12, md: 24 }}
+      px={{ base: 6, md: 10, lg: 16 }}
+      display="flex"
+      alignItems="center"
+    >
       <Flex
         direction={{ base: 'column', md: 'row' }}
         maxW="6xl"
@@ -37,20 +49,26 @@ export function RisksSection() {
         align="flex-start"
         color="textPrimary"
       >
-        {/* TÍTULO */}
+        {/* Título e introdução */}
         <VStack w="full" align={{ base: 'center', md: 'start' }} gap={6} flex={1}>
-          <motion.div
-            animate={{ y: [0, -4, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            style={{ alignSelf: 'center' }}
-          >
-            <Icon as={FiAlertTriangle} color="warning" boxSize={10} />
-          </motion.div>
+          <Box as="span" role="img" aria-hidden>
+            {prefersReducedMotion ? (
+              <Icon as={FiAlertTriangle} color="warning" boxSize={10} />
+            ) : (
+              <MotionIcon
+                as={FiAlertTriangle}
+                color="warning"
+                boxSize={10}
+                initial={{ y: 0 }}
+                animate={{ y: [0, -4, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+              />
+            )}
+          </Box>
 
           <Heading
             id="risks-heading"
-            w="full"
-            textAlign={{ base: 'center', md: 'left' }} // melhor UX
+            textAlign={{ base: 'center', md: 'left' }}
             fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
             color="accent"
             fontWeight="bold"
@@ -60,18 +78,23 @@ export function RisksSection() {
             TEMOS CERTEZA QUE VOCÊ JÁ VIU ISSO ANTES
           </Heading>
 
-          <Text fontSize={{ base: 'md', md: 'lg' }} color="textSecondary" maxW="md" textAlign={{ base: 'center', md: 'left' }}>
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            color="textSecondary"
+            maxW="md"
+            textAlign={{ base: 'center', md: 'left' }}
+          >
             Estes são alguns dos sinais de que você pode estar prestes a cair em um golpe. Fique atento!
           </Text>
         </VStack>
 
-        {/* LISTA */}
+        {/* Lista de problemas */}
         <VStack align="start" gap={5} flex={2} px={{ base: 2, md: 4 }}>
           {problemas.map((text, index) => (
-            <RiskItem key={index} text={text} index={index} />
+            <RiskItem key={text} text={text} index={index} />
           ))}
 
-          {/* CHAMADA FINAL */}
+          {/* Conclusão */}
           <Box pt={6} textAlign={{ base: 'center', md: 'left' }} w="full">
             <Text fontWeight="bold" fontSize={{ base: 'sm', md: 'md' }} mb={1} color="textPrimary">
               O PROBLEMA NÃO É A INTERNET…

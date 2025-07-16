@@ -11,6 +11,7 @@ import FAQ from './components/landing/FAQ'
 import Footer from './components/landing/Footer'
 import StatsSection from './components/landing/StatsSection'
 import TrustSection from './components/landing/TrustSection'
+import { FloatingWhatsApp } from './components/landing/FloatingWhatsApp'
 
 export default function HomePage() {
   return (
@@ -38,6 +39,8 @@ export default function HomePage() {
         <FAQ />
       </Box>
       <Footer />
+
+      <FloatingWhatsApp />
     </Box>
   )
 }

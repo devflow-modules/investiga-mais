@@ -7,10 +7,19 @@ import {
   VStack,
   HStack,
   Icon,
+  Collapsible,
 } from '@chakra-ui/react'
-import { FiChevronDown, FiChevronUp, FiHelpCircle, FiMessageCircle } from 'react-icons/fi'
-import { Collapse } from '@chakra-ui/transition'
+import {
+  FiChevronDown,
+  FiChevronUp,
+  FiHelpCircle,
+  FiMessageCircle,
+} from 'react-icons/fi'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import Script from 'next/script'
+
+const MotionBox = motion.create(Box)
 
 const faqs = [
   {
@@ -51,44 +60,65 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <Box py={20} px={6} bg="white">
-      <Heading textAlign="center" fontSize="3xl" mb={4} color="textPrimary">
+    <Box as="section" py={20} px={6} bg="white">
+      <Heading as="h2" textAlign="center" fontSize="3xl" mb={4} color="textPrimary">
         Perguntas Frequentes
       </Heading>
+
       <Text textAlign="center" color="gray.600" fontSize="md" mb={10}>
         Tire suas dúvidas e comece agora com mais segurança.
       </Text>
 
-      <VStack gap={4} maxW="3xl" mx="auto">
-        {faqs.map((item, i) => (
-          <Box
-            key={i}
-            w="full"
-            bg={openIndex === i ? 'gray.50' : 'gray.100'}
-            p={4}
-            borderRadius="md"
-            boxShadow="sm"
-            onClick={() => setOpenIndex(openIndex === i ? null : i)}
-            cursor="pointer"
-            transition="background 0.2s"
-          >
-            <HStack justify="space-between">
-              <HStack>
-                <Icon as={FiHelpCircle} boxSize={4} color="blue.500" />
-                <Text fontWeight="bold">{item.q}</Text>
-              </HStack>
-              <Icon as={openIndex === i ? FiChevronUp : FiChevronDown} boxSize={4} />
-            </HStack>
-            <Collapse in={openIndex === i}>
-              <Text mt={3} color="gray.600" fontSize="sm">{item.a}</Text>
-            </Collapse>
-          </Box>
-        ))}
+      <VStack gap={4} maxW="3xl" mx="auto" as="ul" role="list">
+        {faqs.map((item, i) => {
+          const isOpen = openIndex === i
+          return (
+            <Collapsible.Root
+              w="full"
+              key={i}
+              open={isOpen}
+              onOpenChange={() => setOpenIndex(isOpen ? null : i)}
+            >
+              <Collapsible.Trigger asChild>
+                <MotionBox
+                  as="li"
+                  w="full"
+                  bg={isOpen ? 'gray.50' : 'gray.100'}
+                  p={4}
+                  borderRadius="md"
+                  boxShadow="sm"
+                  cursor="pointer"
+                  transition={{ duration: 0.6 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  role="listitem"
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-${i}`}
+                >
+                  <HStack justify="space-between">
+                    <HStack>
+                      <Icon as={FiHelpCircle} boxSize={4} color="blue.500" />
+                      <Text fontWeight="bold">{item.q}</Text>
+                    </HStack>
+                    <Icon as={isOpen ? FiChevronUp : FiChevronDown} boxSize={4} />
+                  </HStack>
+                </MotionBox>
+              </Collapsible.Trigger>
+
+              <Collapsible.Content>
+                <Text mt={3} color="gray.600" fontSize="sm" px={4} id={`faq-${i}`}>
+                  {item.a}
+                </Text>
+              </Collapsible.Content>
+            </Collapsible.Root>
+          )
+        })}
       </VStack>
 
       <Box textAlign="center" mt={12}>
         <a
-          href="https://wa.me/5511988143482?text=Olá! Preciso de ajuda com o Investiga+"
+          href="https://wa.me/55111990191040?text=Olá! Preciso de ajuda com o Investiga+"
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -107,6 +137,21 @@ export default function FAQ() {
           Suporte via WhatsApp
         </a>
       </Box>
+
+      <Script id="faq-jsonld" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": faqs.map((faq) => ({
+            "@type": "Question",
+            "name": faq.q,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": faq.a
+            }
+          }))
+        })}
+      </Script>
     </Box>
   )
 }

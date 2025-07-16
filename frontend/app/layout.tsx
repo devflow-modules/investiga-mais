@@ -2,6 +2,7 @@ import { Providers } from './chakra-provider'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://investigamais.com'),
   title: 'Investiga+ | Verificação de CNPJs, golpes e fraudes em segundos',
   description: 'Use o Investiga+ para consultar CNPJs, verificar fraudes, e detectar golpes em poucos segundos. Ideal para e-commerces, afiliados e consumidores atentos.',
   icons: {
@@ -10,11 +11,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Investiga+ | Detecte Fraudes e Golpes',
     description: 'Proteja-se de sites e empresas falsas com nossa ferramenta de verificação inteligente.',
-    url: 'https://investigamais.com',
+    url: '/',
     siteName: 'Investiga+',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'Investiga+ - Segurança Digital',
@@ -27,10 +28,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Investiga+ | Verificação de Golpes',
     description: 'Descubra se um site ou empresa é confiável em poucos segundos.',
-    images: ['/og-image.png'],
+    images: ['/og-image.webp'],
   }
 }
-
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
