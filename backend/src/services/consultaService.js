@@ -12,11 +12,7 @@ async function consultarReceitaWSComRetry(cnpj) {
     console.log(`[ReceitaWS] Tentativa ${attempt + 1} para CNPJ ${cnpj}`);
 
     try {
-      const response = await axios.get(`https://api.receitaws.com.br/v1/cnpj/${cnpj}`, {
-        headers: {
-          Authorization: `Bearer ${process.env.RECEITAWS_API_KEY}`
-        }
-      });
+      const response = await axios.get(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
 
       if (response.status === 200 && response.data?.status && response.data?.nome) {
         return response.data;
