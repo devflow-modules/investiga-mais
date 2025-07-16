@@ -46,7 +46,7 @@ export default function Features() {
   const imagemSrc = useBreakpointValue({
     base: '/imagem2.webp',
     md: '/imagem1.webp'
-  })
+  }) ?? '/imagem2.webp'
 
   return (
     <Box as="section" aria-labelledby="feature-heading" py={20} px={{ base: 4, md: 6 }} bg="white">
@@ -62,18 +62,27 @@ export default function Features() {
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
       >
-        {/* ✅ Otimização com next/image */}
-        <Box position="relative" w="100%" aspectRatio={{ base: 'auto', md: '3/4' }} maxH={{ base: '220px', md: '500px' }}>
+        {/* ✅ Imagem responsiva com altura garantida */}
+        <Box
+          position="relative"
+          w="100%"
+          aspectRatio={{ base: '4/5', md: '3/4' }}
+          maxH={{ base: '300px', md: '500px' }}
+        >
           <Image
-            src={imagemSrc || '/fallback.webp'}
+            src={imagemSrc}
             alt="Tela do sistema de verificação de empresa"
             fill
-            priority={false}
+            priority
             sizes="(max-width: 768px) 100vw, 50vw"
-            style={{ objectFit: isMobile ? 'cover' : 'contain', borderRadius: '0.5rem' }}
+            style={{
+              objectFit: isMobile ? 'cover' : 'contain',
+              borderRadius: '0.5rem'
+            }}
           />
         </Box>
 
+        {/* ✅ Conteúdo textual */}
         <Box>
           <Heading
             fontSize={{ base: '2xl', md: '3xl' }}

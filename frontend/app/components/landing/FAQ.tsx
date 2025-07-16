@@ -117,7 +117,7 @@ export default function FAQ() {
 
       <Box textAlign="center" mt={12}>
         <a
-          href="https://wa.me/55111990191040?text=Olá! Preciso de ajuda com o Investiga+"
+          href="https://wa.me/5511990191040?text=Olá! Preciso de ajuda com o Investiga+"
           target="_blank"
           rel="noopener noreferrer"
           style={{

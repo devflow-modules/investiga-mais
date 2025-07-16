@@ -46,8 +46,8 @@ export function HeroHeadingSection() {
         maxW="xl" mx="auto"
         w="100%"
         position="relative"
-        zIndex={1} // => precisa estar acima da imagem
-        bg="blackAlpha.600" // opcional, para melhor contraste
+        zIndex={1}
+        bg="blackAlpha.600"
         p={6}
         borderRadius="md">
         <Text
@@ -86,7 +86,7 @@ export function HeroHeadingSection() {
           mx="auto"
           whiteSpace="nowrap"
         >
-          NÃO QUERO CAIR MAIS EM GOLPES
+          NÃO QUERO MAIS CAIR EM GOLPES
         </CTAButton>
 
         <HStack gap={1} justify="center" alignItems="center" fontSize="sm" mt={2}>

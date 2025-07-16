@@ -2,6 +2,7 @@
 
 import type { ApiResponse, UserRole, UsuarioResponse } from '@types'
 import { createContext, useContext, useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 interface User {
@@ -24,7 +25,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const pathname = usePathname()
+
+  const isPublicPage = ['/', '/login', '/politica-de-privacidade', '/termos-de-uso'].includes(pathname)
+
   useEffect(() => {
+    if (isPublicPage) {
+      setLoading(false)
+      return
+    }
+
     const fetchUser = async () => {
       try {
         const res = await fetch('/api/auth/verify', { credentials: 'include' })
@@ -50,7 +60,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
 
     fetchUser()
-  }, [])
+  }, [pathname])
 
   const logout = () => {
     setUser(null)
