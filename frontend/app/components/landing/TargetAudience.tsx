@@ -8,7 +8,6 @@ import {
   VStack,
   Icon,
   HStack,
-  useBreakpointValue
 } from '@chakra-ui/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'

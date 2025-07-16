@@ -43,8 +43,6 @@ const testimonials = [
 const colors = ['blue.500', 'green.500', 'purple.500', 'red.500', 'orange.500']
 
 export default function Testimonials() {
-  const isMobile = useBreakpointValue({ base: true, md: false })
-
   return (
     <Box as="section" py={20} px={6} bg="background" textAlign="center">
       <Heading as="h2" fontSize="3xl" mb={10} color="textPrimary">
