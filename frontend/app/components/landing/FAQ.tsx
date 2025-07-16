@@ -81,7 +81,7 @@ export default function FAQ() {
             >
               <Collapsible.Trigger asChild>
                 <MotionBox
-                  as="li"
+                  as="button"
                   w="full"
                   bg={isOpen ? 'gray.50' : 'gray.100'}
                   p={4}
@@ -92,7 +92,6 @@ export default function FAQ() {
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  role="listitem"
                   aria-expanded={isOpen}
                   aria-controls={`faq-${i}`}
                 >

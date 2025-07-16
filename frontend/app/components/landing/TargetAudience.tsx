@@ -87,7 +87,6 @@ const testimonials = [
 
 export default function TargetAudience() {
   const [index, setIndex] = useState(0)
-  const isMobile = useBreakpointValue({ base: true, md: false })
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -97,7 +96,7 @@ export default function TargetAudience() {
   }, [])
 
   return (
-    <Box as="section" id="publico-alvo" py={20} px={6} bg="white">
+    <Box as="section" id="publico-alvo" py={{ base: 12, md: 20 }} px={{ base: 4, md: 6 }} bg="white">
       <MotionBox
         textAlign="center"
         maxW="5xl"
@@ -112,7 +111,7 @@ export default function TargetAudience() {
         </Heading>
 
         <Text
-          fontSize="md"
+          fontSize={{ base: 'sm', md: 'md' }}
           color="gray.600"
           maxW="2xl"
           mx="auto"
@@ -123,7 +122,7 @@ export default function TargetAudience() {
 
         <SimpleGrid
           columns={{ base: 1, sm: 2, md: 4 }}
-          gap={8}
+          gap={6}
           mt={10}
           alignItems="stretch"
         >
@@ -146,10 +145,10 @@ export default function TargetAudience() {
         </SimpleGrid>
 
         <Box
-          mt={14}
+          mt={{ base: 12, md: 14 }}
           bg="gray.100"
-          px={6}
-          py={5}
+          px={{ base: 4, md: 6 }}
+          py={{ base: 6, md: 5 }}
           borderRadius="md"
           maxW="lg"
           mx="auto"
@@ -163,7 +162,7 @@ export default function TargetAudience() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }}>
+              <Text fontWeight="bold" fontSize={{ base: 'lg', md: 'xl' }}>
                 {testimonials[index].name}
               </Text>
               <Text fontSize="sm" color="gray.500">

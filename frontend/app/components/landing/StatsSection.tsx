@@ -5,7 +5,6 @@ import {
   Heading,
   Text,
   VStack,
-  HStack,
   Icon,
   SimpleGrid,
   useBreakpointValue,
@@ -43,34 +42,34 @@ export default function StatsSection() {
   const isMobile = useBreakpointValue({ base: true, md: false })
 
   return (
-    <Box as="section" py={20} px={6} bg="white" textAlign="center">
+    <Box as="section" py={{ base: 12, md: 20 }} px={{ base: 4, md: 6 }} bg="white" textAlign="center">
       <Heading
         as="h1"
         fontSize={{ base: '2xl', md: '4xl' }}
         color="blue.900"
-        mb={4}
+        mb={{ base: 4, md: 6 }}
       >
         Sua segurança é importante.
       </Heading>
 
       <Heading
         as="h2"
-        fontSize={{ base: 'xl', md: '3xl' }}
+        fontSize={{ base: 'lg', md: '3xl' }}
         color="blue.900"
         mb={4}
       >
         Milhares já caíram em golpes. Você não precisa ser o próximo.
       </Heading>
 
-      <Text fontSize="md" color="gray.600" maxW="2xl" mx="auto" mb={12}>
+      <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600" maxW="2xl" mx="auto" mb={10}>
         Um clique errado pode custar seu nome, seu cartão e sua paz. Proteja-se com informações confiáveis.
       </Text>
 
-      <SimpleGrid columns={{ base: 1, md: 3 }} gap={8} maxW="5xl" mx="auto" mb={12}>
+      <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} maxW="5xl" mx="auto" mb={{ base: 10, md: 12 }}>
         {stats.map((stat, i) => (
           <MotionBox
-            key={i}
-            p={6}
+            key={stat.id}
+            p={{ base: 4, md: 6 }}
             bg="blue.900"
             color="green.300"
             borderRadius="lg"
@@ -81,8 +80,10 @@ export default function StatsSection() {
             transition={{ delay: i * 0.15, duration: 0.4 }}
           >
             <VStack gap={2} align="center" textAlign="center">
-              <Text fontSize="3xl" fontWeight="bold" whiteSpace="nowrap">
-                {stat.prefix ? (
+              <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="bold">
+                {stat.formattedMobile && isMobile ? (
+                  stat.formattedMobile
+                ) : stat.prefix ? (
                   <>
                     {stat.prefix}{' '}
                     <CountUp
@@ -107,7 +108,6 @@ export default function StatsSection() {
         ))}
       </SimpleGrid>
 
-
       <VStack gap={6}>
         <Stack
           direction={{ base: 'column', md: 'row' }}
@@ -123,12 +123,12 @@ export default function StatsSection() {
             mb={{ base: 1, md: 0 }}
             aria-hidden
           />
-          <Text fontWeight="medium" color="gray.700">
+          <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" color="gray.700">
             Mais de <b>100.000</b> golpes evitados e dados pessoais protegidos.
           </Text>
         </Stack>
 
-        <Text fontWeight="medium" color="gray.700">
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" color="gray.700">
           Não espere mais um golpe para começar a se proteger.
         </Text>
 
