@@ -14,6 +14,7 @@ module.exports = {
       out_file: 'logs/out.log',
       env: {
         NODE_ENV: 'production',
+        PORT: 4000
       },
     },
     {
