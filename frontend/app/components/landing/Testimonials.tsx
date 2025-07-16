@@ -9,7 +9,6 @@ import {
   Icon,
   Circle,
   Image,
-  useBreakpointValue,
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { FiStar } from 'react-icons/fi'
