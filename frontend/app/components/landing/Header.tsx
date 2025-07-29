@@ -14,6 +14,7 @@ import NextLink from 'next/link'
 import { FiMenu, FiX } from 'react-icons/fi'
 import { CTAButton } from '../ui/BaseButton'
 import Image from 'next/image'
+import { useState } from 'react'
 
 const Links = [
   { label: 'Início', href: '/' },
@@ -26,7 +27,15 @@ const Links = [
   { label: 'Login', href: '/login' },
 ]
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({
+  href,
+  children,
+  onClick
+}: {
+  href: string
+  children: React.ReactNode
+  onClick?: () => void
+}) {
   return (
     <ChakraLink
       as={NextLink}
@@ -36,14 +45,19 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
       rounded="md"
       fontWeight="medium"
       _hover={{ textDecoration: 'none', bg: 'gray.200' }}
+      onClick={onClick}
     >
       {children}
     </ChakraLink>
   )
 }
 
+
 export default function Header() {
-  const { open, onOpen, onClose } = useDisclosure()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const toggleMenu = () => setMenuOpen(prev => !prev)
+  const closeMenu = () => setMenuOpen(false)
 
   return (
     <Box bg="white" px={4} boxShadow="sm" position="sticky" top="0" zIndex="999">
@@ -93,17 +107,17 @@ export default function Header() {
           aria-label="Abrir menu"
           size="md"
           display={{ md: 'none' }}
-          onClick={open ? onClose : onOpen}
+          onClick={toggleMenu}
         >
-          {open ? <FiX /> : <FiMenu />}
+          {menuOpen ? <FiX /> : <FiMenu />}
         </IconButton>
       </Flex>
 
-      {open && (
+      {menuOpen && (
         <Box pb={4} px={2} display={{ md: 'none' }} boxShadow="lg">
           <Stack as="nav" gap={3}>
             {Links.map((link) => (
-              <NavLink key={link.href} href={link.href}>
+              <NavLink key={link.href} href={link.href} onClick={closeMenu}>
                 {link.label}
               </NavLink>
             ))}
@@ -116,6 +130,7 @@ export default function Header() {
               size="md"
               px={6}
               py={3}
+              onClick={closeMenu}
             >
               Comece Agora
             </CTAButton>

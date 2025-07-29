@@ -67,7 +67,6 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
         { texto: 'Suporte via email', icone: FaCheckCircle },
         { texto: 'Início imediato', icone: FaCheckCircle },
         { texto: 'Garantia de 7 dias (Lei do Consumidor)', icone: FaCheckCircle },
-        { texto: 'Suporte 24h via email', icone: FaCheckCircle },
         { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
         { texto: 'Descubra quem aplicou o Golpe em você', icone: FaCheckCircle },
         { texto: 'Nunca mais tenha prejuízos financeiros', icone: FaCheckCircle },
