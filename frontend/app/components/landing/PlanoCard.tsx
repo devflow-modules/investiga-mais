@@ -26,15 +26,56 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
 
   const beneficios = isPremium
     ? [
-        { texto: 'Consultas Completas Sem Limites', icone: FaCheckCircle },
-        { texto: 'Golpes Modernos', icone: FaGift },
-        { texto: 'Pix Seguro', icone: FaGift },
-        { texto: 'Senhas Fortes', icone: FaGift },
-        { texto: 'WhatsApp Blindado', icone: FaGift },
-        { texto: 'App de Banco Seguro', icone: FaGift },
-        { texto: 'Como Proteger sua Família', icone: FaGift },
+        { texto: 'Consultas Completas sem Limites', icone: FaCheckCircle },
+        {
+          texto: 'Consultor de Segurança Digital disponível 24h via WhatsApp',
+          icone: FaGift,
+          descricao: 'Receba ajuda imediata sempre que precisar.'
+        },
+        { texto: 'Início imediato', icone: FaCheckCircle },
+        { texto: 'Garantia de 7 dias (Lei do Consumidor)', icone: FaCheckCircle },
+        { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
+        { texto: 'Descubra quem aplicou o Golpe em você', icone: FaCheckCircle },
+        { texto: 'Nunca mais tenha prejuízos financeiros', icone: FaCheckCircle },
+        { texto: 'Não seja mais uma vítima de golpes digitais', icone: FaCheckCircle },
+        { texto: 'Proteja sua família', icone: FaCheckCircle },
+        {
+          texto: 'Golpes Modernos',
+          icone: FaGift,
+        },
+        {
+          texto: 'Pix Seguro',
+          icone: FaGift,
+        },
+        {
+          texto: 'Senhas Fortes',
+          icone: FaGift,
+        },
+        {
+          texto: 'WhatsApp Blindado',
+          icone: FaGift,
+        },
+        {
+          texto: 'App de Banco Seguro',
+          icone: FaGift,
+        },
+        {
+          texto: 'Como Proteger sua Família',
+          icone: FaGift,
+        },
       ]
-    : [{ texto: '5 Consultas Completas', icone: FaCheckCircle }]
+    : [
+        { texto: '5 Consultas Completas', icone: FaCheckCircle },
+        { texto: 'Suporte via email', icone: FaCheckCircle },
+        { texto: 'Início imediato', icone: FaCheckCircle },
+        { texto: 'Garantia de 7 dias (Lei do Consumidor)', icone: FaCheckCircle },
+        { texto: 'Suporte 24h via email', icone: FaCheckCircle },
+        { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
+        { texto: 'Descubra quem aplicou o Golpe em você', icone: FaCheckCircle },
+        { texto: 'Nunca mais tenha prejuízos financeiros', icone: FaCheckCircle },
+        { texto: 'Não seja mais uma vítima de golpes digitais', icone: FaCheckCircle },
+        { texto: 'Proteja sua família', icone: FaCheckCircle },
+      ]
 
   return (
     <MotionBox
@@ -94,39 +135,41 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
           {isPremium ? 'R$ 19,90' : 'R$ 12,90'}
         </Text>
 
-        <List.Root gap={3} role="list">
+        <Box as="dl" gap={3} role="list">
           {beneficios.map((beneficio) => (
-            <ListItem
-              key={beneficio.texto}
-              display="flex"
-              alignItems="center"
-              role="listitem"
-            >
+            <Box as="div" key={beneficio.texto} display="flex" alignItems="start" mb={3}>
               <Icon
                 as={beneficio.icone}
                 color={beneficio.icone === FaGift ? 'purple.400' : 'green.400'}
+                mt={1}
                 mr={2}
                 aria-hidden="true"
               />
-              <Text as="span">{beneficio.texto}</Text>
-              {beneficio.icone === FaGift && (
-                <Badge
-                  ml={2}
-                  bg="purple.500"
-                  color="white"
-                  px={2}
-                  py={0.5}
-                  borderRadius="sm"
-                  fontSize="xs"
-                >
-                  Bônus
-                </Badge>
-              )}
-            </ListItem>
+              <Box>
+                <Box as="dt" fontWeight="semibold">{beneficio.texto}</Box>
+                {beneficio.descricao && (
+                  <Box as="dd" fontSize="sm" color="gray.600">{beneficio.descricao}</Box>
+                )}
+                {beneficio.icone === FaGift && (
+                  <Badge
+                    ml={1}
+                    bg="purple.500"
+                    color="white"
+                    px={2}
+                    py={0.5}
+                    borderRadius="sm"
+                    fontSize="xs"
+                  >
+                    Bônus
+                  </Badge>
+                )}
+              </Box>
+            </Box>
           ))}
-        </List.Root>
+        </Box>
 
         <MotionCTAButton
+          data-plan={tipo}
           variant={isPremium ? 'whatsapp' : 'cta'}
           href={
             isPremium

@@ -46,7 +46,7 @@ export default function SafetyStatement() {
         <CTAButton
           variant="cta"
           withArrow={false}
-          href="https://wa.me/5599999999999?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20Investiga%2B"
+          href="https://wa.me/5511990191040?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20Investiga%2B"
           target="_blank"
           rel="noopener noreferrer"
         >
