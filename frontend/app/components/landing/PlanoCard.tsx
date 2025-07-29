@@ -130,8 +130,8 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
           variant={isPremium ? 'whatsapp' : 'cta'}
           href={
             isPremium
-              ? 'https://pay.kirvano.com/1ba6b342-7aee-4eb4-b776-839a7fb27e83'
-              : 'https://pay.kirvano.com/b9e2adfb-4420-4460-aed5-03ddfee98fe0'
+              ? 'https://pay.kirvano.com/b9e2adfb-4420-4460-aed5-03ddfee98fe0'
+              : 'https://pay.kirvano.com/1ba6b342-7aee-4eb4-b776-839a7fb27e83'
           }
           rel="noopener noreferrer"
           aria-label="Compre agora"
