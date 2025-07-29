@@ -7,8 +7,6 @@ import {
   Text,
   Icon,
   Badge,
-  ListItem,
-  List,
 } from '@chakra-ui/react'
 import { FaCheckCircle, FaGift } from 'react-icons/fa'
 import { CTAButton } from '../ui/BaseButton'
