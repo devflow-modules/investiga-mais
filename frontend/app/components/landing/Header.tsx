@@ -22,6 +22,7 @@ const Links = [
   { label: 'Público-Alvo', href: '#publico-alvo' },
   { label: 'Estatísticas', href: '#estatisticas' },
   { label: 'Depoimentos', href: '#depoimentos' },
+  { label: 'Pacotes', href: '#pacotes' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Login', href: '/login' },
 ]
@@ -93,10 +94,11 @@ export default function Header() {
             href="#pacotes"
             rel="noopener noreferrer"
             variant="cta"
-            withArrow
             size="md"
-            px={6}
-            py={3}
+            px={4}
+            py={2}
+            fontSize="sm"
+            fontWeight="bold"
           >
             Comece Agora
           </CTAButton>
