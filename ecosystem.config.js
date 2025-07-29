@@ -10,11 +10,11 @@ module.exports = {
       watch: false,
       max_memory_restart: '300M',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
-      error_file: 'logs/err.log',
-      out_file: 'logs/out.log',
+      error_file: 'logs/backend.err.log',
+      out_file: 'logs/backend.out.log',
       env: {
         NODE_ENV: 'production',
-        PORT: 4000
+        PORT: 4000,
       },
     },
     {
@@ -27,11 +27,11 @@ module.exports = {
       watch: false,
       max_memory_restart: '300M',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
-      error_file: 'logs/err.log',
-      out_file: 'logs/out.log',
+      error_file: 'logs/frontend.err.log',
+      out_file: 'logs/frontend.out.log',
       env: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 3000,
       },
     },
   ],
