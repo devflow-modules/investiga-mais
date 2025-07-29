@@ -8,7 +8,6 @@ import {
   Stack,
   Text,
   Link as ChakraLink,
-  useDisclosure
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { FiMenu, FiX } from 'react-icons/fi'
