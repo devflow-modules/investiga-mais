@@ -140,9 +140,7 @@ export default function StatsSection() {
           borderRadius="md"
           withArrow
           as="a"
-          href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="#pacotes" // redireciona para a seção com id="pacotes"
         >
           Comece Agora
         </CTAButton>

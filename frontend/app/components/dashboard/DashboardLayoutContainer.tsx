@@ -5,7 +5,7 @@ import { Box } from '@chakra-ui/react'
 export default function DashboardLayoutContainer({ children }: { children: React.ReactNode }) {
   const { isExpanded } = useSidebar()
 
-  useAuth() // 👈 movido para cá
+  useAuth()
 
   return (
     <Box

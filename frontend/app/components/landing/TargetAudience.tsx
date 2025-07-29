@@ -201,9 +201,7 @@ export default function TargetAudience() {
           >
             <CTAButton
               variant="cta"
-              href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#pacotes"
             >
               Quero experimentar agora
             </CTAButton>

@@ -9,8 +9,8 @@ import {
   Icon,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { FiSend } from 'react-icons/fi'
 import { CTAButton } from '../ui/BaseButton'
+import { FaWhatsapp } from 'react-icons/fa'
 
 export default function SafetyStatement() {
   const headingSize = useBreakpointValue({ base: '2xl', md: '4xl' })
@@ -46,15 +46,16 @@ export default function SafetyStatement() {
         <CTAButton
           variant="cta"
           withArrow={false}
-          href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
+          href="https://wa.me/5599999999999?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20Investiga%2B"
           target="_blank"
           rel="noopener noreferrer"
         >
           <HStack gap={3}>
-            <Text>NÃO QUERO MAIS CAIR EM GOLPES</Text>
-            <Icon as={FiSend} />
+            <Text>Não quero mais cair em Golpes</Text>
+            <Icon as={FaWhatsapp} boxSize={['1em', '1.2em']} />
           </HStack>
         </CTAButton>
+
       </VStack>
     </Box>
   )

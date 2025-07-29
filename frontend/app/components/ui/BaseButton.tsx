@@ -19,7 +19,7 @@ export function CTAButton({
   variant = 'cta',
   withArrow = true,
   href,
-  target = '_blank',
+  target,
   rel = 'noopener noreferrer',
   onClick,
   disabled = false,
@@ -50,7 +50,7 @@ export function CTAButton({
     },
     whatsapp: {
       bg: '#25D366', // cor oficial do botão WhatsApp
-      color: 'white',
+      color: 'black',
       _hover: { bg: '#1ebe5d' },
       _active: { bg: '#1aa44c' },
     },
@@ -63,8 +63,8 @@ export function CTAButton({
     return (
       <chakra.a
         href={href}
-        target={target}
-        rel={rel}
+        {...(target ? { target } : {})}
+        {...(rel ? { rel } : {})}
         display="inline-flex"
         alignItems="center"
         justifyContent="center"

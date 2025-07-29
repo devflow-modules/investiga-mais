@@ -105,15 +105,14 @@ export default function HowItWorks() {
           variant="cta"
           borderRadius="md"
           withArrow
-          as="a"
-          href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
-          rel="noopener noreferrer"
+          href="#pacotes"
           fontSize={{ base: 'sm', md: 'md' }}
           w={{ base: '90%', md: 'auto' }}
           mx="auto"
         >
-          QUERO GARANTIR MINHA SEGURANÇA
+          Quero garantir minha segurança
         </CTAButton>
+
       </VStack>
     </Box>
   )

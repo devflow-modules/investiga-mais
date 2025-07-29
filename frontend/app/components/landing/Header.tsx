@@ -77,7 +77,7 @@ export default function Header() {
           ))}
 
           <CTAButton
-            href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
+            href="https://pay.kirvano.com/b9e2adfb-4420-4460-aed5-03ddfee98fe0"
             rel="noopener noreferrer"
             variant="cta"
             withArrow
@@ -109,7 +109,7 @@ export default function Header() {
             ))}
 
             <CTAButton
-              href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
+              href="https://pay.kirvano.com/b9e2adfb-4420-4460-aed5-03ddfee98fe0"
               rel="noopener noreferrer"
               variant="cta"
               withArrow

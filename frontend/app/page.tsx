@@ -12,6 +12,7 @@ import Footer from './components/landing/Footer'
 import StatsSection from './components/landing/StatsSection'
 import TrustSection from './components/landing/TrustSection'
 import { FloatingWhatsApp } from './components/landing/FloatingWhatsApp'
+import { PlanosSection } from './components/sections/PlanosSection'
 
 export default function HomePage() {
   return (
@@ -35,11 +36,16 @@ export default function HomePage() {
       <Box as="section" id="depoimentos">
         <Testimonials />
       </Box>
+
+      <Box as="section" id="pacotes">
+        <PlanosSection /> 
+      </Box>
+
       <Box as="section" id="faq">
         <FAQ />
       </Box>
-      <Footer />
 
+      <Footer />
       <FloatingWhatsApp />
     </Box>
   )

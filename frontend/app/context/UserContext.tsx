@@ -27,10 +27,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const pathname = usePathname()
 
-  const isPublicPage = ['/', '/login', '/politica-de-privacidade', '/termos-de-uso'].includes(pathname)
-
   useEffect(() => {
-    if (isPublicPage) {
+    const isPublic = ['/', '/login', '/politica-de-privacidade', '/termos-de-uso'].includes(pathname)
+
+    if (isPublic) {
       setLoading(false)
       return
     }

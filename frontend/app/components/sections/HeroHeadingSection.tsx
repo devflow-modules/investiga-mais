@@ -6,9 +6,11 @@ import {
   Stack,
   Text,
   Heading,
-  HStack
+  HStack,
+  Icon
 } from '@chakra-ui/react'
 import { CTAButton } from '../ui/BaseButton'
+import { FaWhatsapp } from 'react-icons/fa'
 
 export function HeroHeadingSection() {
   return (
@@ -77,16 +79,23 @@ export function HeroHeadingSection() {
         </Text>
 
         <CTAButton
-          variant="cta"
+          variant="whatsapp"
+          withArrow={false}
           borderRadius="md"
           as="a"
-          href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
+          href="https://wa.me/5511990191040"
           rel="noopener noreferrer"
+          aria-label="Abrir conversa no WhatsApp"
           w={['90%', 'auto']}
           mx="auto"
           whiteSpace="nowrap"
         >
-          NÃO QUERO MAIS CAIR EM GOLPES
+          <HStack gap={2} align="center" justify="center">
+            <Text as="span" fontWeight="bold" fontSize={['sm', 'md']}>
+              Não quero mais cair em Golpes
+            </Text>
+            <Icon as={FaWhatsapp} boxSize={['1em', '1.2em']} />
+          </HStack>
         </CTAButton>
 
         <HStack gap={1} justify="center" alignItems="center" fontSize="sm" mt={2}>

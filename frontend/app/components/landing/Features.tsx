@@ -164,14 +164,13 @@ export default function Features() {
             viewport={{ once: true }}
           >
             <CTAButton
-              href="https://pay.kirvano.com/d58e8cff-c66f-45b4-bdea-02fd1ec174c2"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#pacotes"
               aria-label="Comece a Verificar Agora"
             >
               Comece a Verificar Agora
             </CTAButton>
           </MotionBox>
+
         </Box>
       </MotionBox>
     </Box>
