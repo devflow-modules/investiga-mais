@@ -12,6 +12,10 @@ import {
 } from '@chakra-ui/react'
 import { FaCheckCircle, FaGift } from 'react-icons/fa'
 import { CTAButton } from '../ui/BaseButton'
+import { motion } from 'framer-motion'
+
+const MotionBox = motion.create(Box)
+const MotionCTAButton = motion.create(CTAButton)
 
 interface PlanoCardProps {
   tipo: 'basico' | 'premium'
@@ -22,7 +26,7 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
 
   const beneficios = isPremium
     ? [
-        { texto: 'Consultas Completas Ilimitadas', icone: FaCheckCircle },
+        { texto: 'Consultas Completas Sem Limites', icone: FaCheckCircle },
         { texto: 'Golpes Modernos', icone: FaGift },
         { texto: 'Pix Seguro', icone: FaGift },
         { texto: 'Senhas Fortes', icone: FaGift },
@@ -30,12 +34,10 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
         { texto: 'App de Banco Seguro', icone: FaGift },
         { texto: 'Como Proteger sua Família', icone: FaGift },
       ]
-    : [
-        { texto: '5 Consultas Completas', icone: FaCheckCircle },
-      ]
+    : [{ texto: '5 Consultas Completas', icone: FaCheckCircle }]
 
   return (
-    <Box
+    <MotionBox
       bg={isPremium ? 'green.50' : 'white'}
       boxShadow={isPremium ? 'lg' : 'md'}
       borderRadius="lg"
@@ -46,6 +48,10 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
       display="flex"
       flexDirection="column"
       justifyContent="space-between"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      viewport={{ once: true }}
     >
       {isPremium && (
         <Badge
@@ -60,7 +66,7 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
           fontSize="0.75rem"
           fontWeight="semibold"
         >
-          Melhor opção 🔥
+          Mais Vendido 🔥
         </Badge>
       )}
 
@@ -80,7 +86,11 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
           </>
         )}
 
-        <Text fontSize="3xl" fontWeight="bold" color={isPremium ? 'green.700' : 'gray.800'}>
+        <Text
+          fontSize="3xl"
+          fontWeight="bold"
+          color={isPremium ? 'green.700' : 'gray.800'}
+        >
           {isPremium ? 'R$ 19,90' : 'R$ 12,90'}
         </Text>
 
@@ -92,7 +102,12 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
               alignItems="center"
               role="listitem"
             >
-              <Icon as={beneficio.icone} color={beneficio.icone === FaGift ? 'purple.400' : 'green.400'} mr={2} aria-hidden="true" />
+              <Icon
+                as={beneficio.icone}
+                color={beneficio.icone === FaGift ? 'purple.400' : 'green.400'}
+                mr={2}
+                aria-hidden="true"
+              />
               <Text as="span">{beneficio.texto}</Text>
               {beneficio.icone === FaGift && (
                 <Badge
@@ -111,25 +126,25 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
           ))}
         </List.Root>
 
-        <CTAButton
+        <MotionCTAButton
           variant={isPremium ? 'whatsapp' : 'cta'}
           href={
             isPremium
-              ? 'https://pay.kirvano.com/b9e2adfb-4420-4460-aed5-03ddfee98fe0'
+              ? 'https://pay.kirvano.com/1ba6b342-7aee-4eb4-b776-839a7fb27e83'
               : 'https://pay.kirvano.com/b9e2adfb-4420-4460-aed5-03ddfee98fe0'
           }
           rel="noopener noreferrer"
-          aria-label={
-            isPremium
-              ? 'Escolher Pacote Premium via WhatsApp'
-              : 'Escolher Pacote Básico via WhatsApp'
-          }
+          aria-label="Compre agora"
           withArrow={false}
           w="full"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
         >
-          {isPremium ? 'Quero o Premium agora' : 'Quero esse'}
-        </CTAButton>
+          Compre agora
+        </MotionCTAButton>
       </Stack>
-    </Box>
+    </MotionBox>
   )
 }
