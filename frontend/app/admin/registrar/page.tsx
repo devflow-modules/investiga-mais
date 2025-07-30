@@ -17,6 +17,8 @@ import { generoOptions } from '../../components/dashboard/historico/createListCo
 import { mascararCPF } from '@/utils/mascararCPF'
 import { mascararTelefone } from '@/utils/mascararTelefone'
 import { toaster } from '@/components/ui/toaster'
+import { CardDadosCriados } from '@/components/admin/registrar/CardDadosCriados'
+import { motion } from 'framer-motion'
 
 export default function RegistrarUsuarioManual() {
   const [email, setEmail] = useState('')
@@ -26,6 +28,7 @@ export default function RegistrarUsuarioManual() {
   const [genero, setGenero] = useState('')
 
   const [carregando, setCarregando] = useState(false)
+  const [dadosCriados, setDadosCriados] = useState<{ email: string; senha: string } | null>(null)
 
   const isEmailValid = validarEmail(email)
   const isCPFValid = validarCPF(cpf.replace(/\D/g, ''))
@@ -75,6 +78,11 @@ export default function RegistrarUsuarioManual() {
         type: 'success',
       })
 
+      setDadosCriados({
+        email,
+        senha: data.data.senha
+      })
+
       handleLimparCampos()
 
     } catch (err: unknown) {
@@ -105,7 +113,6 @@ export default function RegistrarUsuarioManual() {
         <Heading size="lg" mb={6}>Registrar Usuário Manualmente</Heading>
 
         <VStack gap={4} align="stretch" mb={6}>
-
           {/* Email */}
           <Box>
             <Input
@@ -193,7 +200,6 @@ export default function RegistrarUsuarioManual() {
               <Text fontSize="xs" color="red.500" mt={1}>Selecione um gênero</Text>
             )}
           </Box>
-
         </VStack>
 
         {/* Botões */}
@@ -217,8 +223,27 @@ export default function RegistrarUsuarioManual() {
             </Button>
           </VStack>
         </Box>
-
       </Box>
+
+      {/* Card com dados de acesso */}
+      {dadosCriados && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        >
+          <Box maxW="lg" mx="auto" mt={8}>
+            <CardDadosCriados
+              email={dadosCriados.email}
+              senha={dadosCriados.senha}
+              onClose={() => {
+                setDadosCriados(null)
+                handleLimparCampos()
+              }}
+            />
+          </Box>
+        </motion.div>
+      )}
     </Box>
   )
 }

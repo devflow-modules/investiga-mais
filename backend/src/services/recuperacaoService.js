@@ -30,16 +30,29 @@ async function gerarTokenRecuperacao(email) {
   const link = `http://localhost:3001/redefinir-senha?token=${token}`;
 
   const html = `
-    <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; border-radius: 8px; color: #111827;">
-      <h2 style="color: #1e3a8a;">🔐 Recuperação de Senha - Investiga+</h2>
-      <p>Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para criar uma nova senha:</p>
-      <div style="margin: 20px 0;">
-        <a href="${link}" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Redefinir Senha</a>
-      </div>
-      <p>Se você não solicitou essa alteração, apenas ignore este e-mail.</p>
-      <p style="font-size: 12px; color: #9ca3af;">© ${new Date().getFullYear()} Investiga+. Todos os direitos reservados.</p>
-    </div>
-  `;
+            <div style="max-width: 600px; margin: auto; font-family: 'Inter', sans-serif; background-color: #F9FAFB; padding: 30px; border-radius: 16px; color: #111827;">
+              <h2 style="color: #1E40AF; margin-bottom: 20px;">🔐 Recuperação de Senha - Investiga+</h2>
+
+              <p style="font-size: 16px; margin-bottom: 16px;">
+                Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para criar uma nova senha:
+              </p>
+
+              <div style="text-align: center; margin: 28px 0;">
+                <a href="${link}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #1E40AF; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                  Redefinir Senha
+                </a>
+              </div>
+
+              <p style="font-size: 14px; color: #6B7280; margin-bottom: 24px;">
+                Se você não solicitou essa alteração, apenas ignore este e-mail.
+              </p>
+
+              <p style="font-size: 12px; color: #9CA3AF; text-align: center;">
+                © ${new Date().getFullYear()} Investiga+. Todos os direitos reservados.
+              </p>
+            </div>
+          `;
+
 
   if (process.env.NODE_ENV === 'production') {
     await enviarEmail(email, 'Redefinição de Senha - Investiga+', html);

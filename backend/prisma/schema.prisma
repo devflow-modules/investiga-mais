@@ -33,6 +33,7 @@ model Usuario {
   bonusConcedidoAt  DateTime?
   role              String        @default("cliente")
   criadoEm          DateTime      @default(now())
+  criadoViaAdmin Boolean  @default(false)
 
   tokenRecuperacao  TokenRecuperacao[]
   logRecuperacoes   LogRecuperacao[]

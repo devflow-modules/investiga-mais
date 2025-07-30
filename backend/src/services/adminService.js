@@ -1,25 +1,82 @@
-const prisma = require('../lib/prisma.js');
-const erroComStatus = require('../utils/erroComStatus');
-const { responderConversaService } = require('./responderConversaService.js');
+const prisma = require('../lib/prisma.js')
+const erroComStatus = require('../utils/erroComStatus')
+const { responderConversaService } = require('./responderConversaService.js')
+const { criarUsuarioComSenha } = require('../helpers/criarUsuarioComSenha.js')
+const { enviarEmail } = require('../services/emailService')
 
-async function registrarManualService({ email, cpf, nome, telefone }) {
-  if (!email || !cpf || !nome || !telefone) {
-    throw erroComStatus(400, 'Todos os campos são obrigatórios.');
+async function registrarManualService({ email, cpf, nome, telefone, genero }) {
+  if (!email || !cpf || !nome) {
+    throw erroComStatus(400, 'Campos obrigatórios faltando.')
   }
 
   try {
-    const usuario = await prisma.usuario.create({
-      data: { email, cpf, nome, telefone, criadoViaAdmin: true }
-    });
-    return { usuario };
+    const { usuario, senha } = await criarUsuarioComSenha({ email, cpf, nome, telefone, genero })
+
+    const html = `
+    <div style="max-width: 600px; margin: auto; font-family: 'Inter', sans-serif; background-color: #F9FAFB; padding: 30px; border-radius: 16px; color: #111827;">
+      <h2 style="color: #1E40AF; text-align: center; margin-bottom: 24px;">🎉 Bem-vindo ao Investiga+</h2>
+
+      <p style="font-size: 16px; margin-bottom: 20px;">
+        Sua conta foi ativada com sucesso! Utilize os dados abaixo para acessar a plataforma:
+      </p>
+
+      <div style="background-color: #FFFFFF; border: 1px solid #E5E7EB; padding: 16px 20px; border-radius: 12px; font-size: 15px; margin-bottom: 24px;">
+        <p style="margin: 0 0 12px 0;">
+          <strong style="color: #1E40AF;">Email:</strong>
+          <span style="background-color: #F3F4F6; padding: 6px 12px; border-radius: 6px; font-family: monospace; display: inline-block; margin-left: 8px;">
+            ${email}
+          </span>
+        </p>
+        <p style="margin: 0;">
+          <strong style="color: #1E40AF;">Senha:</strong>
+          <span style="background-color: #F3F4F6; padding: 6px 12px; border-radius: 6px; font-family: monospace; display: inline-block; margin-left: 8px;">
+            ${senha}
+          </span>
+        </p>
+      </div>
+
+      <div style="text-align: center; margin-top: 24px;">
+        <a href="https://investigamais.com/login" style="display: inline-block; padding: 12px 24px; background-color: #1E40AF; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+          Acessar Plataforma
+        </a>
+      </div>
+
+      <p style="font-size: 14px; color: #6B7280; margin-top: 30px; text-align: center;">
+        Por segurança, recomendamos alterar sua senha após o primeiro acesso.
+      </p>
+
+      <p style="font-size: 12px; color: #9CA3AF; text-align: center; margin-top: 20px;">
+        © ${new Date().getFullYear()} Investiga+. Todos os direitos reservados.
+      </p>
+    </div>
+  `
+
+
+    await enviarEmail(email, '🎉 Sua conta no Investiga+ foi criada com sucesso', html)
+
+    return {
+      sucesso: true,
+      mensagem: `Usuário registrado com sucesso. Senha enviada por e-mail.`,
+      senha, 
+      usuario: {
+        id: usuario.id,
+        email: usuario.email
+      }
+    }
+
+
+
   } catch (err) {
     if (err.code === 'P2002') {
-      const campo = err.meta?.target?.[0] || 'campo único';
-      throw erroComStatus(409, `O ${campo} informado já está em uso.`);
+      const campo = err.meta?.target?.[0] || 'campo único'
+      throw erroComStatus(409, `O ${campo} informado já está em uso.`)
     }
-    throw erroComStatus(500, 'Erro ao registrar usuário.');
+
+    console.error('[Erro registrarManualService]', err)
+    throw erroComStatus(500, 'Erro ao registrar usuário.')
   }
 }
+
 
 async function listarConversasService() {
   try {

@@ -4,14 +4,15 @@ const { sendSuccess, sendError } = require('../utils/sendResponse.js');
 // REGISTRAR USUÁRIO MANUAL
 async function registrarManual(req, res) {
   try {
-    const { email, cpf, nome, telefone } = req.body
-    const { usuario } = await adminService.registrarManualService({ email, cpf, nome, telefone })
-    return sendSuccess(res, { usuario }, 'Usuário registrado com sucesso.')
+    const { email, cpf, nome, telefone, genero } = req.body
+    const resultado = await adminService.registrarManualService({ email, cpf, nome, telefone, genero })
+    return sendSuccess(res, resultado, resultado.mensagem)
   } catch (err) {
     console.error('[adminController] registrarManual:', err)
     return sendError(res, err.status || 500, err.message, { stack: err.stack })
   }
 }
+
 
 // LISTAR CONVERSAS
 async function listarConversas(req, res) {
