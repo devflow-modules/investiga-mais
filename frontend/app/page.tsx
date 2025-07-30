@@ -13,10 +13,14 @@ import StatsSection from './components/landing/StatsSection'
 import TrustSection from './components/landing/TrustSection'
 import { FloatingWhatsApp } from './components/landing/FloatingWhatsApp'
 import { PlanosSection } from './components/sections/PlanosSection'
+import GoogleAnalytics from './components/landing/GoogleAnalytics'
+import FacebookPixel from './components/landing/FacebookPixel'
 
 export default function HomePage() {
   return (
     <Box bg="white" color="gray.800">
+      <GoogleAnalytics />
+      <FacebookPixel />
       <Header />
       <HeroSection />
       <Box as="section" id="features">

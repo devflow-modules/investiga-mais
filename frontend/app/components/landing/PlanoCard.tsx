@@ -24,55 +24,57 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
 
   const beneficios = isPremium
     ? [
-        { texto: 'Consultas Completas sem Limites', icone: FaCheckCircle },
-        {
-          texto: 'Consultor de Segurança Digital disponível 24h via WhatsApp',
-          icone: FaGift,
-          descricao: 'Receba ajuda imediata sempre que precisar.'
-        },
-        { texto: 'Início imediato', icone: FaCheckCircle },
-        { texto: 'Garantia de 7 dias (Lei do Consumidor)', icone: FaCheckCircle },
-        { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
-        { texto: 'Descubra quem aplicou o Golpe em você', icone: FaCheckCircle },
-        { texto: 'Nunca mais tenha prejuízos financeiros', icone: FaCheckCircle },
-        { texto: 'Não seja mais uma vítima de golpes digitais', icone: FaCheckCircle },
-        { texto: 'Proteja sua família', icone: FaCheckCircle },
-        {
-          texto: 'Golpes Modernos',
-          icone: FaGift,
-        },
-        {
-          texto: 'Pix Seguro',
-          icone: FaGift,
-        },
-        {
-          texto: 'Senhas Fortes',
-          icone: FaGift,
-        },
-        {
-          texto: 'WhatsApp Blindado',
-          icone: FaGift,
-        },
-        {
-          texto: 'App de Banco Seguro',
-          icone: FaGift,
-        },
-        {
-          texto: 'Como Proteger sua Família',
-          icone: FaGift,
-        },
-      ]
+      { texto: 'Consultas Completas sem Limites', icone: FaCheckCircle },
+      {
+        texto: 'Consultor de Segurança Digital disponível 24h via WhatsApp',
+        icone: FaGift,
+        descricao: 'Receba ajuda imediata sempre que precisar.'
+      },
+      { texto: 'Acesso fácil', icone: FaCheckCircle },
+      { texto: 'Consultas rápidas, resultado imediato', icone: FaCheckCircle },
+      { texto: 'Garantia estendida de 30 dias', icone: FaCheckCircle },
+      { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
+      { texto: 'Descubra quem aplicou o Golpe em você', icone: FaCheckCircle },
+      { texto: 'Nunca mais tenha prejuízos financeiros', icone: FaCheckCircle },
+      { texto: 'Não seja mais uma vítima de golpes digitais', icone: FaCheckCircle },
+      { texto: 'Proteja sua família', icone: FaCheckCircle },
+      {
+        texto: 'Golpes Modernos',
+        icone: FaGift,
+      },
+      {
+        texto: 'Pix Seguro',
+        icone: FaGift,
+      },
+      {
+        texto: 'Senhas Fortes',
+        icone: FaGift,
+      },
+      {
+        texto: 'WhatsApp Blindado',
+        icone: FaGift,
+      },
+      {
+        texto: 'App de Banco Seguro',
+        icone: FaGift,
+      },
+      {
+        texto: 'Como Proteger sua Família',
+        icone: FaGift,
+      },
+    ]
     : [
-        { texto: '5 Consultas Completas', icone: FaCheckCircle },
-        { texto: 'Suporte via email', icone: FaCheckCircle },
-        { texto: 'Início imediato', icone: FaCheckCircle },
-        { texto: 'Garantia de 7 dias (Lei do Consumidor)', icone: FaCheckCircle },
-        { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
-        { texto: 'Descubra quem aplicou o Golpe em você', icone: FaCheckCircle },
-        { texto: 'Nunca mais tenha prejuízos financeiros', icone: FaCheckCircle },
-        { texto: 'Não seja mais uma vítima de golpes digitais', icone: FaCheckCircle },
-        { texto: 'Proteja sua família', icone: FaCheckCircle },
-      ]
+      { texto: '5 Consultas Completas', icone: FaCheckCircle },
+      { texto: 'Suporte via email', icone: FaCheckCircle },
+      { texto: 'Acesso fácil', icone: FaCheckCircle },
+      { texto: 'Consultas rápidas, resultado imediato', icone: FaCheckCircle },
+      { texto: 'Garantia estendida de 30 dias', icone: FaCheckCircle },
+      { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
+      { texto: 'Descubra quem aplicou o Golpe em você', icone: FaCheckCircle },
+      { texto: 'Nunca mais tenha prejuízos financeiros', icone: FaCheckCircle },
+      { texto: 'Não seja mais uma vítima de golpes digitais', icone: FaCheckCircle },
+      { texto: 'Proteja sua família', icone: FaCheckCircle },
+    ]
 
   return (
     <MotionBox
@@ -170,9 +172,36 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
           variant={isPremium ? 'whatsapp' : 'cta'}
           href={
             isPremium
-              ? 'https://pay.kirvano.com/d1b9779d-17be-4ba1-afa5-bd0593d233c7'
-              : 'https://pay.kirvano.com/18f1705e-2b95-4204-b1fc-1f6fec4e63c2'
+              ? 'https://pay.kirvano.com/d1b9779d-17be-4ba1-afa5-bd0593d233c7?utm_source=facebook&utm_medium=cpc&utm_campaign=promo_premium'
+              : 'https://pay.kirvano.com/18f1705e-2b95-4204-b1fc-1f6fec4e63c2?utm_source=facebook&utm_medium=cpc&utm_campaign=promo_basico'
           }
+          onClick={() => {
+            const valor = isPremium ? 19.9 : 12.9
+
+            // Google Analytics
+            window.gtag?.('event', 'clique_pacote', {
+              pacote: tipo,
+              valor,
+            })
+
+            // Meta Pixel - Lead (somente uma vez por sessão)
+            const leadKey = `lead_${tipo}`
+
+            if (!sessionStorage.getItem(leadKey)) {
+              window.fbq?.('track', 'Lead', {
+                content_name: tipo,
+              })
+              sessionStorage.setItem(leadKey, '1')
+            }
+
+            // Meta Pixel - Purchase (sempre dispara)
+            window.fbq?.('track', 'Purchase', {
+              value: valor,
+              currency: 'BRL',
+              content_name: tipo,
+            })
+          }}
+
           rel="noopener noreferrer"
           aria-label="Compre agora"
           withArrow={false}
@@ -184,6 +213,7 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
         >
           Compre agora
         </MotionCTAButton>
+
       </Stack>
     </MotionBox>
   )
