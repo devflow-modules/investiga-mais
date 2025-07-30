@@ -30,7 +30,7 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
         icone: FaGift,
         descricao: 'Receba ajuda imediata sempre que precisar.'
       },
-      { texto: 'Acesso fácil', icone: FaCheckCircle },
+      { texto: 'Acesso fácil e vitalício', icone: FaCheckCircle },
       { texto: 'Consultas rápidas, resultado imediato', icone: FaCheckCircle },
       { texto: 'Garantia estendida de 30 dias', icone: FaCheckCircle },
       { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
@@ -66,7 +66,7 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
     : [
       { texto: '5 Consultas Completas', icone: FaCheckCircle },
       { texto: 'Suporte via email', icone: FaCheckCircle },
-      { texto: 'Acesso fácil', icone: FaCheckCircle },
+      { texto: 'Acesso fácil e vitalício', icone: FaCheckCircle },
       { texto: 'Consultas rápidas, resultado imediato', icone: FaCheckCircle },
       { texto: 'Garantia estendida de 30 dias', icone: FaCheckCircle },
       { texto: 'Proteja seus dados pessoais e empresariais', icone: FaCheckCircle },
