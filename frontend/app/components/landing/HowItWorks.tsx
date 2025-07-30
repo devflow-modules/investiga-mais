@@ -48,7 +48,7 @@ export default function HowItWorks() {
           Conheça o Investiga+
         </Text>
         <Heading as="h2" fontSize={{ base: '2xl', md: '4xl' }} color="textPrimary">
-          Como funciona?
+          Como funciona a Plataforma de Busca do Investiga+
         </Heading>
       </VStack>
 
