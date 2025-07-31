@@ -36,7 +36,7 @@ const MotionBox = motion.create(Box)
 
 export default function HowItWorks() {
   return (
-    <Box as="section" bg="background" py={{ base: 16, md: 24 }} px={{ base: 4, md: 8 }}>
+    <Box as="section" bg="background" py={{ base: 8, md: 12 }} px={{ base: 4, md: 8 }} transition="padding 0.2s ease">
       <VStack gap={6} maxW="5xl" mx="auto" textAlign="center">
         <Text
           fontSize="sm"

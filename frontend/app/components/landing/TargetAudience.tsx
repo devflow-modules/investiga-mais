@@ -31,7 +31,7 @@ const profiles = [
 
 export default function TargetAudience() {
   return (
-    <Box as="section" id="publico-alvo" py={{ base: 12, md: 20 }} px={{ base: 4, md: 6 }} bg="white">
+    <Box as="section" id="publico-alvo" py={{ base: 8, md: 12 }} px={{ base: 4, md: 8 }} bg="white">
       <MotionBox
         textAlign="center"
         maxW="5xl"

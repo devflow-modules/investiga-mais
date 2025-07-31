@@ -8,7 +8,7 @@ import {
   HStack,
   Icon,
   Text,
-  useBreakpointValue
+  useBreakpointValue,
 } from '@chakra-ui/react'
 import {
   FiShield,
@@ -22,27 +22,28 @@ import { CTAButton } from '../ui/BaseButton'
 
 const MotionBox = motion.create(Box)
 
+// Lista de funcionalidades com ícones, título e descrição
 const features = [
   {
     icon: FiShield,
     label: 'Proteja seus dados',
-    text: 'Saiba se o site é seguro e evite <strong>roubo de informações</strong>.'
+    text: 'Saiba se o site é seguro e evite <strong>roubo de informações</strong>.',
   },
   {
     icon: FiUsers,
     label: 'Confirme se a empresa é real',
-    text: 'Veja <strong>nome</strong>, <strong>sócios</strong> e <strong>CNPJ</strong> para ter certeza de que a loja existe.'
+    text: 'Veja <strong>nome</strong>, <strong>sócios</strong> e <strong>CNPJ</strong> para ter certeza de que a loja existe.',
   },
   {
     icon: FiCheckCircle,
     label: 'Evite golpes disfarçados de loja',
-    text: 'Confira <strong>há quanto tempo</strong> o site existe e fuja de armadilhas.'
+    text: 'Confira <strong>há quanto tempo</strong> o site existe e fuja de armadilhas.',
   },
   {
     icon: FiSearch,
     label: 'Veja o que outros clientes dizem',
-    text: 'Consulte <strong>histórico da empresa</strong> e <strong>listas de alerta</strong> antes de comprar.'
-  }
+    text: 'Consulte <strong>histórico da empresa</strong> e <strong>listas de alerta</strong> antes de comprar.',
+  },
 ]
 
 export default function Features() {
@@ -54,7 +55,14 @@ export default function Features() {
   }) ?? '/imagem2.webp'
 
   return (
-    <Box as="section" aria-labelledby="feature-heading" py={20} px={{ base: 4, md: 6 }} bg="white">
+    <Box
+      as="section"
+      id="verificacao"
+      aria-labelledby="verificacao-heading"
+      py={8}
+      px={{ base: 4, md: 6 }}
+      bg="white"
+    >
       <MotionBox
         maxW="6xl"
         mx="auto"
@@ -67,51 +75,67 @@ export default function Features() {
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
       >
-        {/* ✅ Imagem responsiva com altura garantida */}
+        {/* MOBILE: Título antes da imagem */}
+        {isMobile && (
+          <Box textAlign="center" order={0}>
+            <Heading
+              as="h2"
+              id="verificacao-heading"
+              fontSize="2xl"
+              mb={4}
+              color="textPrimary"
+            >
+              Verifique a credibilidade de sites e empresas com o Investiga+
+            </Heading>
+          </Box>
+        )}
+
+        {/* IMAGEM: ordem varia conforme dispositivo */}
         <Box
+          order={{ base: 1, md: 1 }}
           position="relative"
           w="100%"
           aspectRatio={{ base: '4/5', md: '3/4' }}
           maxH={{ base: '300px', md: '500px' }}
+          role="img"
+          aria-label="Pessoa pesquisando a reputação de um site"
         >
           <Image
             src={imagemSrc}
-            alt="Tela do sistema de verificação de empresa"
+            alt="Pessoa pesquisando a reputação de um site"
             fill
             priority
             sizes="(max-width: 768px) 100vw, 50vw"
             style={{
               objectFit: isMobile ? 'cover' : 'contain',
-              borderRadius: '0.5rem'
+              borderRadius: '0.5rem',
             }}
           />
         </Box>
 
-        {/* ✅ Conteúdo textual */}
-        <Box>
-          <Heading
-            fontSize={{ base: '2xl', md: '3xl' }}
-            mb={4}
-            color="textPrimary"
-            id="feature-heading"
-            textAlign={{ base: 'center', md: 'left' }}
-          >
-            Verifique a credibilidade de sites e empresas com o Investiga+
-          </Heading>
+        {/* CONTEÚDO PRINCIPAL */}
+        <Box order={{ base: 2, md: 2 }}>
+          {/* SUBTÍTULO (visível em todas as versões após imagem) */}
+          {!isMobile && (
+            <Heading
+              as="h2"
+              id="verificacao-heading"
+              fontSize="3xl"
+              mb={4}
+              color="textPrimary"
+            >
+              Verifique a credibilidade de sites e empresas com o Investiga+
+            </Heading>
+          )}
 
-          <Text
-            fontSize="md"
-            mb={6}
-            color="gray.600"
-            id="feature-sub"
-            textAlign={{ base: 'center', md: 'left' }}
-          >
+          <Text fontSize="md" mb={6} color="gray.600" textAlign={{ base: 'center', md: 'left' }}>
             Antes de correr riscos de golpes online, saiba a fundo com quem você está lidando!
           </Text>
 
-          <Stack color="gray.700" gap={6} role="list" aria-labelledby="feature-heading">
+          {/* Lista de funcionalidades */}
+          <Stack color="gray.700" gap={6}>
             {features.map((item, index) => (
-              <Box key={item.label} as="article" role="listitem">
+              <Box key={item.label} as="article" aria-labelledby={`feature-${index}`}>
                 <HStack align="start" gap={4}>
                   <Box
                     bg="blue.50"
@@ -120,17 +144,25 @@ export default function Features() {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
-                    aria-hidden
                   >
-                    <Icon as={item.icon} boxSize={5} color="blue.500" mt={1} />
+                    <Icon
+                      as={item.icon}
+                      boxSize={5}
+                      color="blue.500"
+                      mt={1}
+                      aria-hidden="true"
+                    />
                   </Box>
                   <Box>
-                    {/* Label (título) da feature */}
-                    <Text fontWeight="bold" fontSize="md" mb={1} color="textPrimary">
+                    <Text
+                      id={`feature-${index}`}
+                      fontWeight="bold"
+                      fontSize="md"
+                      mb={1}
+                      color="textPrimary"
+                    >
                       {item.label}
                     </Text>
-
-                    {/* Texto com destaque usando dangerouslySetInnerHTML */}
                     <Text
                       fontSize="md"
                       color="textPrimary"
@@ -138,17 +170,15 @@ export default function Features() {
                     />
                   </Box>
                 </HStack>
-
-                {/* Separador em mobile */}
+                {/* Separador no mobile entre os itens */}
                 {isMobile && index < features.length - 1 && (
                   <Box as="hr" borderColor="gray.200" my={4} />
                 )}
               </Box>
             ))}
-
           </Stack>
 
-          {/* Badge de confiança */}
+          {/* Bloco de prova social */}
           <MotionBox
             mt={6}
             bg="gray.50"
@@ -179,14 +209,10 @@ export default function Features() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <CTAButton
-              href="#pacotes"
-              aria-label="Comece a Verificar Agora"
-            >
+            <CTAButton href="#pacotes" aria-label="Comece a verificar agora">
               Comece a Verificar Agora
             </CTAButton>
           </MotionBox>
-
         </Box>
       </MotionBox>
     </Box>

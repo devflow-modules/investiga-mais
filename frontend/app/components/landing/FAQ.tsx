@@ -21,6 +21,7 @@ import Script from 'next/script'
 
 const MotionBox = motion.create(Box)
 
+// Lista de perguntas frequentes
 const faqs = [
   {
     q: 'Como faço para verificar se um site é confiável?',
@@ -60,25 +61,57 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <Box as="section" py={20} px={6} bg="white">
-      <Heading as="h2" textAlign="center" fontSize="3xl" mb={4} color="textPrimary">
+    <Box
+      as="section"
+      py={{ base: 8, md: 12 }}
+      px={{ base: 4, md: 8 }}
+      bg="white"
+      aria-labelledby="faq-heading"
+    >
+
+      {/* Título da seção FAQ */}
+      <Heading
+        as="h2"
+        id="faq-heading"
+        textAlign="center"
+        fontSize="3xl"
+        mb={4}
+        color="textPrimary"
+      >
         Perguntas Frequentes
       </Heading>
 
-      <Text textAlign="center" color="gray.600" fontSize="md" mb={10}>
+      <Text
+        textAlign="center"
+        color="gray.600"
+        fontSize="md"
+        mb={10}
+      >
         Tire suas dúvidas e comece agora com mais segurança.
       </Text>
 
-      <VStack gap={4} maxW="3xl" mx="auto" as="ul" role="list">
+      {/* Lista de perguntas acessível */}
+      <VStack
+        gap={4}
+        maxW="3xl"
+        mx="auto"
+        as="ul"
+        role="list"
+        aria-label="Lista de perguntas frequentes"
+      >
         {faqs.map((item, i) => {
           const isOpen = openIndex === i
+          const triggerId = `faq-trigger-${i}`
+          const contentId = `faq-content-${i}`
+
           return (
             <Collapsible.Root
-              w="full"
               key={i}
+              w="full"
               open={isOpen}
               onOpenChange={() => setOpenIndex(isOpen ? null : i)}
             >
+              {/* Botão de pergunta */}
               <Collapsible.Trigger asChild>
                 <MotionBox
                   as="button"
@@ -88,12 +121,13 @@ export default function FAQ() {
                   borderRadius="md"
                   boxShadow="sm"
                   cursor="pointer"
+                  aria-expanded={isOpen}
+                  aria-controls={contentId}
+                  id={triggerId}
                   transition={{ duration: 0.6 }}
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  aria-expanded={isOpen}
-                  aria-controls={`faq-${i}`}
                 >
                   <HStack justify="space-between">
                     <HStack>
@@ -105,8 +139,17 @@ export default function FAQ() {
                 </MotionBox>
               </Collapsible.Trigger>
 
+              {/* Resposta com aria-labelledby para leitura de tela */}
               <Collapsible.Content>
-                <Text mt={3} color="gray.600" fontSize="sm" px={4} id={`faq-${i}`}>
+                <Text
+                  mt={3}
+                  px={4}
+                  fontSize="sm"
+                  color="gray.600"
+                  id={contentId}
+                  aria-labelledby={triggerId}
+                  role="region"
+                >
                   {item.a}
                 </Text>
               </Collapsible.Content>
@@ -115,11 +158,13 @@ export default function FAQ() {
         })}
       </VStack>
 
+      {/* Botão de suporte via WhatsApp */}
       <Box textAlign="center" mt={12}>
         <a
           href="https://wa.me/5511990191040?text=Olá! Preciso de ajuda com o Investiga+"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Abrir conversa de suporte com a equipe do Investiga+ no WhatsApp"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -137,6 +182,7 @@ export default function FAQ() {
         </a>
       </Box>
 
+      {/* Estrutura SEO (rich snippet FAQPage) */}
       <Script id="faq-jsonld" type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
