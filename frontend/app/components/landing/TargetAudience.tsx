@@ -29,45 +29,6 @@ const profiles = [
   }
 ]
 
-const testimonials = [
-  {
-    name: 'Sandra A.',
-    role: 'Consumidora online experiente',
-    quote:
-      'Já quase comprei em um site falso. Agora sempre checo com o Investiga+ antes de fazer qualquer compra.'
-  },
-  {
-    name: 'Marcelo R.',
-    role: 'Usuário digital ativo',
-    quote:
-      'Hoje em dia tudo é online. Com o Investiga+ me sinto mais seguro para comprar e proteger meus dados.'
-  },
-  {
-    name: 'Carlos M.',
-    role: 'Desenvolvedor autônomo',
-    quote:
-      'Antes do Investiga+, já caí em duas fraudes. Hoje só negocio com quem eu consigo verificar — me sinto muito mais seguro.'
-  },
-  {
-    name: 'Juliana R.',
-    role: 'Empreendedora digital',
-    quote:
-      'Usamos o Investiga+ para cada novo cliente. É rápido e nos protege de dores de cabeça futuras.'
-  },
-  {
-    name: 'Eduardo V.',
-    role: 'Especialista em vendas B2B',
-    quote:
-      'Minhas recomendações agora têm muito mais segurança. O Investiga+ virou parte do meu processo.'
-  },
-  {
-    name: 'Rafael C.',
-    role: 'Gestor de e-commerce',
-    quote:
-      'Avalio todos os fornecedores antes de fechar negócio. O Investiga+ trouxe agilidade e confiança.'
-  }
-]
-
 export default function TargetAudience() {
   return (
     <Box as="section" id="publico-alvo" py={{ base: 12, md: 20 }} px={{ base: 4, md: 6 }} bg="white">
