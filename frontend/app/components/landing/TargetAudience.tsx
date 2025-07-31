@@ -7,7 +7,6 @@ import {
   SimpleGrid,
   VStack,
   Icon,
-  HStack,
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -71,7 +70,7 @@ const testimonials = [
 ]
 
 export default function TargetAudience() {
-  const [index, setIndex] = useState(0)
+  const [, setIndex] = useState(0)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -101,9 +100,9 @@ export default function TargetAudience() {
           mt={10}
           alignItems="stretch"
         >
-          {profiles.map((p, i) => (
+          {profiles.map((p) => (
             <VStack
-              key={i}
+              key={p.label}
               bg="gray.50"
               p={6}
               borderRadius="lg"

@@ -6,7 +6,6 @@ import {
   Heading,
   Icon,
   VStack,
-  Text,
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { FiAlertTriangle } from 'react-icons/fi'
