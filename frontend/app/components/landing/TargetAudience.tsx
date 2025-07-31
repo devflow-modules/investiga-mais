@@ -9,39 +9,25 @@ import {
   Icon,
   HStack,
 } from '@chakra-ui/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import {
-  FiUsers,
-  FiBriefcase,
-  FiUserCheck,
-  FiShoppingCart,
-  FiStar
-} from 'react-icons/fi'
-import { CTAButton } from '../ui/BaseButton'
+import { FiCreditCard, FiUserCheck, FiBriefcase } from 'react-icons/fi'
+import Testimonials from './Testimonials'
 
 const MotionBox = motion.create(Box)
 
 const profiles = [
   {
-    icon: FiShoppingCart,
+    icon: FiCreditCard, // Representa bem o ato de comprar online
     label: 'Compradores online',
-    desc: 'Proteja seus dados antes de comprar online e evite fraudes financeiras.'
   },
   {
-    icon: FiUserCheck,
-    label: 'Freelancers',
-    desc: 'Evite cair em golpes ao fechar contratos com empresas desconhecidas.'
+    icon: FiUserCheck, // Representa bem a verificação de identidade, ideal para autônomos/freelancers
+    label: 'Autônomos',
   },
   {
-    icon: FiBriefcase,
-    label: 'Agências e mentores',
-    desc: 'Tenha segurança antes de prestar serviços ou oferecer consultorias.'
-  },
-  {
-    icon: FiUsers,
-    label: 'Afiliados e B2B',
-    desc: 'Analise empresas antes de fazer parcerias ou campanhas de vendas.'
+    icon: FiBriefcase, // Mais apropriado para representar empresas
+    label: 'Empresas',
   }
 ]
 
@@ -109,18 +95,8 @@ export default function TargetAudience() {
           Quem já usa o Investiga+ para evitar golpes e prejuízos?
         </Heading>
 
-        <Text
-          fontSize={{ base: 'sm', md: 'md' }}
-          color="gray.600"
-          maxW="2xl"
-          mx="auto"
-          textAlign="center"
-        >
-          Se você compra ou vende online, presta serviços ou faz parcerias, precisa investigar antes de confiar. Ideal para consumidores e profissionais que não podem correr riscos.
-        </Text>
-
         <SimpleGrid
-          columns={{ base: 1, sm: 2, md: 4 }}
+          columns={{ base: 1, sm: 1, md: 3 }}
           gap={6}
           mt={10}
           alignItems="stretch"
@@ -138,76 +114,15 @@ export default function TargetAudience() {
             >
               <Icon as={p.icon} boxSize={6} color="blue.500" aria-hidden />
               <Text fontWeight="bold" fontSize="lg">{p.label}</Text>
-              <Text fontSize="sm" color="gray.600">{p.desc}</Text>
             </VStack>
           ))}
         </SimpleGrid>
-
-        <Box
-          mt={{ base: 12, md: 14 }}
-          bg="gray.100"
-          px={{ base: 4, md: 6 }}
-          py={{ base: 6, md: 5 }}
-          borderRadius="md"
-          maxW="lg"
-          mx="auto"
-          textAlign="center"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Text fontWeight="bold" fontSize={{ base: 'lg', md: 'xl' }}>
-                {testimonials[index].name}
-              </Text>
-              <Text fontSize="sm" color="gray.500">
-                {testimonials[index].role}
-              </Text>
-              <Text mt={4} fontSize="sm" color="gray.700">
-                “{testimonials[index].quote}”
-              </Text>
-            </motion.div>
-          </AnimatePresence>
-
-          <HStack gap={1} mt={4} justify="center">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Icon as={FiStar} key={i} color="yellow.400" boxSize={4} />
-            ))}
-          </HStack>
-
-          <HStack gap={2} mt={2} justify="center">
-            {testimonials.map((_, i) => (
-              <Box
-                key={i}
-                boxSize={2}
-                rounded="full"
-                bg={i === index ? 'gray.700' : 'gray.400'}
-                cursor="pointer"
-                onClick={() => setIndex(i)}
-                transition="background 0.3s"
-              />
-            ))}
-          </HStack>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            style={{ marginTop: '1.5rem' }}
-          >
-            <CTAButton
-              variant="cta"
-              href="#pacotes"
-            >
-              Quero experimentar agora
-            </CTAButton>
-          </motion.div>
-        </Box>
       </MotionBox>
+
+      <Box mt={{ base: 12, md: 16 }} maxW="4xl" mx="auto" textAlign="center">
+        <Testimonials />
+      </Box>
+
     </Box>
   )
 }

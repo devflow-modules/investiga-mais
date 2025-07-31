@@ -2,7 +2,6 @@
 
 import {
   Box,
-  Heading,
   Text,
   VStack,
   HStack,
@@ -17,24 +16,24 @@ const MotionBox = motion.create(Box)
 
 const testimonials = [
   {
-    name: 'Carlos M.',
-    role: 'Freelancer de TI',
+    name: 'André L.',
+    role: 'Comprador Online',
     quote:
-      'Antes do Investiga+, já caí em duas fraudes. Hoje só negocio com quem eu consigo verificar — me sinto muito mais seguro.',
+      'Eu já tinha levado um golpe comprando online, então comecei a usar o Investiga+ sempre que tenho dúvida sobre um vendedor. Já evitei dois prejuízos. Vale cada centavo.',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
   },
   {
-    name: 'Juliana R.',
-    role: 'Sócia em agência de marketing',
+    name: 'Fernanda C.',
+    role: 'Autônoma / Profissional Liberal',
     quote:
-      'Usamos o Investiga+ para cada novo cliente. É rápido e nos protege de dores de cabeça futuras.',
+      'Como trabalho por conta, preciso checar quem são meus clientes antes de fechar negócio. O Investiga+ já me ajudou a evitar um calote e ainda uso pra conferir propostas suspeitas que recebo por e-mail.',
     avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
   },
   {
-    name: 'Eduardo V.',
-    role: 'Comprador Online',
+    name: 'Rodrigo M.',
+    role: 'Representante de Empresa',
     quote:
-      'Minhas recomendações agora têm muito mais segurança. O Investiga+ virou parte do meu processo.',
+      'Antes de fechar parcerias ou contratar fornecedores, fazemos uma análise com o Investiga+. Evita retrabalho, dor de cabeça e protege a reputação da empresa.',
     avatar: 'https://randomuser.me/api/portraits/men/56.jpg'
   }
 ]
@@ -43,11 +42,7 @@ const colors = ['blue.500', 'green.500', 'purple.500', 'red.500', 'orange.500']
 
 export default function Testimonials() {
   return (
-    <Box as="section" py={20} px={6} bg="background" textAlign="center">
-      <Heading as="h2" fontSize="3xl" mb={10} color="textPrimary">
-        O que dizem sobre o Investiga+
-      </Heading>
-
+    <Box as="section" py={20} px={{ base: 4, md: 6 }} textAlign="center">
       <VStack gap={10} maxW="4xl" mx="auto">
         {testimonials.map((item, i) => (
           <MotionBox

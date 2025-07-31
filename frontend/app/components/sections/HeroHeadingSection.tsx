@@ -18,7 +18,7 @@ export function HeroHeadingSection() {
       as="section"
       role="region"
       aria-labelledby="hero-heading"
-      minH={['100vh', '30vh']}
+      minH={{ base: '100vh', md: '85vh', lg: '100vh' }}
       position="relative"
       zIndex={0}
       display="flex"
@@ -63,20 +63,31 @@ export function HeroHeadingSection() {
 
         <Heading
           id="hero-heading"
-          fontSize={{ base: '2xl', md: '4xl', lg: '5xl' }}
-          fontWeight="bold"
-          lineHeight="short"
+          fontSize={{ base: '2xl', sm: '3xl', md: '4xl', lg: '5xl', xl: '6xl' }}
+          fontWeight="extrabold"
+          lineHeight={{ base: 'short', md: 'shorter' }}
+          textAlign="center"
+          color="white"
+          maxW="5xl"
+          mx="auto"
+          mb={{ base: 4, md: 6 }}
         >
           ANTES DE COMPRAR ONLINE, INVESTIGA+
         </Heading>
 
         <Text
-          fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+          fontSize={{ base: 'md', sm: 'lg', md: 'xl', lg: 'xl' }}
           color="whiteAlpha.900"
-          px={[2, 0]}
+          textAlign="center"
+          maxW="3xl"
+          mx="auto"
+          mb={{ base: 8, md: 10 }}
+          px={{ base: 4, sm: 6, md: 0 }}
         >
-          VOCÊ AINDA ESTÁ COMPRANDO NA INTERNET SEM INVESTIGAR A EMPRESA POR COMPLETO?
+          Não seja mais uma vítima de <strong>golpes digitais</strong>. Proteja seus <strong>dados</strong>, descubra quem aplicou o golpe e nunca mais tenha <strong>prejuízos financeiros</strong> na internet.
         </Text>
+
+
 
         <CTAButton
           variant="whatsapp"

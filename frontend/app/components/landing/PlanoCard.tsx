@@ -8,7 +8,7 @@ import {
   Icon,
   Badge,
 } from '@chakra-ui/react'
-import { FaCheckCircle, FaGift } from 'react-icons/fa'
+import { FaCheckCircle, FaGift, FaUserShield } from 'react-icons/fa'
 import { CTAButton } from '../ui/BaseButton'
 import { motion } from 'framer-motion'
 
@@ -27,7 +27,7 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
       { texto: 'Consultas Completas sem Limites', icone: FaCheckCircle },
       {
         texto: 'Consultor de Segurança Digital disponível 24h via WhatsApp',
-        icone: FaGift,
+        icone: FaUserShield,
         descricao: 'Receba ajuda imediata sempre que precisar.'
       },
       { texto: 'Acesso fácil e vitalício', icone: FaCheckCircle },
@@ -136,36 +136,57 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
 
         <Box as="dl" gap={3} role="list">
           {beneficios.map((beneficio) => (
-            <Box as="div" key={beneficio.texto} display="flex" alignItems="start" mb={3}>
+            <Box
+              as="div"
+              key={beneficio.texto}
+              display="flex"
+              alignItems="start"
+              mb={3}
+            >
               <Icon
                 as={beneficio.icone}
-                color={beneficio.icone === FaGift ? 'purple.400' : 'green.400'}
+                color={
+                  beneficio.icone === FaGift
+                    ? 'purple.400'
+                    : beneficio.icone === FaUserShield
+                      ? 'purple.500'
+                      : 'green.400'
+                }
                 mt={1}
                 mr={2}
+                boxSize={beneficio.icone === FaUserShield ? '1.25em' : 4}
                 aria-hidden="true"
               />
+
               <Box>
-                <Box as="dt" fontWeight="semibold">{beneficio.texto}</Box>
+                {/* Título e Bônus lado a lado */}
+                <Box as="dt" display="flex" alignItems="center" gap={2}>
+                  <Text fontWeight="semibold">{beneficio.texto}</Text>
+
+                  {beneficio.icone === FaGift && beneficio.texto !== 'Consultor de Segurança Digital disponível 24h via WhatsApp' && (
+                    <Badge
+                      bg="purple.500"
+                      color="white"
+                      px={2}
+                      py={0.5}
+                      borderRadius="sm"
+                      fontSize="xs"
+                    >
+                      Bônus
+                    </Badge>
+                  )}
+                </Box>
+
                 {beneficio.descricao && (
-                  <Box as="dd" fontSize="sm" color="gray.600">{beneficio.descricao}</Box>
-                )}
-                {beneficio.icone === FaGift && (
-                  <Badge
-                    ml={1}
-                    bg="purple.500"
-                    color="white"
-                    px={2}
-                    py={0.5}
-                    borderRadius="sm"
-                    fontSize="xs"
-                  >
-                    Bônus
-                  </Badge>
+                  <Box as="dd" fontSize="sm" color="gray.600">
+                    {beneficio.descricao}
+                  </Box>
                 )}
               </Box>
             </Box>
           ))}
         </Box>
+
 
         <MotionCTAButton
           data-plan={tipo}

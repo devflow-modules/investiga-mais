@@ -24,9 +24,6 @@ export function RisksSection() {
     'Solicitam pagamento antes de entregar o resultado',
     'Dizem que não podem atender ligações ou chamadas de vídeo',
     'Após o pagamento, a empresa desaparece',
-    'Foto do WhatsApp desaparece e bloqueiam nas redes sociais',
-    'Ninguém atende o telefone e não respondem mensagens ou e-mails',
-    'Produto não condiz com o que foi ofertado',
   ]
 
   return (
@@ -35,7 +32,7 @@ export function RisksSection() {
       role="region"
       bg="background"
       aria-labelledby="risks-heading"
-      minH="55vh"
+      minH="35vh"
       py={{ base: 12, md: 24 }}
       px={{ base: 6, md: 10, lg: 16 }}
       display="flex"
@@ -77,15 +74,6 @@ export function RisksSection() {
           >
             TEMOS CERTEZA QUE VOCÊ JÁ VIU ISSO ANTES
           </Heading>
-
-          <Text
-            fontSize={{ base: 'md', md: 'lg' }}
-            color="textSecondary"
-            maxW="md"
-            textAlign={{ base: 'center', md: 'left' }}
-          >
-            Estes são alguns dos sinais de que você pode estar prestes a cair em um golpe. Fique atento!
-          </Text>
         </VStack>
 
         {/* Lista de problemas */}
@@ -94,15 +82,6 @@ export function RisksSection() {
             <RiskItem key={text} text={text} index={index} />
           ))}
 
-          {/* Conclusão */}
-          <Box pt={6} textAlign={{ base: 'center', md: 'left' }} w="full">
-            <Text fontWeight="bold" fontSize={{ base: 'sm', md: 'md' }} mb={1} color="textPrimary">
-              O PROBLEMA NÃO É A INTERNET…
-            </Text>
-            <Text fontSize={{ base: 'sm', md: 'md' }} color="textPrimary" fontWeight="semibold">
-              O PROBLEMA É VOCÊ CONFIAR ANTES DE INVESTIGAR!
-            </Text>
-          </Box>
         </VStack>
       </Flex>
     </Box>

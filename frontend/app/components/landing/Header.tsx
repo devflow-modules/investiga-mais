@@ -19,8 +19,6 @@ const Links = [
   { label: 'Início', href: '/' },
   { label: 'Funções', href: '#features' },
   { label: 'Como Funciona', href: '#como-funciona' },
-  { label: 'Público-Alvo', href: '#publico-alvo' },
-  { label: 'Estatísticas', href: '#estatisticas' },
   { label: 'Depoimentos', href: '#depoimentos' },
   { label: 'Pacotes', href: '#pacotes' },
   { label: 'FAQ', href: '#faq' },

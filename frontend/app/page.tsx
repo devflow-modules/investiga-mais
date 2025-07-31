@@ -6,11 +6,8 @@ import HeroSection from './components/landing/HeroSection'
 import Features from './components/landing/Features'
 import HowItWorks from './components/landing/HowItWorks'
 import TargetAudience from './components/landing/TargetAudience'
-import Testimonials from './components/landing/Testimonials'
 import FAQ from './components/landing/FAQ'
 import Footer from './components/landing/Footer'
-import StatsSection from './components/landing/StatsSection'
-import TrustSection from './components/landing/TrustSection'
 import { FloatingWhatsApp } from './components/landing/FloatingWhatsApp'
 import { PlanosSection } from './components/sections/PlanosSection'
 import GoogleAnalytics from './components/landing/GoogleAnalytics'
@@ -29,17 +26,9 @@ export default function HomePage() {
       <Box as="section" id="como-funciona">
         <HowItWorks />
       </Box>
-      <Box as="section" id="publico-alvo">
-        <TargetAudience />
-      </Box>
-      <TrustSection />
-      <Box as="section" id="estatisticas">
-        <StatsSection />
-      </Box>
-
       <Box as="section" id="depoimentos">
-        <Testimonials />
-      </Box>
+        <TargetAudience />
+      </Box>    
 
       <Box as="section" id="pacotes">
         <PlanosSection /> 

@@ -10,7 +10,12 @@ import {
   Text,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { FiShield, FiUsers, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi'
+import {
+  FiShield,
+  FiSearch,
+  FiCheckCircle,
+  FiUsers,
+} from 'react-icons/fi'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { CTAButton } from '../ui/BaseButton'
@@ -19,24 +24,24 @@ const MotionBox = motion.create(Box)
 
 const features = [
   {
-    icon: FiAlertTriangle,
-    label: 'Segurança do site',
-    text: 'Verifique se o site possui <strong>malware</strong>, <strong>phishing</strong> ou tentativa de <strong>roubo de dados</strong>.'
+    icon: FiShield,
+    label: 'Proteja seus dados',
+    text: 'Saiba se o site é seguro e evite <strong>roubo de informações</strong>.'
   },
   {
     icon: FiUsers,
-    label: 'Informações da empresa',
-    text: 'Veja o <strong>nome real</strong>, <strong>sócios</strong>, <strong>endereço</strong> e <strong>atividade econômica</strong> registrada.'
+    label: 'Confirme se a empresa é real',
+    text: 'Veja <strong>nome</strong>, <strong>sócios</strong> e <strong>CNPJ</strong> para ter certeza de que a loja existe.'
   },
   {
     icon: FiCheckCircle,
-    label: 'Tempo de existência',
-    text: 'Avalie há quanto tempo o site existe e evite <strong>golpes novos</strong> com aparência profissional.'
+    label: 'Evite golpes disfarçados de loja',
+    text: 'Confira <strong>há quanto tempo</strong> o site existe e fuja de armadilhas.'
   },
   {
-    icon: FiShield,
-    label: 'Denúncias e reputação',
-    text: 'Consulte <strong>listas negras mundiais</strong>, histórico de denúncias e <strong>recomendações de outros clientes</strong>.'
+    icon: FiSearch,
+    label: 'Veja o que outros clientes dizem',
+    text: 'Consulte <strong>histórico da empresa</strong> e <strong>listas de alerta</strong> antes de comprar.'
   }
 ]
 
@@ -91,7 +96,7 @@ export default function Features() {
             id="feature-heading"
             textAlign={{ base: 'center', md: 'left' }}
           >
-            Verifique a credibilidade do site antes de correr riscos
+            Verifique a credibilidade de sites e empresas com o Investiga+
           </Heading>
 
           <Text
@@ -101,7 +106,7 @@ export default function Features() {
             id="feature-sub"
             textAlign={{ base: 'center', md: 'left' }}
           >
-            Veja se a empresa é legítima e se o site merece sua confiança.
+            Antes de correr riscos de golpes online, saiba a fundo com quem você está lidando!
           </Text>
 
           <Stack color="gray.700" gap={6} role="list" aria-labelledby="feature-heading">
@@ -119,17 +124,28 @@ export default function Features() {
                   >
                     <Icon as={item.icon} boxSize={5} color="blue.500" mt={1} />
                   </Box>
-                  <Text
-                    fontSize="md"
-                    dangerouslySetInnerHTML={{ __html: item.text }}
-                    color="textPrimary"
-                  />
+                  <Box>
+                    {/* Label (título) da feature */}
+                    <Text fontWeight="bold" fontSize="md" mb={1} color="textPrimary">
+                      {item.label}
+                    </Text>
+
+                    {/* Texto com destaque usando dangerouslySetInnerHTML */}
+                    <Text
+                      fontSize="md"
+                      color="textPrimary"
+                      dangerouslySetInnerHTML={{ __html: item.text }}
+                    />
+                  </Box>
                 </HStack>
+
+                {/* Separador em mobile */}
                 {isMobile && index < features.length - 1 && (
                   <Box as="hr" borderColor="gray.200" my={4} />
                 )}
               </Box>
             ))}
+
           </Stack>
 
           {/* Badge de confiança */}
