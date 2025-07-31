@@ -24,7 +24,7 @@ const MotionBox = motion.create(Box)
 const faqs = [
   {
     q: 'Como faço para verificar se um site é confiável?',
-    a: 'Basta estar logado na plataforma. Depois, acesse a seção de consulta e informe o endereço do site ou nome da empresa que deseja investigar.'
+    a: 'Após a escolha do pacote ideal, digite o endereço do Site ou CNPJ da empresa que deseja verificar. Nosso sistema analisa profundamente histórico, reputação e todos os sinais de risco, e você recebe uma resposta clara: é confiável ou representa um golpe.'
   },
   {
     q: 'As consultas ficam salvas?',
@@ -32,7 +32,7 @@ const faqs = [
   },
   {
     q: 'Tem limite de consultas?',
-    a: 'Não, consultas ilimitadas durante o período contratado, seja mensal, semestral, anual ou vitalício.'
+    a: 'Para o Pacote Básico o limite é de 5 consultas. Já para o nosso Pacote Premium disponibilizamos consultas sem limites.'
   },
   {
     q: 'É seguro usar o Investiga+?',
@@ -40,15 +40,15 @@ const faqs = [
   },
   {
     q: 'Funciona no celular?',
-    a: 'Sim! Nossa plataforma é 100% responsiva, sem precisar instalar nada.'
+    a: 'Sim! A plataforma funciona em qualquer dispositivo, de maneira fácil, sem precisar baixar ou instalar nenhum aplicativo.'
   },
   {
     q: 'Como recebo suporte?',
-    a: 'Você pode nos chamar direto no WhatsApp com um clique no botão abaixo.'
+    a: 'Temos uma equipe especializada pronta para te atender via WhatsApp. Caso tenha dúvidas, pode nos chamar através do botão "Suporte via WhatsApp" disponível logo abaixo.'
   },
   {
     q: 'Quanto tempo demora para consultar?',
-    a: 'Geralmente menos de 5 segundos. O tempo pode variar dependendo da complexidade dos dados e das verificações em fontes externas.'
+    a: 'A consulta leva menos de 5 segundos. Nosso sistema analisa profundamente histórico, reputação e todos os sinais de risco.'
   },
   {
     q: 'Precisa baixar algum programa para conseguir utilizar?',

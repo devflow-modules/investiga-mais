@@ -16,25 +16,25 @@ const MotionBox = motion.create(Box)
 
 const testimonials = [
   {
-    name: 'André L.',
+    name: 'André Lins',
     role: 'Comprador Online',
     quote:
       'Eu já tinha levado um golpe comprando online, então comecei a usar o Investiga+ sempre que tenho dúvida sobre um vendedor. Já evitei dois prejuízos. Vale cada centavo.',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
+    avatar: 'https://randomuser.me/api/portraits/men/35.jpg'
   },
   {
     name: 'Fernanda C.',
     role: 'Autônoma / Profissional Liberal',
     quote:
       'Como trabalho por conta, preciso checar quem são meus clientes antes de fechar negócio. O Investiga+ já me ajudou a evitar um calote e ainda uso pra conferir propostas suspeitas que recebo por e-mail.',
-    avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
+    avatar: 'https://randomuser.me/api/portraits/women/53.jpg'
   },
   {
     name: 'Rodrigo M.',
     role: 'Representante de Empresa',
     quote:
       'Antes de fechar parcerias ou contratar fornecedores, fazemos uma análise com o Investiga+. Evita retrabalho, dor de cabeça e protege a reputação da empresa.',
-    avatar: 'https://randomuser.me/api/portraits/men/56.jpg'
+    avatar: 'https://randomuser.me/api/portraits/men/69.jpg'
   }
 ]
 
