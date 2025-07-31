@@ -9,7 +9,6 @@ import {
   Icon,
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
 import { FiCreditCard, FiUserCheck, FiBriefcase } from 'react-icons/fi'
 import Testimonials from './Testimonials'
 
