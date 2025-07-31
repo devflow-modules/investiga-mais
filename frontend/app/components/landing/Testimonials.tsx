@@ -42,7 +42,7 @@ const colors = ['blue.500', 'green.500', 'purple.500', 'red.500', 'orange.500']
 
 export default function Testimonials() {
   return (
-    <Box as="section" py={20} px={{ base: 4, md: 6 }} textAlign="center">
+    <Box as="section" px={{ base: 4, md: 6 }} textAlign="center">
       <VStack gap={10} maxW="4xl" mx="auto">
         {testimonials.map((item, i) => (
           <MotionBox

@@ -70,15 +70,6 @@ const testimonials = [
 ]
 
 export default function TargetAudience() {
-  const [, setIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % testimonials.length)
-    }, 7000)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
     <Box as="section" id="publico-alvo" py={{ base: 12, md: 20 }} px={{ base: 4, md: 6 }} bg="white">
       <MotionBox
@@ -118,7 +109,7 @@ export default function TargetAudience() {
         </SimpleGrid>
       </MotionBox>
 
-      <Box mt={{ base: 12, md: 16 }} maxW="4xl" mx="auto" textAlign="center">
+      <Box mt={{ base: 6, sm: 8, md: 10, lg: 12 }} maxW="4xl" mx="auto" textAlign="center">
         <Testimonials />
       </Box>
 
