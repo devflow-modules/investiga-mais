@@ -13,6 +13,7 @@ import { FloatingWhatsApp } from './components/landing/FloatingWhatsApp'
 import { PlanosSection } from './components/sections/PlanosSection'
 import GoogleAnalytics from './components/landing/GoogleAnalytics'
 import FacebookPixel from './components/landing/FacebookPixel'
+import UtmifyScripts from './components/landing/UtmifyScripts'
 
 export default function HomePage() {
   return (
@@ -49,6 +50,7 @@ export default function HomePage() {
       {/* Scripts de rastreamento */}
       <GoogleAnalytics />
       <FacebookPixel />
+      <UtmifyScripts />
 
       {/* Seções da Landing Page */}
       <Header />
