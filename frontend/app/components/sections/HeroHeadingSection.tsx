@@ -7,10 +7,12 @@ import {
   Text,
   Heading,
   HStack,
-  Icon
+  Icon,
+  Flex,
 } from '@chakra-ui/react'
 import { CTAButton } from '../ui/BaseButton'
 import { FaWhatsapp } from 'react-icons/fa'
+import { VideoInstitucional } from '../landing/VideoInstitucional'
 
 export function HeroHeadingSection() {
   return (
@@ -18,7 +20,7 @@ export function HeroHeadingSection() {
       as="section"
       role="region"
       aria-labelledby="hero-heading"
-      minH={{ base: '100vh', md: '85vh', lg: '100vh' }}
+      minH={{ base: '100vh', md: '90vh' }}
       position="relative"
       zIndex={0}
       display="flex"
@@ -41,17 +43,20 @@ export function HeroHeadingSection() {
         />
       </Box>
 
-
       <Stack
         direction="column"
-        gap={6} color="white"
-        maxW="xl" mx="auto"
+        gap={[4, 6, 8]}
+        color="white"
+        maxW="4xl"
         w="100%"
         position="relative"
         zIndex={1}
         bg="blackAlpha.600"
-        p={6}
-        borderRadius="md">
+        p={[4, 6, 10]}
+        borderRadius="2xl"
+        boxShadow="lg"
+        mx="auto"
+      >
         <Text
           fontSize={['xs', 'sm']}
           fontWeight="bold"
@@ -63,31 +68,27 @@ export function HeroHeadingSection() {
 
         <Heading
           id="hero-heading"
-          fontSize={{ base: '2xl', sm: '3xl', md: '4xl', lg: '5xl', xl: '6xl' }}
+          fontSize={['2xl', '3xl', '4xl', '5xl', '6xl']}
           fontWeight="extrabold"
-          lineHeight={{ base: 'short', md: 'shorter' }}
-          textAlign="center"
+          lineHeight="shorter"
           color="white"
-          maxW="5xl"
-          mx="auto"
-          mb={{ base: 4, md: 6 }}
         >
           ANTES DE COMPRAR ONLINE, INVESTIGA+
         </Heading>
 
+        <Box px={[0, 4]}>
+          <VideoInstitucional />
+        </Box>
+
         <Text
-          fontSize={{ base: 'md', sm: 'lg', md: 'xl', lg: 'xl' }}
+          fontSize={['md', 'lg', 'xl']}
           color="whiteAlpha.900"
           textAlign="center"
           maxW="3xl"
           mx="auto"
-          mb={{ base: 8, md: 10 }}
-          px={{ base: 4, sm: 6, md: 0 }}
         >
           Não seja mais uma vítima de <strong>golpes digitais</strong>. Proteja seus <strong>dados</strong>, descubra quem aplicou o golpe e nunca mais tenha <strong>prejuízos financeiros</strong> na internet.
         </Text>
-
-
 
         <CTAButton
           variant="whatsapp"
@@ -109,7 +110,13 @@ export function HeroHeadingSection() {
           </HStack>
         </CTAButton>
 
-        <HStack gap={1} justify="center" alignItems="center" fontSize="sm" mt={2}>
+        <HStack
+          gap={1}
+          justify="center"
+          alignItems="center"
+          fontSize="sm"
+          mt={1}
+        >
           <Text color="whiteAlpha.800">Já possui uma conta?</Text>
           <CTAButton
             as="a"

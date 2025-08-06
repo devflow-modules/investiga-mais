@@ -27,7 +27,8 @@ async function gerarTokenRecuperacao(email) {
     }
   });
 
-  const link = `http://localhost:3001/redefinir-senha?token=${token}`;
+  const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const link = `${baseUrl}/redefinir-senha?token=${token}`;
 
   const html = `
             <div style="max-width: 600px; margin: auto; font-family: 'Inter', sans-serif; background-color: #F9FAFB; padding: 30px; border-radius: 16px; color: #111827;">
