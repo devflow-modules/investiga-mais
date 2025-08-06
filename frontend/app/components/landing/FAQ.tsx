@@ -161,7 +161,7 @@ export default function FAQ() {
       {/* Botão de suporte via WhatsApp */}
       <Box textAlign="center" mt={12}>
         <a
-          href="https://wa.me/5511990191040?text=Olá! Preciso de ajuda com o Investiga+"
+          href="https://wa.me/5511990191040?text=Quero%20ter%20acesso%20à%20ferramenta%20do%20Investiga%2B?text=Olá! Preciso de ajuda com o Investiga+"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Abrir conversa de suporte com a equipe do Investiga+ no WhatsApp"

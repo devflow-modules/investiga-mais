@@ -44,7 +44,7 @@ export function FloatingWhatsApp() {
 
                     <CTAButton
                         as="a"
-                        href="https://wa.me/5511990191040?text=Olá!%20Gostaria%20de%20tirar%20uma%20dúvida%20sobre%20o%20Investiga%2B"
+                        href="https://wa.me/5511990191040?text=Quero%20ter%20acesso%20à%20ferramenta%20do%20Investiga%2B?text=Olá!%20Gostaria%20de%20tirar%20uma%20dúvida%20sobre%20o%20Investiga%2B"
                         variant="whatsapp"
                         borderRadius="full"
                         size="lg"

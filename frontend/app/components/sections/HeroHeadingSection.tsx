@@ -94,7 +94,7 @@ export function HeroHeadingSection() {
           withArrow={false}
           borderRadius="md"
           as="a"
-          href="https://wa.me/5511990191040"
+          href="https://wa.me/5511990191040?text=Quero%20ter%20acesso%20à%20ferramenta%20do%20Investiga%2B"
           rel="noopener noreferrer"
           aria-label="Abrir conversa no WhatsApp"
           w={['90%', 'auto']}

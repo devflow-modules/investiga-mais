@@ -39,27 +39,27 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
       { texto: 'Não seja mais uma vítima de golpes digitais', icone: FaCheckCircle },
       { texto: 'Proteja sua família', icone: FaCheckCircle },
       {
-        texto: 'Golpes Modernos',
+        texto: 'Aula Exclusiva - Golpes Modernos',
         icone: FaGift,
       },
       {
-        texto: 'Pix Seguro',
+        texto: 'Aula Exclusiva - Pix Seguro',
         icone: FaGift,
       },
       {
-        texto: 'Senhas Fortes',
+        texto: 'Aula Exclusiva - Senhas Fortes',
         icone: FaGift,
       },
       {
-        texto: 'WhatsApp Blindado',
+        texto: 'Aula Exclusiva - WhatsApp Blindado',
         icone: FaGift,
       },
       {
-        texto: 'App de Banco Seguro',
+        texto: 'Aula Exclusiva - App de Banco Seguro',
         icone: FaGift,
       },
       {
-        texto: 'Como Proteger sua Família',
+        texto: 'Aula Exclusiva - Como Proteger sua Família',
         icone: FaGift,
       },
     ]
@@ -193,8 +193,8 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
           variant={isPremium ? 'whatsapp' : 'cta'}
           href={
             isPremium
-              ? 'https://pay.kirvano.com/d1b9779d-17be-4ba1-afa5-bd0593d233c7?utm_source=facebook&utm_medium=cpc&utm_campaign=promo_premium'
-              : 'https://pay.kirvano.com/18f1705e-2b95-4204-b1fc-1f6fec4e63c2?utm_source=facebook&utm_medium=cpc&utm_campaign=promo_basico'
+              ? 'https://pay.kirvano.com/9f33dc01-c7b8-4758-81c8-64782f1293d9?utm_source=facebook&utm_medium=cpc&utm_campaign=promo_premium'
+              : 'https://pay.kirvano.com/a5c82c5a-e304-477f-8a20-2d6a08856077?utm_source=facebook&utm_medium=cpc&utm_campaign=promo_basico'
           }
           onClick={() => {
             const valor = isPremium ? 19.9 : 12.9

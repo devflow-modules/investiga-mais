@@ -71,7 +71,7 @@ export function RisksSection() {
             textTransform="uppercase"
             lineHeight="short"
           >
-            TEMOS CERTEZA QUE VOCÊ JÁ VIU ISSO ANTES
+            TEMOS CERTEZA QUE VOCÊ JÁ VIU ISSO ANTES NA INTERNET
           </Heading>
         </VStack>
 
