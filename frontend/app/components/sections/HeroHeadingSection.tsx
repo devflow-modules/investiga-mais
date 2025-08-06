@@ -8,7 +8,6 @@ import {
   Heading,
   HStack,
   Icon,
-  Flex,
 } from '@chakra-ui/react'
 import { CTAButton } from '../ui/BaseButton'
 import { FaWhatsapp } from 'react-icons/fa'
