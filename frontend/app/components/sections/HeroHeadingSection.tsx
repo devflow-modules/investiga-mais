@@ -94,9 +94,9 @@ export function HeroHeadingSection() {
           withArrow={false}
           borderRadius="md"
           as="a"
-          href="https://wa.me/5511990191040?text=Quero%20ter%20acesso%20à%20ferramenta%20do%20Investiga%2B"
+          href="#pacotes"
           rel="noopener noreferrer"
-          aria-label="Abrir conversa no WhatsApp"
+          aria-label="Não quero mais cair em Golpes"
           w={['90%', 'auto']}
           mx="auto"
           whiteSpace="nowrap"
@@ -105,7 +105,6 @@ export function HeroHeadingSection() {
             <Text as="span" fontWeight="bold" fontSize={['sm', 'md']}>
               Não quero mais cair em Golpes
             </Text>
-            <Icon as={FaWhatsapp} boxSize={['1em', '1.2em']} />
           </HStack>
         </CTAButton>
 
