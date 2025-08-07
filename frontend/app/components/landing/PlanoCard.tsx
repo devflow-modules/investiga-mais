@@ -112,7 +112,7 @@ export function PlanoCard({ tipo }: PlanoCardProps) {
 
       <Stack gap={4} role="list">
         <Heading as="h3" fontSize="xl">
-          {isPremium ? 'Pacote Premium' : 'Pacote Básico'}
+          {isPremium ? 'Acesso Premium' : 'Acesso Básico'}
         </Heading>
 
         {isPremium && (
