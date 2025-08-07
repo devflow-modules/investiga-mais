@@ -7,10 +7,8 @@ import {
   Text,
   Heading,
   HStack,
-  Icon,
 } from '@chakra-ui/react'
 import { CTAButton } from '../ui/BaseButton'
-import { FaWhatsapp } from 'react-icons/fa'
 import { VideoInstitucional } from '../landing/VideoInstitucional'
 
 export function HeroHeadingSection() {
