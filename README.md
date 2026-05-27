@@ -1,6 +1,6 @@
 # Investiga+ 🚀
 
-**Investiga+** is a SaaS platform for **CNPJ intelligence and company data analysis**, created by [Gustavo Marques](https://www.linkedin.com/in/gustavo-marques-00/) under the TraffikPro brand.
+**Investiga+** is a SaaS platform for **CNPJ intelligence and company data analysis**, created by [Gustavo Marques](https://www.linkedin.com/in/gustavo-marques-00/) under the **DevFlow Labs** ecosystem.
 
 🌍 **Live:** [https://investigamais.com](https://investigamais.com)
 
@@ -101,8 +101,9 @@ Investiga+ is a complete SaaS product case that shows practical experience with 
 
 ## Author
 
-Created and developed by **Gustavo Marques de Lima**.
+Created and developed by **Gustavo Marques de Lima** as part of the **DevFlow Labs** product ecosystem.
 
+- DevFlow Labs GitHub: [https://github.com/devflow-modules](https://github.com/devflow-modules)
 - LinkedIn: [https://www.linkedin.com/in/gustavo-marques-00](https://www.linkedin.com/in/gustavo-marques-00)
 - GitHub: [https://github.com/gustavomarques00](https://github.com/gustavomarques00)
 - Portfolio: [https://devflowlabs.com.br](https://devflowlabs.com.br)
