@@ -89,23 +89,24 @@ Date: 2026-09-24 · LOCAL · SYNTHETIC · MOCKED EXTERNAL APIs
 | PROBLEM | Broken CI under `.github/worflows` (typo), root npm install, mocha nonexistent |
 | BASELINE | Suite not executed in Actions |
 | CHANGE | `.github/workflows/ci.yml` + `security.yml` (audit / Gitleaks / CodeQL) |
-| RESULT | CI app jobs PASS on `df7366d`; audit PASS; CodeQL PASS; first Gitleaks Action run FAIL due to missing org `GITLEAKS_LICENSE` (config follow-up: OSS CLI) |
+| RESULT | CI app jobs PASS on `393729c`; audit PASS; CodeQL PASS; first Gitleaks Action run FAIL due to missing org `GITLEAKS_LICENSE` (config follow-up: OSS CLI) |
 | METHOD | GitHub Actions on push to `main` |
 | EVIDENCE | Runs 36037909065 (CI), 36037909036 (Security); commits INV-PUB-1…8 |
 | LIMITATION | Gitleaks Action wrapper requires paid org license; OSS CLI used as remediation |
 | DATE | 2026-09-24 |
 
-## INV-E8 Historical Secret Exposure & Rotation
+## INV-E8 Historical Secret Exposure & Remediation
 
 | Field | Content |
 |-------|---------|
-| PROBLEM | Gitleaks full-history FAIL: 5 real credentials in `ecosystem.config.js` at commit `d947f822` (2025-06-26) |
-| BASELINE | Security run 36038502695 FAIL on Gitleaks only; CI PASS; audit/CodeQL PASS |
-| CLASSIFICATION | REAL_SECRET_STATUS_UNKNOWN ×5 → ROTATION_REQUIRED (removed from HEAD file in `d448e2b0`; no revoke evidence) |
-| CHANGE | Phase 7A triage only — no allowlist, no history rewrite, no rotation executed in-repo |
-| RESULT | Unresolved historical findings remain 5 until provider revoke + Phase 7B |
-| METHOD | Gitleaks OSS 8.21.2 full history; masked classification |
-| LIMITATION | Secrets remain in git history; rotation is out-of-band (providers/host env) |
+| PROBLEM | Gitleaks full-history found 5 legitimate historical credentials in `ecosystem.config.js` (introduced historically; removed from later working trees but retained in Git history) |
+| BASELINE | 5 legitimate historical secret findings (Gitleaks OSS 8.21.2); Security workflow FAIL on Gitleaks only while CI/audit/CodeQL PASS |
+| TRIAGE | Real historical credentials (JWT, Resend, IPQS, Abstract, Google Safe Browsing shapes). ACTIVE_PRODUCTION_RUNTIME = NO. ACTIVE_COMPROMISED_CREDENTIALS_OBSERVED = 0 in verified current accounts. HISTORICAL_REVOCATION_PROOF = UNAVAILABLE |
+| RUNTIME HARDENING | Completed (INV-E9): JWT fail-closed, provider/Resend fail-closed, safe `.env.example`, secret-handling tests |
+| HISTORY SANITIZATION | Controlled `git-filter-repo --replace-text` replacing the 5 historical values with `***REMOVED-HISTORICAL-SECRET***` across rewritten history (Phase 8B). Pre-rewrite recovery bundle retained locally |
+| RESULT | Full-history Gitleaks findings 5 → 0; current HEAD tree preserved (`086e349c…`); rewritten historical commit count 102; feature branch tip trees preserved or only secret-replaced where tip contained secrets |
+| METHOD | Gitleaks triage; disposable dry-run (8A); verified bundle; isolated rewrite; force-with-lease on `main`, `feat/lp-melhorias-v1`, `feat/whatsapp-atendimento` |
+| LIMITATION | Sanitization applies to this GitHub repository history. Forks/clones/caches outside the repository may retain historical data. Does **not** claim provider-side revocation of the five historical credentials |
 | DATE | 2026-09-24 |
 
 ## INV-E9 Runtime Secret Handling Hardening
@@ -116,7 +117,7 @@ Date: 2026-09-24 · LOCAL · SYNTHETIC · MOCKED EXTERNAL APIs
 | BASELINE | Fallback present in `authService` + `auth` middleware; provider services read env without fail-closed |
 | CHANGE | `config/securityEnv.js` (CORE JWT + FEATURE keys); remove JWT fallback; provider/Resend fail-closed; `backend/.env.example`; Jest `setupEnv` synthetic secrets; `secretHandling.test.js` |
 | TEST | Missing JWT fails closed; missing provider keys → 0 HTTP; prod Resend without key does not send; source tree free of `chave-secreta-dev` |
-| RESULT | Current-tree secret handling hardened; historical rotation still required |
-| LIMITATION | Provider APIs that require API key in query string still place key in outbound URL when configured (not exposed to frontend). Full-history Gitleaks still FAIL. ROTATION_REQUIRED remains YES. |
-| EVIDENCE | `backend/tests/secretHandling.test.js`; Phase 7A.1 local validation |
+| RESULT | Current-tree secret handling hardened; published on pre-sanitization history then retained through history rewrite (tree-identical) |
+| LIMITATION | Provider APIs that require API key in query string still place key in outbound URL when configured (not exposed to frontend) |
+| EVIDENCE | `backend/tests/secretHandling.test.js`; Phase 7A.1/7A.2 |
 | DATE | 2026-09-24 |

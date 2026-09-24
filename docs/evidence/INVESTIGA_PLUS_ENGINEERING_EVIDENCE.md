@@ -1,7 +1,7 @@
 # Investiga+ Engineering Evidence
 
 **Date:** 2026-09-24  
-**Pre-publication baseline HEAD:** `8e496ec0d483d571874351c15bb39da6654f4d2e`  
+**Pre-publication baseline HEAD:** `06983d7090382d6a4a967506ba03207685030c95`  
 **Publication tip (Phase 5 docs-link commit follows):** see Published Commits below  
 **Scope:** LOCAL · SYNTHETIC · MOCKED EXTERNAL APIs  
 **Production accessed:** NO
@@ -14,14 +14,14 @@ This document consolidates Phases 2–5 security, reliability, CI, and publicati
 
 | ID | SHA | Subject |
 |----|-----|---------|
-| INV-PUB-1 | `f6fc23dd3d1ff9f013751be493fa52b66a8be711` | fix(security): authenticate purchase webhook and harden provisioning |
-| INV-PUB-2 | `344f766a6315ce7790c783a5a2d026020ce94334` | fix(perf): prevent concurrent CNPJ cache stampedes |
-| INV-PUB-3 | `b9ddda4fbf6ef13d45b3b3c92c12448db5179987` | fix(auth): align logout endpoint contract |
-| INV-PUB-4 | `5e5860a067146d7e51f77bfe74694fac47ab19cc` | fix(admin): restore liberar conversa control in chat UI |
-| INV-PUB-5 | `0396cac23b673822e1e09f755cbb2155086501ca` | test: isolate database fixtures and expand security coverage |
-| INV-PUB-6 | `4307021841cdbe212fb9785f990119091b0f8e7f` | fix(security): remediate vulnerable dependencies |
-| INV-PUB-7 | `08c37ddd9875dfaf8621f5ebf630fa5e827bdc67` | ci: run application tests and security gates |
-| INV-PUB-8 | `df7366dee7dd6ce27f80a8fecfb23f533a6bafcd` | docs: add Investiga+ engineering evidence |
+| INV-PUB-1 | `2dd214b31bc353fc7626e1d164c071517700adc8` | fix(security): authenticate purchase webhook and harden provisioning |
+| INV-PUB-2 | `70d8b6bfab6c61f591fbf8275c7f6fd538fb18db` | fix(perf): prevent concurrent CNPJ cache stampedes |
+| INV-PUB-3 | `8b026ed023ea9e25bfda30c2630dae0e08142d7b` | fix(auth): align logout endpoint contract |
+| INV-PUB-4 | `73b4b405ad40852b286efa6dc342de88ad25aa13` | fix(admin): restore liberar conversa control in chat UI |
+| INV-PUB-5 | `8d1f19491c0a495f593a17d4f034fed2c99c2a2c` | test: isolate database fixtures and expand security coverage |
+| INV-PUB-6 | `7cdb6e2794bf6062952e5b3b4c08d7240a51e3ef` | fix(security): remediate vulnerable dependencies |
+| INV-PUB-7 | `d07891669c53d7b598ac6fd3ed7fb0ab27634539` | ci: run application tests and security gates |
+| INV-PUB-8 | `393729c6f5081d733399f4d470e160db04cf563d` | docs: add Investiga+ engineering evidence |
 
 Note: webhook auth + concurrent provisioning were published as a single commit (INV-PUB-1) because `webhookService` and its tests were inseparable without a broken intermediate suite.
 
@@ -158,12 +158,14 @@ See also: [EVIDENCE_REGISTRY.md](./EVIDENCE_REGISTRY.md)
 | INV-E5 | Test isolation |
 | INV-E6 | Dependency remediation |
 | INV-E7 | CI/security gates |
-| INV-E8 | Historical Secret Exposure & Rotation (rotation pending) |
+| INV-E8 | Historical Secret Exposure & Remediation (history sanitized) |
 | INV-E9 | Runtime Secret Handling Hardening |
 
 ---
 
 ## Safe career claims
+
+- Audited historical credential exposure, hardened runtime secret handling, and sanitized Git history (full-history secret-scan findings 5 → 0 on this repository)
 
 - JWT HttpOnly cookie auth with role gates
 - Authenticated purchase webhook (shared-secret; fail-closed)
@@ -176,6 +178,9 @@ See also: [EVIDENCE_REGISTRY.md](./EVIDENCE_REGISTRY.md)
 
 ## Do not claim
 
+- Provider-side revocation of the five historical credentials (proof unavailable)
+- Removal of historical secrets from third-party forks/clones/caches
+
 - Exactly-once delivery / Kirvano official HMAC
 - Production concurrency / throughput / multi-region idempotency
 - Production scale proven
@@ -187,8 +192,9 @@ See also: [EVIDENCE_REGISTRY.md](./EVIDENCE_REGISTRY.md)
 - Shared-secret is not provider HMAC (no HMAC contract in-repo)
 - CodeQL/Gitleaks effectiveness depends on GitHub plan/permissions
 - Residual frontend prod moderate (`yaml`); backend residual highs are in **dev** toolchain
-- Historical credentials in git history remain **ROTATION_REQUIRED** (Phase 7A); runtime hardening (INV-E9) does not revoke them
-- Full-history Gitleaks remains FAIL until rotation confirmation + Phase 7B sanitization authorization
+- Git history sanitized in Phase 8B (full-history Gitleaks 5 → 0 on this repository)
+- HISTORICAL_REVOCATION_PROOF remains UNAVAILABLE (do not claim provider-side revoke)
+- Forks/clones/caches outside this repository may retain historical credential material
 
 ---
 
