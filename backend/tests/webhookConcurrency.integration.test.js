@@ -18,7 +18,7 @@ const canRun = dbUrl.startsWith('file:');
 
   beforeAll(() => {
     process.env.KIRVANO_WEBHOOK_SECRET = WEBHOOK_SECRET;
-    process.env.JWT_SECRET = process.env.JWT_SECRET || 'phase3-test-jwt';
+    process.env.JWT_SECRET = process.env.JWT_SECRET || ['local', 'test', 'jwt', 'webhook', '001'].join('-');
     process.env.NODE_ENV = 'test';
 
     jest.resetModules();

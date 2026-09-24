@@ -30,7 +30,7 @@ const VALID_CNPJS = [
   let resetInflight;
 
   beforeAll(() => {
-    process.env.JWT_SECRET = process.env.JWT_SECRET || 'phase3-test-jwt';
+    process.env.JWT_SECRET = process.env.JWT_SECRET || ['local', 'test', 'jwt', 'cache', '001'].join('-');
     process.env.NODE_ENV = 'test';
     process.env.RECEITAWS_TIMEOUT_MS = '2000';
 

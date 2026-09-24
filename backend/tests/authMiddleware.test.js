@@ -1,10 +1,18 @@
 const jwt = require('jsonwebtoken');
-const verifyToken = require('../src/middleware/auth');
 
 describe('Middleware verifyToken', () => {
-  const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev';
+  const SECRET_KEY = process.env.JWT_SECRET;
 
+  let verifyToken;
   let req, res, next;
+
+  beforeAll(() => {
+    if (!SECRET_KEY || SECRET_KEY.length < 16) {
+      throw new Error('JWT_SECRET must be set by tests/setupEnv.js');
+    }
+    jest.resetModules();
+    verifyToken = require('../src/middleware/auth');
+  });
 
   beforeEach(() => {
     req = { cookies: {} };
@@ -42,13 +50,12 @@ describe('Middleware verifyToken', () => {
   });
 
   it('chama next() se o token for válido', () => {
-    const payload = { id: 123, email: 'teste@email.com' }; // o middleware espera id aqui
+    const payload = { id: 123, email: 'teste@email.com' };
     const tokenValido = jwt.sign(payload, SECRET_KEY);
     req.cookies.token = tokenValido;
 
     verifyToken(req, res, next);
 
-    // Agora checa a estrutura real de req.user (como o middleware monta)
     expect(req.user).toMatchObject({
       id: payload.id,
       email: payload.email,

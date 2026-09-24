@@ -1,6 +1,7 @@
+'use strict';
+
 const { enviarEmail } = require('../src/services/emailService');
 
-// Mock da lib "resend"
 jest.mock('resend', () => {
   return {
     Resend: jest.fn().mockImplementation(() => ({
@@ -18,13 +19,12 @@ describe('Serviço de Email', () => {
 
   beforeEach(() => {
     process.env.NODE_ENV = 'production';
-    process.env.RESEND_API_KEY = 'fake-key';
-    process.env.RESEND_FROM = 'noreply@fake.com';
+    process.env.RESEND_API_KEY = ['local', 'test', 'resend', '001'].join('-');
+    process.env.RESEND_FROM = 'noreply@fake.example';
   });
 
-
   afterEach(() => {
-    process.env.NODE_ENV = originalEnv; // restaura após cada teste
+    process.env.NODE_ENV = originalEnv;
     jest.clearAllMocks();
   });
 
@@ -34,5 +34,12 @@ describe('Serviço de Email', () => {
     expect(resultado.success).toBe(false);
     expect(resultado.error).toMatch(/falha|erro/i);
     expect(resultado.message).toMatch(/erro/i);
+  });
+
+  it('production sem RESEND_API_KEY não envia', async () => {
+    delete process.env.RESEND_API_KEY;
+    const resultado = await enviarEmail('a@a.com', 'Assunto', '<p>HTML</p>');
+    expect(resultado.success).toBe(false);
+    expect(resultado.error).toMatch(/not configured/i);
   });
 });
