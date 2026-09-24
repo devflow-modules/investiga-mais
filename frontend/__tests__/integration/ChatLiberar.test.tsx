@@ -20,7 +20,7 @@ jest.mock('@/hooks/useChatActions', () => ({
   })
 }))
 
-describe('ChatAdminPage - Liberar Atendimento', () => {
+describe('ChatAdminPage - Liberar conversa', () => {
   beforeEach(() => {
     global.fetch = jest.fn((url) => {
       if (url?.toString().includes('/liberar')) {
@@ -42,7 +42,7 @@ describe('ChatAdminPage - Liberar Atendimento', () => {
                 numero: '+5511999990000',
                 ultimaMensagem: 'Oi',
                 ultimaMensagemEm: new Date().toISOString(),
-                atendenteId: '123' // faz o botão aparecer
+                atendenteId: '123'
               }
             ]
           }
@@ -57,14 +57,14 @@ describe('ChatAdminPage - Liberar Atendimento', () => {
     const conversa = await screen.findByText('Usuário Atendido')
     fireEvent.click(conversa)
 
-    const botao = await screen.findByText('Liberar Atendimento')
+    // Product label is "Liberar conversa" (BotaoLiberarConversa)
+    const botao = await screen.findByRole('button', { name: /liberar conversa/i })
     expect(botao).toBeInTheDocument()
 
     fireEvent.click(botao)
 
     await waitFor(() => {
-      // Após a liberação, o botão deve sumir
-      expect(screen.queryByText('Liberar Atendimento')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /liberar conversa/i })).not.toBeInTheDocument()
     })
   })
 })

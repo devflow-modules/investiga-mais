@@ -23,6 +23,7 @@ import type { ConversaComExtras } from '@types'
 import { formatarDataBrasil } from '@/utils/formatarDataBrasil'
 import { BotaoAssumirProxima } from '@/components/admin/chat/BotaoAssumirProxima'
 import { BotaoNovaConversa } from '@/components/admin/chat/BotaoNovaConversa'
+import { BotaoLiberarConversa } from '@/components/admin/chat/BotaoLiberarConversa'
 
 const MotionBox = motion.create(Box)
 
@@ -225,6 +226,22 @@ export default function ChatAdminPage() {
                   >
                     Assumir Conversa
                   </Button>
+                )}
+
+                {!!conversaSelecionada?.atendenteId && (
+                  <BotaoLiberarConversa
+                    conversaId={conversaSelecionada.id}
+                    onConversaLiberada={() => {
+                      setConversas((prev) =>
+                        prev.map((c) =>
+                          c.id === conversaSelecionada.id ? { ...c, atendenteId: null } : c
+                        )
+                      )
+                      setConversaSelecionada((prev) =>
+                        prev ? { ...prev, atendenteId: null } : prev
+                      )
+                    }}
+                  />
                 )}
 
                 <Box
