@@ -7,14 +7,14 @@
     "dev": "nodemon src/index.js",
     "generate": "npx prisma generate",
     "migrate": "npx prisma migrate dev",
-    "postinstall": "npx prisma generate && npx prisma migrate deploy",
+    "postinstall": "npx prisma generate",
     "test": "cross-env TZ=America/Sao_Paulo jest --config=jest.config.js",
     "seed": "node prisma/seed.js",
     "seed:prod": "node prisma/seed.prod.js"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
-    "axios": "^1.9.0",
+    "axios": "^1.20.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -23,9 +23,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^7.0.3",
-    "resend": "^4.5.1",
-    "sqlite3": "^5.1.7"
+    "resend": "^4.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -39,5 +37,10 @@
     "nodemon": "^3.1.10",
     "prisma": "^6.10.1",
     "supertest": "^7.1.1"
+  },
+  "overrides": {
+    "jws": "^3.2.3",
+    "path-to-regexp": "^8.4.0",
+    "form-data": "^4.0.6"
   }
 }
