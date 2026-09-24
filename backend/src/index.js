@@ -1,3 +1,7 @@
+const { assertCoreSecretsForProduction } = require('./config/securityEnv.js');
+
+assertCoreSecretsForProduction();
+
 const app = require('./app.js');
 const { iniciarVerificadorDeConversas } = require('./services/cronService.js');
 

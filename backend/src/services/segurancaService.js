@@ -1,14 +1,27 @@
 const axios = require('axios');
 const prisma = require('../lib/prisma.js');
 const { calcularRiscoIPQS } = require('../utils/ipqsRisk.js');
-
-const IPQS_API_KEY = process.env.IPQS_API_KEY;
-const ABSTRACT_API_KEY = process.env.ABSTRACT_API_KEY;
-const SAFE_BROWSING_API_KEY = process.env.SAFE_BROWSING_API_KEY;
+const {
+  getIpqsApiKey,
+  getAbstractApiKey,
+  getSafeBrowsingApiKey,
+  ConfigError,
+} = require('../config/securityEnv.js');
 
 async function verificarIP(ip, usuarioId) {
+  let apiKey;
   try {
-    const resp = await axios.get(`https://ipqualityscore.com/api/json/ip/${IPQS_API_KEY}/${ip}`, {
+    apiKey = getIpqsApiKey();
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.error('[Seguranca] IPQS_API_KEY is not configured — skipping provider call');
+      throw new Error('Serviço de verificação de IP não configurado.');
+    }
+    throw err;
+  }
+
+  try {
+    const resp = await axios.get(`https://ipqualityscore.com/api/json/ip/${apiKey}/${ip}`, {
       timeout: 5000,
       params: {
         strictness: 1,
@@ -37,7 +50,7 @@ async function verificarIP(ip, usuarioId) {
 
     await prisma.consultaRisco.create({
       data: {
-        usuarioId: usuarioId ?? 1, // fallback se quiser forçar testes
+        usuarioId: usuarioId ?? 1,
         tipo: 'ip_check',
         parametro: ip,
         status: 'error',
@@ -51,11 +64,22 @@ async function verificarIP(ip, usuarioId) {
 
 
 async function verificarEmail(email, usuarioId) {
+  let apiKey;
+  try {
+    apiKey = getAbstractApiKey();
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.error('[Seguranca] ABSTRACT_API_KEY is not configured — skipping provider call');
+      throw new Error('Serviço de verificação de email não configurado.');
+    }
+    throw err;
+  }
+
   try {
     const resp = await axios.get(`https://emailvalidation.abstractapi.com/v1/`, {
       timeout: 5000,
       params: {
-        api_key: ABSTRACT_API_KEY,
+        api_key: apiKey,
         email
       }
     });
@@ -92,9 +116,20 @@ async function verificarEmail(email, usuarioId) {
 
 
 async function verificarURL(url, usuarioId = null) {
+  let apiKey;
+  try {
+    apiKey = getSafeBrowsingApiKey();
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.error('[Seguranca] SAFE_BROWSING_API_KEY is not configured — skipping provider call');
+      throw new Error('Serviço de verificação de URL não configurado.');
+    }
+    throw err;
+  }
+
   try {
     const resp = await axios.post(
-      `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${SAFE_BROWSING_API_KEY}`,
+      `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`,
       {
         client: { clientId: 'investiga-mais', clientVersion: '1.0' },
         threatInfo: {

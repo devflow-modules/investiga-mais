@@ -1,6 +1,22 @@
+const { getJwtSecret, ConfigError } = require('../config/securityEnv.js');
+
 function verifyToken(req, res, next) {
   const jwt = require('jsonwebtoken');
-  const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev';
+
+  let SECRET_KEY;
+  try {
+    SECRET_KEY = getJwtSecret();
+  } catch (err) {
+    if (err instanceof ConfigError || err.code === 'JWT_SECRET_MISSING' || err.code === 'JWT_SECRET_INVALID' || err.code === 'JWT_SECRET_INSECURE') {
+      console.error('[verifyToken] JWT_SECRET is not configured or invalid');
+      return res.status(err.status || 500).json({
+        success: false,
+        message: 'Authentication is not configured',
+        statusCode: err.status || 500
+      });
+    }
+    throw err;
+  }
 
   const token = req.cookies?.token;
 
@@ -17,7 +33,7 @@ function verifyToken(req, res, next) {
     const decoded = jwt.verify(token, SECRET_KEY);
 
     if (!decoded.id) {
-      console.warn('[verifyToken] Token inválido: usuarioId ausente', decoded);
+      console.warn('[verifyToken] Token inválido: usuarioId ausente');
       return res.status(403).json({
         success: false,
         message: 'Token inválido (usuário não identificado)',

@@ -1,8 +1,7 @@
 const { compare } = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../lib/prisma.js');
-
-const SECRET_KEY = process.env.JWT_SECRET || 'chave-secreta-dev'
+const { getJwtSecret } = require('../config/securityEnv.js');
 
 async function autenticarUsuario(email, senha) {
   const usuario = await prisma.usuario.findUnique({ where: { email } })
@@ -27,7 +26,7 @@ async function autenticarUsuario(email, senha) {
       nome: usuario.nome,
       role: usuario.role
     },
-    SECRET_KEY,
+    getJwtSecret(),
     { expiresIn: '1d' }
   )
 

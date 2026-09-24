@@ -1,4 +1,5 @@
 const { Resend } = require('resend');
+const { getResendConfig, ConfigError } = require('../config/securityEnv.js');
 
 /**
  * Envia um e-mail utilizando o serviço Resend.
@@ -21,20 +22,26 @@ async function enviarEmail(to, subject, html) {
     };
   }
 
-  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
-    console.error('[emailService] Variáveis de ambiente ausentes: RESEND_API_KEY ou RESEND_FROM');
-    return {
-      success: false,
-      message: 'Configuração de e-mail incompleta',
-      error: 'Variáveis de ambiente ausentes'
-    };
+  let resendConfig;
+  try {
+    resendConfig = getResendConfig();
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.error('[emailService] RESEND_API_KEY or RESEND_FROM missing — refusing production send');
+      return {
+        success: false,
+        message: 'Configuração de e-mail incompleta',
+        error: 'Email service is not configured'
+      };
+    }
+    throw err;
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const resend = new Resend(resendConfig.apiKey);
 
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM,
+      from: resendConfig.from,
       to,
       subject,
       html
@@ -55,7 +62,7 @@ async function enviarEmail(to, subject, html) {
       data: { id: data.id }
     };
   } catch (err) {
-    console.error('[emailService] Erro inesperado:', err);
+    console.error('[emailService] Erro inesperado:', err.message || 'unknown');
     return {
       success: false,
       message: 'Erro inesperado ao enviar e-mail',
