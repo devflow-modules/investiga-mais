@@ -4,6 +4,41 @@ const { randomBytes } = require('crypto');
 const { validarEmail, validarCPF } = require('../../../shared/validators/backend.js');
 const { enviarEmail } = require('./emailService');
 
+function isUniqueEmailOrCpfConflict(err) {
+  if (!err || err.code !== 'P2002') return false;
+
+  const target = err.meta?.target;
+  if (!target) {
+    // SQLite sometimes omits meta.target; message still names the fields.
+    const message = String(err.message || '');
+    return /\b(email|cpf)\b/i.test(message);
+  }
+
+  const fields = Array.isArray(target) ? target : [target];
+  return fields.some((field) => {
+    const normalized = String(field).toLowerCase();
+    return normalized === 'email' || normalized === 'cpf' || normalized.includes('email') || normalized.includes('cpf');
+  });
+}
+
+async function encontrarUsuarioPorEmailOuCpf(email, cpf) {
+  return prisma.usuario.findFirst({
+    where: {
+      OR: [{ email }, { cpf }]
+    }
+  });
+}
+
+function respostaUsuarioExistente() {
+  return {
+    status: 200,
+    data: {
+      sucesso: true,
+      mensagem: 'Usuário já cadastrado'
+    }
+  };
+}
+
 async function registrarUsuarioViaCompra(payload) {
   const { event, customer } = payload;
   const email = customer?.email?.toLowerCase();
@@ -26,34 +61,35 @@ async function registrarUsuarioViaCompra(payload) {
     };
   }
 
-  const existente = await prisma.usuario.findFirst({
-    where: {
-      OR: [{ email }, { cpf }]
-    }
-  });
+  const existente = await encontrarUsuarioPorEmailOuCpf(email, cpf);
 
   if (existente) {
-    return {
-      status: 200,
-      data: {
-        sucesso: true,
-        mensagem: 'Usuário já cadastrado'
-      }
-    };
+    return respostaUsuarioExistente();
   }
 
   const senhaGerada = randomBytes(4).toString('hex');
   const senhaCriptografada = await hash(senhaGerada, 10);
 
-  await prisma.usuario.create({
-    data: {
-      email,
-      senhaHash: senhaCriptografada,
-      cpf,
-      nome: customer?.name || undefined,
-      telefone: customer?.phone_number || undefined
+  try {
+    await prisma.usuario.create({
+      data: {
+        email,
+        senhaHash: senhaCriptografada,
+        cpf,
+        nome: customer?.name || undefined,
+        telefone: customer?.phone_number || undefined
+        // role intentionally omitted — always defaults to cliente; body.role cannot escalate
+      }
+    });
+  } catch (err) {
+    if (isUniqueEmailOrCpfConflict(err)) {
+      const canonical = await encontrarUsuarioPorEmailOuCpf(email, cpf);
+      if (canonical) {
+        return respostaUsuarioExistente();
+      }
     }
-  });
+    throw err;
+  }
 
   const html = `
   <div style="max-width: 600px; margin: auto; font-family: 'Inter', sans-serif; background-color: #F9FAFB; padding: 30px; border-radius: 16px; color: #111827;">
@@ -98,7 +134,7 @@ async function registrarUsuarioViaCompra(payload) {
   if (process.env.NODE_ENV === 'production') {
     await enviarEmail(email, 'Acesso à Plataforma Investiga+', html);
   } else {
-    console.log(`📧 [DEV] Simulando envio de e-mail para ${email} com senha: ${senhaGerada}`);
+    console.log(`📧 [DEV] Simulando envio de e-mail para ${emailMascarado}`);
   }
 
   return {
@@ -110,4 +146,4 @@ async function registrarUsuarioViaCompra(payload) {
   };
 }
 
-module.exports = { registrarUsuarioViaCompra };
+module.exports = { registrarUsuarioViaCompra, isUniqueEmailOrCpfConflict };

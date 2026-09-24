@@ -8,16 +8,14 @@ async function autenticarUsuario(email, senha) {
   const usuario = await prisma.usuario.findUnique({ where: { email } })
 
   if (!usuario) {
-    console.warn('[authService] Usuário não encontrado:', email)
+    console.warn('[authService] Usuário não encontrado para o email informado')
     throw new Error('CREDENCIAIS_INVALIDAS')
   }
 
   const senhaCorreta = await compare(senha, usuario.senhaHash)
 
   if (!senhaCorreta) {
-    console.warn('[authService] Senha inválida para o email:', email)
-    console.log('[authService] Senha recebida:', senha)
-    console.log('[authService] Hash salvo:', usuario.senhaHash)
+    console.warn('[authService] Senha inválida para o email informado')
     throw new Error('CREDENCIAIS_INVALIDAS')
   }
 

@@ -4,6 +4,7 @@ const limiterPerfil = require('./limiterPerfil.js');
 const loginLimiter = require('./rateLimiter.js');
 const logger = require('./logger.js');
 const verificarCron = require('./verificarCron.js');
+const { verificarKirvanoWebhookSecret } = require('./kirvanoWebhookAuth.js');
 
 module.exports = {
   verifyToken,
@@ -11,5 +12,6 @@ module.exports = {
   limiterPerfil,
   loginLimiter,
   logger,
-  verificarCron
+  verificarCron,
+  verificarKirvanoWebhookSecret
 };
