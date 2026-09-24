@@ -1,11 +1,40 @@
 # Investiga+ Engineering Evidence
 
 **Date:** 2026-09-24  
-**Repository HEAD (pre-publication baseline):** `8e496ec0d483d571874351c15bb39da6654f4d2e`  
+**Pre-publication baseline HEAD:** `8e496ec0d483d571874351c15bb39da6654f4d2e`  
+**Publication tip (Phase 5 docs-link commit follows):** see Published Commits below  
 **Scope:** LOCAL · SYNTHETIC · MOCKED EXTERNAL APIs  
 **Production accessed:** NO
 
-This document consolidates Phases 2–4 security, reliability, and CI evidence for Investiga+.
+This document consolidates Phases 2–5 security, reliability, CI, and publication evidence for Investiga+.
+
+---
+
+## Published Commits (Phase 5)
+
+| ID | SHA | Subject |
+|----|-----|---------|
+| INV-PUB-1 | `f6fc23dd3d1ff9f013751be493fa52b66a8be711` | fix(security): authenticate purchase webhook and harden provisioning |
+| INV-PUB-2 | `344f766a6315ce7790c783a5a2d026020ce94334` | fix(perf): prevent concurrent CNPJ cache stampedes |
+| INV-PUB-3 | `b9ddda4fbf6ef13d45b3b3c92c12448db5179987` | fix(auth): align logout endpoint contract |
+| INV-PUB-4 | `5e5860a067146d7e51f77bfe74694fac47ab19cc` | fix(admin): restore liberar conversa control in chat UI |
+| INV-PUB-5 | `0396cac23b673822e1e09f755cbb2155086501ca` | test: isolate database fixtures and expand security coverage |
+| INV-PUB-6 | `4307021841cdbe212fb9785f990119091b0f8e7f` | fix(security): remediate vulnerable dependencies |
+| INV-PUB-7 | `08c37ddd9875dfaf8621f5ebf630fa5e827bdc67` | ci: run application tests and security gates |
+| INV-PUB-8 | `df7366dee7dd6ce27f80a8fecfb23f533a6bafcd` | docs: add Investiga+ engineering evidence |
+
+Note: webhook auth + concurrent provisioning were published as a single commit (INV-PUB-1) because `webhookService` and its tests were inseparable without a broken intermediate suite.
+
+### GitHub Actions on INV-PUB-8
+
+| Workflow / Job | Run ID | Result |
+|----------------|--------|--------|
+| CI / Backend tests | 36037909065 | **PASS** |
+| CI / Frontend tests and build | 36037909065 | **PASS** |
+| Security / npm audit backend | 36037909036 | **PASS** |
+| Security / npm audit frontend | 36037909036 | **PASS** |
+| Security / CodeQL | 36037909036 | **PASS** |
+| Security / Gitleaks (action wrapper) | 36037909036 | **FAIL** — org requires `GITLEAKS_LICENSE` (not a secret finding; CI config follow-up switches to OSS CLI) |
 
 ---
 
@@ -28,7 +57,8 @@ Safety rule enforced in experiments: `DATABASE_URL` must start with `file:`.
 
 1. **Phase 2 — BEFORE:** measure unauthenticated webhook, concurrency races, cache stampede, IDOR, logout mismatch, sensitive logs, test isolation. No product fixes.
 2. **Phase 3 — AFTER:** surgical hardening + regression tests. No commit/push/deploy.
-3. **Phase 4 — Consolidation:** dependency remediation, CI/security gates, evidence packaging, ChatLiberar triage. No production access. Commits pending authorization.
+3. **Phase 4 — Consolidation:** dependency remediation, CI/security gates, evidence packaging, ChatLiberar triage.
+4. **Phase 5 — Publication:** semantic commits pushed to `origin/main`; GitHub Actions verified.
 
 Concurrency levels exercised: C1, C2, C5, C10, **C20**.
 

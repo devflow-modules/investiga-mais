@@ -88,9 +88,9 @@ Date: 2026-09-24 · LOCAL · SYNTHETIC · MOCKED EXTERNAL APIs
 |-------|---------|
 | PROBLEM | Broken CI under `.github/worflows` (typo), root npm install, mocha nonexistent |
 | BASELINE | Suite not executed in Actions |
-| CHANGE | `.github/workflows/ci.yml` + `security.yml` (audit/gitleaks/codeql) |
-| RESULT | Workflows ready for authorization/push |
-| METHOD | GitHub Actions YAML; local suite parity |
-| EVIDENCE | workflow files + this registry |
-| LIMITATION | CodeQL/Gitleaks need GH permissions; deploy workflow intentionally not reactivated |
+| CHANGE | `.github/workflows/ci.yml` + `security.yml` (audit / Gitleaks / CodeQL) |
+| RESULT | CI app jobs PASS on `df7366d`; audit PASS; CodeQL PASS; first Gitleaks Action run FAIL due to missing org `GITLEAKS_LICENSE` (config follow-up: OSS CLI) |
+| METHOD | GitHub Actions on push to `main` |
+| EVIDENCE | Runs 36037909065 (CI), 36037909036 (Security); commits INV-PUB-1…8 |
+| LIMITATION | Gitleaks Action wrapper requires paid org license; OSS CLI used as remediation |
 | DATE | 2026-09-24 |
