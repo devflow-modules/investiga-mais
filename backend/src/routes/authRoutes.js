@@ -16,7 +16,9 @@ router.get('/verify', verifyToken, (req, res) => {
 // 🔐 Login
 router.post('/login', authController.login);
 
-// 🔓 Logout
+// 🔓 Logout — POST is the canonical state-changing contract (frontend uses POST).
+// GET retained temporarily for backward compatibility.
+router.post('/logout', authController.logout);
 router.get('/logout', authController.logout);
 
 // 🔁 Recuperação de senha

@@ -72,11 +72,52 @@ describe('Auth Controller', () => {
     expect(res.headers['set-cookie'][0]).toMatch(/token=/)
   })
 
-  test('Logout limpa o cookie com sucesso', async () => {
+  test('Logout POST limpa o cookie com sucesso', async () => {
+    const res = await request(app).post('/api/auth/logout')
+
+    expect(res.statusCode).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.headers['set-cookie'][0]).toMatch(/token=;/)
+  })
+
+  test('Logout GET permanece disponível por compatibilidade e limpa o cookie', async () => {
     const res = await request(app).get('/api/auth/logout')
 
     expect(res.statusCode).toBe(200)
     expect(res.body.success).toBe(true)
     expect(res.headers['set-cookie'][0]).toMatch(/token=;/)
+  })
+
+  test('Login com senha inválida não registra senha ou hash em logs', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    mockFindUnique.mockResolvedValue({
+      id: '123',
+      email: 'teste@teste.com',
+      senhaHash: 'hash-bcrypt-secreto'
+    })
+    bcrypt.compare.mockResolvedValue(false)
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'teste@teste.com', senha: 'senha123' })
+
+    expect(res.statusCode).toBe(401)
+
+    const allLogs = [...warnSpy.mock.calls, ...logSpy.mock.calls, ...errorSpy.mock.calls]
+      .flat()
+      .map(String)
+      .join('\n')
+
+    expect(allLogs).not.toMatch(/senha123/)
+    expect(allLogs).not.toMatch(/hash-bcrypt-secreto/)
+    expect(allLogs).not.toMatch(/Senha recebida/)
+    expect(allLogs).not.toMatch(/Hash salvo/)
+
+    warnSpy.mockRestore()
+    logSpy.mockRestore()
+    errorSpy.mockRestore()
   })
 })
