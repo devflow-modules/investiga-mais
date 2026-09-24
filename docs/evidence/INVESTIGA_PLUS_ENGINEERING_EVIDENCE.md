@@ -158,6 +158,8 @@ See also: [EVIDENCE_REGISTRY.md](./EVIDENCE_REGISTRY.md)
 | INV-E5 | Test isolation |
 | INV-E6 | Dependency remediation |
 | INV-E7 | CI/security gates |
+| INV-E8 | Historical Secret Exposure & Rotation (rotation pending) |
+| INV-E9 | Runtime Secret Handling Hardening |
 
 ---
 
@@ -185,6 +187,8 @@ See also: [EVIDENCE_REGISTRY.md](./EVIDENCE_REGISTRY.md)
 - Shared-secret is not provider HMAC (no HMAC contract in-repo)
 - CodeQL/Gitleaks effectiveness depends on GitHub plan/permissions
 - Residual frontend prod moderate (`yaml`); backend residual highs are in **dev** toolchain
+- Historical credentials in git history remain **ROTATION_REQUIRED** (Phase 7A); runtime hardening (INV-E9) does not revoke them
+- Full-history Gitleaks remains FAIL until rotation confirmation + Phase 7B sanitization authorization
 
 ---
 

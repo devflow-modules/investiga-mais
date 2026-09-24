@@ -94,3 +94,29 @@ Date: 2026-09-24 · LOCAL · SYNTHETIC · MOCKED EXTERNAL APIs
 | EVIDENCE | Runs 36037909065 (CI), 36037909036 (Security); commits INV-PUB-1…8 |
 | LIMITATION | Gitleaks Action wrapper requires paid org license; OSS CLI used as remediation |
 | DATE | 2026-09-24 |
+
+## INV-E8 Historical Secret Exposure & Rotation
+
+| Field | Content |
+|-------|---------|
+| PROBLEM | Gitleaks full-history FAIL: 5 real credentials in `ecosystem.config.js` at commit `d947f822` (2025-06-26) |
+| BASELINE | Security run 36038502695 FAIL on Gitleaks only; CI PASS; audit/CodeQL PASS |
+| CLASSIFICATION | REAL_SECRET_STATUS_UNKNOWN ×5 → ROTATION_REQUIRED (removed from HEAD file in `d448e2b0`; no revoke evidence) |
+| CHANGE | Phase 7A triage only — no allowlist, no history rewrite, no rotation executed in-repo |
+| RESULT | Unresolved historical findings remain 5 until provider revoke + Phase 7B |
+| METHOD | Gitleaks OSS 8.21.2 full history; masked classification |
+| LIMITATION | Secrets remain in git history; rotation is out-of-band (providers/host env) |
+| DATE | 2026-09-24 |
+
+## INV-E9 Runtime Secret Handling Hardening
+
+| Field | Content |
+|-------|---------|
+| PROBLEM | JWT used hardcoded fallback `chave-secreta-dev`; IPQS/Abstract/Safe Browsing could call providers with `undefined` keys |
+| BASELINE | Fallback present in `authService` + `auth` middleware; provider services read env without fail-closed |
+| CHANGE | `config/securityEnv.js` (CORE JWT + FEATURE keys); remove JWT fallback; provider/Resend fail-closed; `backend/.env.example`; Jest `setupEnv` synthetic secrets; `secretHandling.test.js` |
+| TEST | Missing JWT fails closed; missing provider keys → 0 HTTP; prod Resend without key does not send; source tree free of `chave-secreta-dev` |
+| RESULT | Current-tree secret handling hardened; historical rotation still required |
+| LIMITATION | Provider APIs that require API key in query string still place key in outbound URL when configured (not exposed to frontend). Full-history Gitleaks still FAIL. ROTATION_REQUIRED remains YES. |
+| EVIDENCE | `backend/tests/secretHandling.test.js`; Phase 7A.1 local validation |
+| DATE | 2026-09-24 |
