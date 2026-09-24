@@ -25,12 +25,16 @@ describe('SegurancaController', () => {
   let usuarioId;
 
   beforeAll(async () => {
+    // Unique CPF per run to avoid collision with local seed (e.g. admin2=99999999999).
+    // Does not change product logic — test isolation only.
+    const uniqueCpf = `8${String(Date.now()).slice(-10)}`;
+
     const novoUsuario = await prisma.usuario.create({
       data: {
-        email: 'testeseguranca@example.com',
+        email: `testeseguranca_${Date.now()}@example.com`,
         senhaHash: 'senhateste',
         nome: 'Usuário Teste',
-        cpf: '99999999999', // cpf que ainda não exista
+        cpf: uniqueCpf,
         telefone: null,
         nascimento: null,
         cidade: null,
