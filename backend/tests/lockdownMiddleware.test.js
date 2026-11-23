@@ -2,14 +2,16 @@ const express = require('express');
 const request = require('supertest');
 
 describe('lockdownMiddleware', () => {
-  const original = process.env.LOCKDOWN_MODE;
+  const originalLockdown = process.env.LOCKDOWN_MODE;
+  const originalNodeEnv = process.env.NODE_ENV;
 
   afterEach(() => {
-    if (original === undefined) {
+    if (originalLockdown === undefined) {
       delete process.env.LOCKDOWN_MODE;
     } else {
-      process.env.LOCKDOWN_MODE = original;
+      process.env.LOCKDOWN_MODE = originalLockdown;
     }
+    process.env.NODE_ENV = originalNodeEnv || 'test';
     jest.resetModules();
   });
 
@@ -51,6 +53,7 @@ describe('lockdownMiddleware', () => {
 
   it('keeps /health available during lockdown', async () => {
     process.env.LOCKDOWN_MODE = 'true';
+    process.env.NODE_ENV = 'test';
     const app = buildApp();
     const res = await request(app).get('/health');
     expect(res.status).toBe(200);

@@ -22,7 +22,24 @@ jest.mock('../src/middleware', () => ({
   errorHandler: (err, req, res, next) => next(err),
   limiterPerfil: (req, res, next) => next(),
   loginLimiter: (req, res, next) => next(),
-  logger: (req, res, next) => next()
+  logger: (req, res, next) => next(),
+  lockdownMiddleware: (req, res, next) => next(),
+  isLockdownEnabled: () => false,
+  verifyToken: (req, res, next) => next(),
+  verificarCron: (req, res, next) => next(),
+  verificarKirvanoWebhookSecret: (req, res, next) => next(),
+}));
+
+jest.mock('../src/middleware/index.js', () => ({
+  errorHandler: (err, req, res, next) => next(err),
+  limiterPerfil: (req, res, next) => next(),
+  loginLimiter: (req, res, next) => next(),
+  logger: (req, res, next) => next(),
+  lockdownMiddleware: (req, res, next) => next(),
+  isLockdownEnabled: () => false,
+  verifyToken: (req, res, next) => next(),
+  verificarCron: (req, res, next) => next(),
+  verificarKirvanoWebhookSecret: (req, res, next) => next(),
 }));
 
 const request = require('supertest');
