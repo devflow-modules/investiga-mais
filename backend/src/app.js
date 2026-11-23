@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
-const { errorHandler, loginLimiter, logger } = require('./middleware/index.js');
+const { errorHandler, loginLimiter, logger, lockdownMiddleware } = require('./middleware/index.js');
 const authRoutes = require('./routes/authRoutes.js');
 const webhookRoutes = require('./routes/webhookRoutes.js');
 const consultaRoutes = require('./routes/consultaRoutes.js');
@@ -11,6 +11,7 @@ const perfilRoutes = require('./routes/perfilRoutes.js');
 const segurancaRoutes = require('./routes/segurancaRoutes.js');
 const adminRoutes = require('./routes/adminRoutes.js');
 const whatsappRoutes = require('./routes/whatsappRoutes.js');
+const healthRoutes = require('./routes/healthRoutes.js');
 
 const { sendError } = require('./utils/sendResponse.js');
 
@@ -25,6 +26,10 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
+
+app.use(healthRoutes);
+
+app.use(lockdownMiddleware);
 
 app.get('/', (req, res) => {
   res.send('🔐 API Investiga Mais com autenticação JWT');

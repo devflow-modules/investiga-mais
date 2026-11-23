@@ -185,33 +185,44 @@ describe('Webhook de Registro - registrarViaCompra', () => {
 
   it('cria o usuário e envia e-mail em ambiente de produção', async () => {
     const originalEnv = process.env.NODE_ENV;
+    const originalLockdown = process.env.LOCKDOWN_MODE;
     process.env.NODE_ENV = 'production';
+    // Exercise production email path without engaging the emergency kill-switch
+    process.env.LOCKDOWN_MODE = 'false';
 
-    mockFindFirst.mockResolvedValue(null);
-    mockCreate.mockResolvedValue({ id: 3 });
+    try {
+      mockFindFirst.mockResolvedValue(null);
+      mockCreate.mockResolvedValue({ id: 3 });
 
-    const res = await authedPost({
-      event: 'SALE_APPROVED',
-      customer: {
-        email: 'prod@email.com',
-        document: '98765432100'
+      const res = await authedPost({
+        event: 'SALE_APPROVED',
+        customer: {
+          email: 'prod@email.com',
+          document: '98765432100'
+        }
+      });
+
+      expect(mockCreate).toHaveBeenCalled();
+      expect(mockEnviarEmail).toHaveBeenCalledWith(
+        'prod@email.com',
+        expect.stringMatching(/Acesso à Plataforma Investiga\+/),
+        expect.stringContaining('Senha:')
+      );
+      expect(res.statusCode).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toMatch(/registrado/i);
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+      if (originalLockdown === undefined) {
+        delete process.env.LOCKDOWN_MODE;
+      } else {
+        process.env.LOCKDOWN_MODE = originalLockdown;
       }
-    });
-
-    expect(mockCreate).toHaveBeenCalled();
-    expect(mockEnviarEmail).toHaveBeenCalledWith(
-      'prod@email.com',
-      expect.stringMatching(/Acesso à Plataforma Investiga\+/),
-      expect.stringContaining('Senha:')
-    );
-    expect(res.statusCode).toBe(201);
-    expect(res.body.success).toBe(true);
-    expect(res.body.message).toMatch(/registrado/i);
-
-    process.env.NODE_ENV = originalEnv;
+    }
   });
 
   it('retorna 500 se ocorrer erro interno', async () => {
+    process.env.LOCKDOWN_MODE = 'false';
     mockFindFirst.mockRejectedValue(new Error('Erro interno'));
 
     const res = await authedPost({

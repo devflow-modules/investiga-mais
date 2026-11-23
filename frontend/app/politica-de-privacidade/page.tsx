@@ -32,7 +32,8 @@ export default function PoliticaDePrivacidade() {
           O usuário pode solicitar a exclusão de seus dados a qualquer momento através da página de{' '}
           <Link as={NextLink} href="/excluir-dados" color="accent" fontWeight="semibold">
             Exclusão de Dados
-          </Link>.
+          </Link>
+          {' '}ou pelo e-mail <strong>gustavomarquesmm@gmail.com</strong>.
         </Text>
 
         <Text fontSize="sm" color="textSecondary">

@@ -36,7 +36,7 @@ export default function ExcluirDados() {
             Envie um e-mail para:
           </Text>
           <Code p={2} colorScheme="blue" fontSize="md">
-            sistemanexusadm@gmail.com
+            gustavomarquesmm@gmail.com
           </Code>
         </Box>
 
