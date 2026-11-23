@@ -5,6 +5,7 @@ const loginLimiter = require('./rateLimiter.js');
 const logger = require('./logger.js');
 const verificarCron = require('./verificarCron.js');
 const { verificarKirvanoWebhookSecret } = require('./kirvanoWebhookAuth.js');
+const { lockdownMiddleware, isLockdownEnabled } = require('./lockdown.js');
 
 module.exports = {
   verifyToken,
@@ -13,5 +14,7 @@ module.exports = {
   loginLimiter,
   logger,
   verificarCron,
-  verificarKirvanoWebhookSecret
+  verificarKirvanoWebhookSecret,
+  lockdownMiddleware,
+  isLockdownEnabled,
 };
